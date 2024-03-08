@@ -36,18 +36,17 @@ def table_container_list(iterator, container_list:list, system_pkg:dict ):
     return None
 
 def table_container_template(container_template_list, system_pkg:dict):
-    """["索引", "标签", "版本", "容器类型", "描述"]
+    """["索引", "版本", "容器类型", "描述"]
     
     返回container_label_list容器模板标签列表"""
     table_list = []
-    heading = ["索引", "标签", "版本", "容器类型", "描述"]
+    heading = ["索引", "版本", "容器类型", "描述"]
     table_list.append(heading)
     container_label_list = []
     # 获取展示列表，创建标签列表
     for container_template_index in range(0, len(container_template_list)):
         template_instance = container_template_list[container_template_index]()
         table_list.append([str(container_template_index),
-                            template_instance.container_label,
                             template_instance.version,
                             template_instance.type,
                             template_instance.description])
