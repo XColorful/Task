@@ -36,7 +36,7 @@ class default_method(default_method_template):
             else:
                 system_pkg["tips_msg"]("匹配首个符合的标签，输入\"exit\"退出")
                 user_input = system_pkg["normal_input"]("输入索引或标签")
-            if user_input == "exit": return (system_pkg["CONDITION_SUCCESS"], "exit")
+            if user_input == system_pkg["EXIT"]: return (system_pkg["CONDITION_SUCCESS"], "exit")
             
             if user_input != "": # 用户输入不为空字符串
                 # 索引判断
@@ -81,6 +81,7 @@ class default_method(default_method_template):
             container_label_list = table_container_template(container_template_list, system_pkg)
             system_pkg["tips_msg"]("匹配首个符合的标签，输入\"exit\"取消创建")
             user_input = system_pkg["normal_input"]("输入索引或标签")
+        if user_input == system_pkg["EXIT"]: return (system_pkg["CONDITION_SUCCESS"], "取消添加container模板")
         convert_result = convert_to_int(user_input)
         if convert_result != None: # 用户输入为int
             MAX_INDEX = len(container_template_list) - 1
