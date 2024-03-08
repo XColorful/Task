@@ -57,6 +57,7 @@ def default_interface(container, system_pkg): # container -> container
             interface_info(system_pkg)
             table_class_func(function_list, system_pkg)
             interface_help(system_pkg)
+            continue
         # 判断指令类型
         command_list = user_input.split(" ", 1)
         if command_list[0] == " ":
