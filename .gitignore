@@ -1,0 +1,10 @@
+exception*.txt
+log*.txt
+*.pyc
+today.txt
+backup1.txt
+task1.txt
+__pycache__
+*.pkl
+backup_*.txt
+pkl_dir.txt
