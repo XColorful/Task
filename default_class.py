@@ -1,5 +1,3 @@
-CONDITION_SUCCESS = True # 正常运行
-
 class default_container_template():
     def __init__(self):
         self.container_label = ""
@@ -12,10 +10,10 @@ class default_container_template():
         self.task_template = []
     
     def interface(self, system_pkg):
-        return (CONDITION_SUCCESS, None)
+        return (system_pkg["CONDITION_SUCCESS"], None)
     
     def update_info(self, system_pkg):
-        return (CONDITION_SUCCESS, None)
+        return (system_pkg["CONDITION_SUCCESS"], None)
     
     def backup_list(self):
         function_list = []
@@ -66,15 +64,19 @@ class default_task_template():
         self.content = ""
         self.comment = ""
     
-    def update(self, info_dict):
-        """用于在new和reload时一次性补充所有内容
+    def update(self, info_dict:dict, system_pkg:dict):
+        """用于在默认class_func中new(), reload()一次性补充所有内容
         
         字典包含self.create_date, self.date, self.attribute, self.content, self.comment"""
-        self.create_date = info_dict["create_date"]
-        self.date = info_dict["date"]
-        self.attribute = info_dict["attribute"]
-        self.content = info_dict["content"]
-        self.comment = info_dict["comment"]
+        try: create_date, date, attribute, content, comment = info_dict["create_date"], info_dict["date"], info_dict["attribute"], info_dict["content"], info_dict["comment"]
+        except KeyError:
+            system_pkg["system_msg"]("更新task失败，列表[create_date, date, attribute, content, comment]读取失败")
+            return None
+        self.create_date = create_date
+        self.date = date
+        self.attribute = attribute
+        self.content = content
+        self.comment = comment
     
     def backup(self):
         return None
@@ -88,3 +90,40 @@ class default_task_template():
         self.attribute = build_list[4]
         self.content = build_list[5]
         self.comment = build_list[6]
+
+class extra_container_template(default_container_template):
+    def __init__(self):
+        super().__init__() #继承父类
+        self.description = ""
+        self.version = "0" # 用字符串表示
+        self.type = "Extra_Template"
+
+    def interface(self, system_pkg):
+        return (system_pkg["CONDITION_SUCCESS"], None)
+    
+    def update_info(self, system_pkg):
+        return (system_pkg["CONDITION_SUCCESS"], None)
+    
+    def backup_list(self):
+        return []
+    
+    def build(self):
+        return None
+
+class extra_task_template(default_task_template):
+    def __init__(self):
+        super().__init__() #继承父类
+        self.version = "" # 用字符串表示，不能为数字（应不能被float()转换）
+        self.type = "Extra_Template"
+    
+    def update(self, info_dict:dict):
+        return None
+    
+    def backup(self):
+        return None
+    
+    def backup_list(self):
+        return []
+    
+    def build(self, build_list:list):
+        pass
