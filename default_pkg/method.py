@@ -158,10 +158,11 @@ class default_method(default_method_template):
             system_pkg["system_msg"](f"已删除\"{select_container_label}\"")
         return (system_pkg["CONDITION_SUCCESS"], f"删除container{select_container_label}")
     
-    def search(self, command_parameter:str, container_list:list, system_pkg:dict): # 搜索container里的task，单独搜或全局搜，启用内置函数
+    def search(self, command_parameter:str, container_list:list, system_pkg:dict): # 调用container可用的search()
         return (system_pkg["CONDITION_SUCCESS"], None)
     
     def edit(self, command_parameter:str, container_list:list, system_pkg:dict): # 编辑container信息，单独编辑，使用container内置函数
+        # 更改container_label, description, create_date
         return (system_pkg["CONDITION_SUCCESS"], None)
     
     def backup(self, command_parameter:str, container_list:list, system_pkg:dict): # 备份container，全局备份
