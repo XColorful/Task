@@ -14,7 +14,7 @@
 
 ## 安装
 
-1. 安装[Python](https://www.python.org/)（目前使用3.12.2）[https://www.python.org/](https://www.python.org/)
+1. 安装[Python](https://www.python.org/)（目前使用[3.12.2](https://www.python.org/ftp/python/3.12.2/python-3.12.2-amd64.exe)）[https://www.python.org/](https://www.python.org/)
 2. 点击"[**<>Code**](https://github.com/XColorful/Task/archive/refs/heads/main.zip)"，下载压缩包，解压
 3. 双击"**安装.cmd**"，安装所需的库
 4. 双击"**运行.cmd**"，运行程序
