@@ -19,3 +19,20 @@ class default_container_func_template():
         proceed_function = getattr(self, command)
         proceed_function(command_parameter, container, system_pkg)
         return None
+
+class extra_container_func_template(default_container_func_template):
+    def __init__(self):
+        super().__init__() # 继承父类
+        self.label = ""
+        self.version = ""
+        self.type = "Extra_Template"
+        self.function_list = []
+        
+    def __str__(self):
+        return super().__str__()
+    
+    def get_info(self):
+        return super().get_info()
+    
+    def proceed(self, command_list:list, container, system_pkg:dict):
+        super().proceed()
