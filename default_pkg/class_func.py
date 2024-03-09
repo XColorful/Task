@@ -70,14 +70,20 @@ class default_container_func(default_container_func_template):
         """用空格分隔参数，参数1为索引则选取task模板列表，参数2为"n"开头则创建空模板
         
         """
-        task_template_count = len(container.task_template)
+        task_template_count = 0
+        extra_template_count = 0
+        for task_template in container.task_template:
+            task = task_template()
+            if task.type == system_pkg["TYPE_DEFAULT_CONTAINER"]: task_template_count += 1
+            else: extra_template_count += 1
         select_task_template_index = 0
         create_empty_task = False
-        if task_template_count == 0: # 无task模板
-            system_pkg["system_msg"]("无可用的task模板")
+        if extra_template_count != 0: system_pkg["system_pkg"](f"忽略{extra_template_count}项非\"{system_pkg["TYPE_DEFAULT_CONTAINER"]}\"类型task模板")
+        if task_template_count == 0: # 无默认类型task模板
+            system_pkg["system_msg"]("无可用的默认task模板")
             return None
-        elif task_template_count == 1: task_template = container.task_template # 有1个task模板
-        elif task_template_count != 1: # 有多个task模板
+        elif task_template_count == 1: task_template = container.task_template # 有1个默认类型task模板
+        elif task_template_count != 1: # 有多个默认类型task模板
             task_instance_list = []
             for task_template in container.task_template:
                 task_instance = task_template()
@@ -126,7 +132,7 @@ class default_container_func(default_container_func_template):
         else: comment_input = return_tuple[1]
         
         info_dict = {"create_date":current_date, "date":date_input, "attribute":attribute_input, "content":content_input, "comment":comment_input}
-        temp_task.update(info_dict)
+        temp_task.update(info_dict, system_pkg)
         container.task_list.append(temp_task)
         system_pkg["normal_msg"]("已创建task")
         system_pkg["body_msg"]([f"{temp_task.create_date}|{temp_task.date}|{temp_task.attribute}|{temp_task.content}|{temp_task.comment}"])
@@ -266,6 +272,9 @@ class default_container_func(default_container_func_template):
         """暂无实际参数
         
         """
+        if container.type != system_pkg["TYPE_DEFAULT_CONTAINER"]:
+            system_pkg["system_msg"](f"容器类型\"{container.type}\"不适用于\"{system_pkg["TYPE_DEFAULT_CONTAINER"]}\"类型的方法")
+            return None
         backup_dir = ".\\backup_single\\"
         # 读取路径检测
         if not exists(backup_dir): return system_pkg["system_msg"](f"读取路径\"{backup_dir}\"不存在")
@@ -291,7 +300,10 @@ class default_container_func(default_container_func_template):
                 if len(check_list) != 7:
                     check_index += 1
                     continue
-                container_type, container_version, container_container_label, container_create_date, container_function_list, container_task_template, container_description = check_list
+                try:
+                    container_type, container_version = check_list[0:2]
+                except ValueError:
+                    system_pkg["body_msg"]([f"Line{check_index}:缺少[类型, 版本]"])
                 # container.type
                 if container_type != container.type:
                     system_pkg["body_msg"]([f"Line{check_index}:容器类型\"{container_type}\"不匹配"])
@@ -301,6 +313,12 @@ class default_container_func(default_container_func_template):
                 container_version = convert_to_float(container_version)
                 if (container_version == None) or (container_version > (convert_to_float(container.version))):
                     system_pkg["body_msg"]([f"Line{check_index}:容器版本\"{container_version}\"不匹配"])
+                    check_index += 1
+                    continue
+                try:
+                    container_container_label, container_create_date, container_function_list, container_task_template, container_description = check_list[2:7]
+                except ValueError:
+                    system_pkg["body_msg"]([f"Line{check_index}:缺少完整数据[容器标签, 创建日期, 功能列表, task模板, 容器描述]"])
                     check_index += 1
                     continue
                 # container.container_label
@@ -358,6 +376,7 @@ class default_container_func(default_container_func_template):
                             check_index += 1
                             continue
                         task_version = convert_to_float(task_version)
+                        # task_version == None则可能为extra类型（不允许类型为可被float()的字符串）
                         if (task_version == None) or (task_version > convert_to_float(task_instance.version)):
                             check_index += 1
                             continue
@@ -409,7 +428,7 @@ class default_container_func(default_container_func_template):
                     check_index += 1
                     continue
                 # 填充task信息
-                temp_task.update({"create_date":task_create_date, "date":task_date, "attribute":task_attribute, "content":task_content, "comment":task_comment})
+                temp_task.update({"create_date":task_create_date, "date":task_date, "attribute":task_attribute, "content":task_content, "comment":task_comment}, system_pkg)
                 task_list.append(temp_task)
             # 空task_list检测
             if task_list == []:
