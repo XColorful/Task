@@ -22,3 +22,9 @@ class default_container(default_container_template):
     def update_info(self, system_pkg): # 仅有一种，不可修改
         return_tuple = default_update_info(self, system_pkg)
         return return_tuple
+    
+    def backup_list(self):
+        return super().backup_list()
+    
+    def build(self, build_list: list, system_pkg: dict):
+        return super().build(build_list, system_pkg)
