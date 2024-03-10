@@ -8,8 +8,8 @@ class default_task(default_task_template):
     def __str__(self):
         return f"{self.date}|{self.attribute}|{self.content}"
     
-    def update(self, info_dict): # 保留原始方式
-        super().update(info_dict)
+    def update(self, info_dict:dict, system_pkg:dict): # 保留原始方式
+        super().update(info_dict, system_pkg)
     
     def backup(self):
         if self.create_date == "": return "" # 未创建的task不返回备份
