@@ -32,8 +32,8 @@ class default_container_template():
         function_pair_list = build_list[4].split(" ")
         for pair_index in range(0, len(function_pair_list), 3):
             func_label, func_version, func_type = function_pair_list[pair_index],function_pair_list[pair_index + 1], function_pair_list[pair_index + 2]
-            for index in range(len(system_pkg["class_func"])):
-                func = system_pkg["class_func"][index]()
+            for index in range(len(system_pkg["class_func_list"])):
+                func = system_pkg["class_func_list"][index]()
                 info_list = func.get_info()
                 if (func_label == info_list[0]) and (func_version == info_list[1]) and (func_type == info_list[2]):
                     # 去重判断
