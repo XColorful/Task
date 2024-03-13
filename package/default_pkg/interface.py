@@ -33,19 +33,9 @@ def default_interface(container, system_pkg): # container -> container
             for task in show_task_list:
                 system_pkg["normal_msg"](f"{show_index}|{task}")
                 show_index += 1
-        # 提供可用的class_func
+        # 查看是否有可用的class_func
         function_list = container.function_list
-        if function_list == []:
-            for class_func in system_pkg["class_func"]:
-                pass
-            """
-            
-            日后填坑
-            
-            """
-            # 如无可用则提示用system_pkg导入
-            if function_list == []:
-                return (system_pkg["CONDITION_SUCCESS"], "无可用的class_func")
+        if function_list == []: system_pkg["system_msg"]("无可用的class_func")
         # 用户输入
         user_input = system_pkg["normal_input"](f"{container.container_label}")
         # 输入类型预筛选

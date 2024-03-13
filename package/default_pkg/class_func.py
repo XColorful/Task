@@ -7,7 +7,7 @@ from pyperclip import copy as py_cp
 
 class default_container_func(default_container_func_template):
     def __init__(self):
-        super().__init__()  # 继承父类
+        super().__init__() # 继承父类
         self.label = "default_container_func"
         self.version = "1.0"
         self.function_list = ["search", "new", "txt", "backup", "edit", "reload"]

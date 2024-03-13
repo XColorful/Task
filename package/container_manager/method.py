@@ -65,7 +65,7 @@ class default_container_manager(default_method_template):
         system_pkg["head_msg"](f"{container_list[container_index].container_label}")
         system_pkg["body_msg"](container_list[container_index].function_list)
         # 显示所有可用功能
-        class_func_list = system_pkg["class_func"]
+        class_func_list = system_pkg["class_func_list"]
         class_func_label_list = table_class_func(range(len(class_func_list)), class_func_list, system_pkg)
         # 选取功能
         get_index = ""

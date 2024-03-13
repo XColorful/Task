@@ -1,6 +1,6 @@
 from default_class import extra_task_template
 
-class extra_task(extra_task_template):
+class account_task(extra_task_template):
     def __init__(self):
         super().__init__() # 继承父类
         self.version = "account"
