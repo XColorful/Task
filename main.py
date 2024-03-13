@@ -1,4 +1,4 @@
-from os import chdir
+from os import chdir, listdir
 from os.path import dirname, abspath, exists
 working_dir = dirname(abspath(__file__))
 chdir(working_dir) # 切换工作路径至当前文件目录
@@ -7,72 +7,90 @@ try:
     with open(f".\\pkl_dir.txt", "r", encoding = "utf-8") as f:
         main_pkl_dir = f.readline()
         if not exists(main_pkl_dir): raise
-except:
-    main_pkl_dir = working_dir + "main_container_list.pkl" # 工作目录
+except: main_pkl_dir = working_dir + "main_container_list.pkl" # 工作目录
 
-import default_pkg.message as df_msg
-import default_pkg.io as df_io
-import default_pkg.method as df_method
-import default_pkg.container as df_container
-import default_pkg.task as df_task
-import default_pkg.class_func as df_class_func
-# 读取默认message库
-system_msg = df_msg.system_msg
-error_msg = df_msg.error_msg
-tips_msg = df_msg.tips_msg
-table_msg = df_msg.table_msg
-head_msg = df_msg.head_msg
-body_msg = df_msg.body_msg
-normal_msg = df_msg.normal_msg
-# 读取默认I/O库
-command_input = df_io.command_input
-normal_input = df_io.normal_input
-strict_input = df_io.strict_input
-block_input = df_io.block_input
-# 读取主程序method类，用于执行主程序指令
-method_list = []
-default_method = df_method.default_method
-method_list.append(default_method())
-# 读取container类, task类模板
-default_container = df_container.default_container
-default_task = df_task.default_task
-default_container_template_list = [default_container]
-default_task_template_list = [default_task]
-extra_container_template_list = []
-extra_task_template_list = []
-# 读取class_func
-class_func = []
-default_class_func = df_class_func.default_container_func
-class_func.append(default_class_func)
 # 初始化变量
-TYPE_DEFAULT_CONTAINER = "Default_Template"
-TYPE_EXTRA_CONTAINER = "Extra_Template"
-TYPE_DEFAULT_METHOD = "Default_Template"
-TYPE_EXTRA_METHOD = "Extra_Template"
-TYPE_DEFAULT_CLASS_FUNC = "default_container_func"
-TYPE_EXTRA_CLASS_FUNC = "extra_container_func"
-CONDITION_SUCCESS = True # 正常运行
-CONDITION_FAIL = False # 程序报错
-BLOCK_LIST = ["|||", "\t"]
-EXIT = "exit"
+from const import *
 # settings管理器
+"""
+    日后填坑
+"""
 SHOW_TIPS = True
 SETTING_AUTO_SAVE = True
-
-# 读取extra内容
-# method.py
-import extra.school_task.method as ex_school_task_method
-school_task_method = ex_school_task_method.school_task_method
-method_list.append(school_task_method())
-import extra.container_manager.method as ex_container_manager_method
-default_container_manager = ex_container_manager_method.default_container_manager
-method_list.append(default_container_manager())
-# class_func.py
-import extra.categorize.class_func as ex_categorize_method
-categorize_task = ex_categorize_method.categorize_task
-class_func.append(categorize_task)
-
-
+# 初始化系统变量
+class_func_list = []
+default_container_template_list = []
+extra_container_template_list = []
+io_list = []
+message_list = []
+method_list = []
+default_task_template_list = []
+extra_task_template_list = []
+# 读取package内容
+from importlib import import_module
+def package_loader(package_name, show = True):
+    try:
+        pkg = import_module(f'package.{package_name}') # package.{package_name}
+    except ModuleNotFoundError:
+        if show == True:
+            system_msg("包\"{package_name}\"不存在")
+        return None
+    try:
+        package_dict = pkg.package_dict
+    except AttributeError:
+        if show == True:
+            system_msg("包\"{package_name}\"缺少package_dict")
+        return None
+    global class_func_list
+    try: class_func_list += package_dict["class_func"]
+    except KeyError: pass
+    global default_container_template_list
+    try: default_container_template_list += package_dict["default_container"]
+    except KeyError: pass
+    global extra_container_template_list
+    try: extra_container_template_list += package_dict["extra_container"]
+    except KeyError: pass
+    global io_list
+    try: io_list += package_dict["io"]
+    except KeyError: pass
+    global message_list
+    try: message_list += package_dict["message"]
+    except KeyError: pass
+    global method_list
+    try: method_list += package_dict["method"]
+    except KeyError: pass
+    global default_task_template_list
+    try: default_task_template_list += package_dict["default_task"]
+    except KeyError: pass
+    global extra_task_template_list
+    try: extra_task_template_list += package_dict["extra_task"]
+    except: pass
+    # 确保已经有system_msg才调整show = True
+    if show == True: system_msg(f"已读取\"{package_name}\"")
+    return None
+# 读取默认包
+package_loader("default_pkg", show = False)
+# io_list
+command_input = io_list[0]["command_input"]
+normal_input = io_list[0]["normal_input"]
+strict_input = io_list[0]["strict_input"]
+block_input = io_list[0]["block_input"]
+# message
+system_msg = message_list[0]["system_msg"]
+error_msg = message_list[0]["error_msg"]
+tips_msg = message_list[0]["tips_msg"]
+table_msg = message_list[0]["table_msg"]
+head_msg = message_list[0]["head_msg"]
+body_msg = message_list[0]["body_msg"]
+normal_msg = message_list[0]["normal_msg"]
+# 读取extra包
+"""
+    日后填坑：./package.txt，指定添加的package
+"""
+package_loader("categorize")
+package_loader("container_manager")
+package_loader("school_task")
+package_loader("account")
 
 def system_pkg():
     return {"system_msg":system_msg, "error_msg":error_msg, "tips_msg":tips_msg, "table_msg":table_msg, "head_msg":head_msg, "body_msg":body_msg, "normal_msg":normal_msg,
@@ -82,7 +100,7 @@ def system_pkg():
             "TYPE_DEFAULT_CONTAINER":TYPE_DEFAULT_CONTAINER, "TYPE_EXTRA_CONTAINER":TYPE_EXTRA_CONTAINER, "TYPE_DEFAULT_METHOD":TYPE_DEFAULT_METHOD, "TYPE_EXTRA_METHOD":TYPE_EXTRA_METHOD, "TYPE_DEFAULT_CLASS_FUNC":TYPE_DEFAULT_CLASS_FUNC, "TYPE_EXTRA_CLASS_FUNC":TYPE_EXTRA_CLASS_FUNC,
             "default_container_template_list":default_container_template_list, "extra_container_template_list":extra_container_template_list,
             "default_task_template_list":default_task_template_list, "extra_task_template_list":extra_task_template_list,
-            "class_func":class_func
+            "class_func_list":class_func_list
             }
 
 # 主程序
@@ -128,7 +146,7 @@ while True:
             executable_index_list.append(method_index)
         else:
             failed_index_list.append(method_index)
-    
+    # 判断是否有可执行指令
     if executable_index_list == []: # 无可执行指令
         system_msg(f"指令\"{main_command_list[0]}\"不存在")
         if failed_index_list != []:
