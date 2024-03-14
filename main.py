@@ -1,4 +1,4 @@
-from os import chdir, listdir
+from os import chdir
 from os.path import dirname, abspath, exists
 working_dir = dirname(abspath(__file__))
 chdir(working_dir) # 切换工作路径至当前文件目录
@@ -120,7 +120,7 @@ if main_container_list == []:
 
 # 程序主循环
 while True:
-    main_cmd_list = command_input("\u001b[1;37;40m[command]>\u001b[0;0m")
+    main_cmd_list = command_input("main")
     if main_cmd_list[0] == system_pkg()["EXIT"]: exit()
     if main_cmd_list[0] == "":
         if main_cmd_list[1] != "":

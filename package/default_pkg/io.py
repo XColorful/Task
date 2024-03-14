@@ -2,7 +2,7 @@ def command_input(msg_str = ""):
     """用空格分割输入的指令
     
     最大分割 1 次，返回包含 2 个元素的列表"""
-    user_input = input(msg_str)
+    user_input = input(f"\u001b[1;37;40m[command]{msg_str}>\u001b[0;0m")
     user_input_list = user_input.split(" ", 1)
     if len(user_input_list) < 2:
         user_input_list.append("")
