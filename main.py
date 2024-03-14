@@ -29,17 +29,13 @@ extra_task_template_list = []
 # 读取package内容
 from importlib import import_module
 def package_loader(package_name, show = True):
-    try:
-        pkg = import_module(f'package.{package_name}') # package.{package_name}
+    try: pkg = import_module(f'package.{package_name}') # package.{package_name}
     except ModuleNotFoundError:
-        if show == True:
-            system_msg("包\"{package_name}\"不存在")
+        if show == True: system_msg(f"包\"{package_name}\"不存在")
         return None
-    try:
-        package_dict = pkg.package_dict
+    try: package_dict = pkg.package_dict
     except AttributeError:
-        if show == True:
-            system_msg("包\"{package_name}\"缺少package_dict")
+        if show == True: system_msg(f"包\"{package_name}\"缺少package_dict")
         return None
     global class_func_list
     try: class_func_list += package_dict["class_func"]
@@ -64,7 +60,7 @@ def package_loader(package_name, show = True):
     except KeyError: pass
     global extra_task_template_list
     try: extra_task_template_list += package_dict["extra_task"]
-    except: pass
+    except KeyError: pass
     # 确保已经有system_msg才调整show = True
     if show == True: system_msg(f"已读取\"{package_name}\"")
     return None
@@ -124,85 +120,92 @@ if main_container_list == []:
 
 # 程序主循环
 while True:
-    main_command_list = command_input("\u001b[1;37;40m[command]>\u001b[0;0m")
-    if main_command_list[0] == system_pkg()["EXIT"]: exit()
-    if main_command_list[0] == "":
-        if main_command_list[1] != "":
+    main_cmd_list = command_input("\u001b[1;37;40m[command]>\u001b[0;0m")
+    if main_cmd_list[0] == system_pkg()["EXIT"]: exit()
+    if main_cmd_list[0] == "":
+        if main_cmd_list[1] != "":
             system_msg("请先输入指令，或尝试去除最先输入的空格重新输入")
         continue
     # 初始化变量
-    command_analyze_result_list = []
-    executable_index_list = []
-    failed_index_list = []
-    command_proceed_time = YYYY_MM_DD_HH_MM_SS()
-    command_proceed_date = YYYY_MM_DD()
+    cmd_analyse_list = []
+    exec_index_list = []
+    fail_index_list = []
+    cmd_proceed_time = YYYY_MM_DD_HH_MM_SS()
+    cmd_proceed_date = YYYY_MM_DD()
     proceed_condition = None
     exception = False
     # 遍历可执行的method
     for method_index in range(0, len(method_list)):
-        analyze_result = method_list[method_index].analyze(main_command_list, main_container_list, system_pkg())
-        command_analyze_result_list.append(analyze_result[1])
+        analyze_result = method_list[method_index].analyze(main_cmd_list, main_container_list, system_pkg())
+        cmd_analyse_list.append(analyze_result[1])
         if analyze_result[0] == CONDITION_SUCCESS:
-            executable_index_list.append(method_index)
+            exec_index_list.append(method_index)
         else:
-            failed_index_list.append(method_index)
+            fail_index_list.append(method_index)
     # 判断是否有可执行指令
-    if executable_index_list == []: # 无可执行指令
-        system_msg(f"指令\"{main_command_list[0]}\"不存在")
-        if failed_index_list != []:
+    # 无可执行指令
+    if exec_index_list == []:
+        system_msg(f"指令\"{main_cmd_list[0]}\"不存在")
+        if fail_index_list != []:
             if normal_input("展示所有可用指令(y/n)").lower() != "y": continue
-            table_analyze_result(command_analyze_result_list, failed_index_list, system_pkg())
+            table_analyze_result(cmd_analyse_list, fail_index_list, system_pkg())
             continue
         else:
             body_msg(["无可用指令"])
             continue
-    else: # 有可执行指令
-        try: # 防止程序退出
-            if len(executable_index_list) == 1: # 仅有一个可执行指令
-                method_index = executable_index_list[0]
-                return_tuple = method_list[method_index].proceed(main_command_list, main_container_list, system_pkg())
+    # 有可执行指令
+    else:
+        try:
+            # 仅有一个可执行指令
+            if len(exec_index_list) == 1:
+                method_index = exec_index_list[0]
+                return_tuple = method_list[method_index].proceed(main_cmd_list, main_container_list, system_pkg())
                 proceed_condition = return_tuple[0]
                 proceed_return = return_tuple[1]
-            else: # 有多个可执行指令
-                table_analyze_result(command_analyze_result_list, executable_index_list, system_pkg())
+            # 有多个可执行指令
+            else:
+                table_analyze_result(cmd_analyse_list, exec_index_list, system_pkg())
                 user_input = normal_input("输入索引")
                 if user_input == EXIT: continue
                 method_index = convert_to_int(user_input)
-                if method_index == None: # 输入非int字符串
+                # 输入非int字符串
+                if method_index == None:
                     system_msg(f"\"{user_input}\"不是一个整数")
                     continue
-                else: # 输入int字符串
-                    if not (method_index in executable_index_list):
+                # 输入int字符串
+                else:
+                    if not (method_index in exec_index_list):
                         system_msg(f"\"{method_index}\"不在列出的索引内")
                         continue
                 # 确认可用索引
-                return_tuple = method_list[method_index].proceed(main_command_list, main_container_list, system_pkg())
+                return_tuple = method_list[method_index].proceed(main_cmd_list, main_container_list, system_pkg())
                 proceed_condition = return_tuple[0]
                 proceed_return = return_tuple[1]
-        except: # 捕捉报错信息
-            exception_message = traceback.format_exc()
+        # 捕捉报错信息
+        except:
+            exception_msg = traceback.format_exc()
             proceed_return = "Exception"
             exception = True
     # 执行指令后
     command_done_time = YYYY_MM_DD_HH_MM_SS()
     proceed_info_list = [method_list[method_index], proceed_condition, proceed_return]
-    log_folder_dir = join(working_dir, f"log")
-    log_file_name = f"log_{command_proceed_date}.txt"
+    log_dir = join(working_dir, f"log")
+    log_filename = f"log_{cmd_proceed_date}.txt"
     if proceed_condition == CONDITION_SUCCESS:
-        normal_log([command_proceed_time, command_done_time], main_command_list, proceed_info_list, log_folder_dir, log_file_name) # 写入日志文件
+        normal_log([cmd_proceed_time, command_done_time], main_cmd_list, proceed_info_list, log_dir, log_filename) # 写入日志文件
     elif proceed_condition == CONDITION_FAIL:
         error_msg(proceed_return)
-        normal_log([command_proceed_time, command_done_time], main_command_list, proceed_info_list, log_folder_dir, log_file_name) # 写入日志文件
+        normal_log([cmd_proceed_time, command_done_time], main_cmd_list, proceed_info_list, log_dir, log_filename) # 写入日志文件
     else:
         error_msg("请检查程序是否有返回状态值")
     # 程序报错判断
     if exception == True:
         error_msg("运行出现错误，展示错误信息")
-        body_msg(exception_message.split("\n"))
-        error_log_file_name = f"exception_{YYYY_MM_DD_HH_MM_SS()}.txt"
-        error_log_folder_dir = join(working_dir, "error_log")
-        error_log(exception_message, error_log_folder_dir, error_log_file_name) # 写入错误日志
-        system_msg(f"错误信息保存至{join(error_log_folder_dir, error_log_file_name)}")
+        body_msg(exception_msg.split("\n"))
+        error_log_filename = f"exception_{YYYY_MM_DD_HH_MM_SS()}.txt"
+        error_log_dir = join(working_dir, "error_log")
+        error_log(exception_msg, error_log_dir, error_log_filename) # 写入错误日志
+        system_msg(f"错误信息保存至{join(error_log_dir, error_log_filename)}")
     # 检查自动保存是否开启
     if SETTING_AUTO_SAVE == True:
         main_container_list.sort(key=attrgetter("container_label"))

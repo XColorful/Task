@@ -92,15 +92,15 @@ def YYYY_MM_DD_HH_MM_SS(adjust = "0"):
     formatted_date_time = now.strftime("%Y_%m_%d - %H-%M-%S")
     return formatted_date_time
 
-def error_log(exception_message:str, folder_dir:str, file_name:str):
+def error_log(exception_message:str, folder_dir:str, filename:str):
     if not exists(folder_dir): mkdir(folder_dir) # 创建目录
-    file_dir = join(folder_dir, file_name)
+    file_dir = join(folder_dir, filename)
     with open(file_dir, "w", encoding = "utf-8") as f:
         f.write(exception_message)
 
-def normal_log(time_list:list, command_list:list, proceed_info_list:list, folder_dir:str, file_name:str):
+def normal_log(time_list:list, command_list:list, proceed_info_list:list, folder_dir:str, filename:str):
     if not exists(folder_dir): mkdir(folder_dir) # 创建目录
-    file_dir = join(folder_dir, file_name)
+    file_dir = join(folder_dir, filename)
     with open(file_dir, "a", encoding = "utf-8") as f:
         f.write(f"({time_list[0]}, {time_list[1]})\n") # (起始时间, 结束时间)
         method_info = proceed_info_list[0].method_info()
