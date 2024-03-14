@@ -100,7 +100,7 @@ def system_pkg():
             }
 
 # 主程序
-from function import convert_to_int, read_from_pkl, save_to_pkl, error_log, YYYY_MM_DD, YYYY_MM_DD_HH_MM_SS, normal_log, table_analyze_result
+from function import convert_to_int, read_from_pkl, save_pkl, error_log, YYYY_MM_DD, YYYY_MM_DD_HH_MM_SS, backup_pkl, normal_log, table_analyze_result
 from os.path import join
 import traceback
 from operator import attrgetter
@@ -114,7 +114,7 @@ try:
     main_container_list = read_from_pkl(main_pkl_dir)
 except:
     system_msg("没有可用的pkl数据文件")
-    save_to_pkl(main_container_list, main_pkl_dir)
+    save_pkl(main_container_list, main_pkl_dir)
 if main_container_list == []:
     normal_msg("注：主容器列表为空")
 
@@ -206,7 +206,10 @@ while True:
         error_log_dir = join(working_dir, "error_log")
         error_log(exception_msg, error_log_dir, error_log_filename) # 写入错误日志
         system_msg(f"错误信息保存至{join(error_log_dir, error_log_filename)}")
+    # 常规保存
+    save_pkl(main_container_list, main_pkl_dir)
+    tips_msg("--------已自动备份pkl文件--------")
     # 检查自动保存是否开启
     if SETTING_AUTO_SAVE == True:
         main_container_list.sort(key=attrgetter("container_label"))
-        save_to_pkl(main_container_list, main_pkl_dir)
+        backup_pkl(main_container_list, f"{join(working_dir, "backup_pkl")}", system_pkg(), interval = 3, save_file = 3)
