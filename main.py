@@ -4,7 +4,20 @@ working_dir = dirname(abspath(__file__))
 chdir(working_dir) # 切换工作路径至当前文件目录
 
 # main_func
-def adjust_settings(settings_dict:dict, key:str, value) -> bool:
+from function import convert_to_int, convert_to_float
+def adjust_settings(settings_dict:dict, key:str, value:str) -> bool:
+    # int, float, bool类型转换
+    # bool
+    if value == "True": value = True
+    elif value == "False": value = False
+    elif value == "None": value = None
+    if type(value) != bool:
+        # float
+        value_float = convert_to_float(value)
+        if value_float != None: value = value_float
+        # int（如果能int就一定先执行过float）
+        value_int = convert_to_int(value)
+        if value_int == value: value = value_int
     try:
         if type(settings_dict[key]) != type(value): return False
     except KeyError: return None
@@ -70,18 +83,18 @@ def system_pkg() -> dict:
             "settings_dict":settings_dict,
             "github":github, "version":version, "contributor":contributor_list}
 
+def no_tips(msg_str):
+    return
 
 # 初始化变量
 from const import *
-from var import *
+from val import *
 from repo_info import *
 system_msg = print
 error_log_dir = join(working_dir, "error_log")
 
-# settings管理器
-settings_dict = {"SHOW_TIPS":True,
-                "AUTO_SAVE":True,
-                "AUTO_BACKUP":True}
+# settings管理器，设置初始化
+# settings_list位于./val.py
 try:
     with open(f".\\settings.txt", "r", encoding = "utf-8") as f:
         settings_list = f.readlines()
@@ -89,9 +102,6 @@ try:
             setting = setting.rstrip("\n")
             try: set_key, set_value = setting.split("|", 1)
             except: continue
-            if set_value == "True": set_value = True
-            elif set_value == "False": set_value = False
-            elif set_value == "None": set_value = None
             adjust_settings(settings_dict, set_key, set_value)
 except FileNotFoundError: pass
 
@@ -124,10 +134,14 @@ except FileNotFoundError: pass
 command_input, normal_input, strict_input, block_input = io_list[0]["command_input"], io_list[0]["normal_input"], io_list[0]["strict_input"], io_list[0]["block_input"]
 # message
 system_msg, error_msg, tips_msg, table_msg, head_msg, body_msg, normal_msg = message_list[0]["system_msg"], message_list[0]["error_msg"], message_list[0]["tips_msg"], message_list[0]["table_msg"], message_list[0]["head_msg"], message_list[0]["body_msg"], message_list[0]["normal_msg"]
-
+if settings_dict["SHOW_TIPS"] == False:
+    tips_msg = no_tips
+    """
+    这个以后再改得完善一点，避免直接去除了
+    """
 
 # 主程序
-from function import convert_to_int, read_from_pkl, save_pkl, error_log, YYYY_MM_DD_HH_MM_SS, backup_pkl, normal_log, table_analyze_result
+from function import read_from_pkl, save_pkl, error_log, YYYY_MM_DD_HH_MM_SS, backup_pkl, normal_log, table_analyze_result
 import traceback
 from operator import attrgetter
 normal_msg(f"<{github}>")
@@ -265,4 +279,4 @@ while True:
     # 自动备份pkl文件
     if settings_dict["AUTO_BACKUP"] == True:
         main_container_list.sort(key=attrgetter("container_label"))
-        backup_pkl(main_container_list, f"{join(working_dir, "backup_pkl")}", system_pkg(), interval = 3, save_file = 3)
+        backup_pkl(main_container_list, f"{join(working_dir, "backup_pkl")}", system_pkg(), interval = settings_dict["BACKUP_INTERVAL"], backup_total = settings_dict["BACKUP_TOTAL"])
