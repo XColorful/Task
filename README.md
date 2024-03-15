@@ -77,3 +77,7 @@ _注：在任意界面均可输入"**exit**"退出当前操作_
 
 - 在代码目录下创建"**settings.txt**"，以{"设置名"|"值"}的格式进行设置
     > 在主界面输入"**sys_info**"，输入"**settings_dict**"查看已有设置
+    > 示例：
+    > SHOW_TIPS|True
+    > BACKUP_INTERVAL|3
+    > AUTO_BACKUP|True
