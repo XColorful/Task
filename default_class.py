@@ -47,10 +47,10 @@ class default_container_template():
         task_pair_list = build_list[5].split(" ")
         for pair_index in range(0, len(task_pair_list), 2):
             task_type, task_version = task_pair_list[pair_index], task_pair_list[pair_index + 1]
-            for index in range(len(system_pkg["default_task_template_list"])):
-                task = system_pkg["default_task_template_list"][index]()
+            for index in range(len(system_pkg["df_task_template_list"])):
+                task = system_pkg["df_task_template_list"][index]()
                 if (task_type == task.type) and (task_version == task.version):
-                    self.task_template.append(system_pkg["default_task_template_list"][index])
+                    self.task_template.append(system_pkg["df_task_template_list"][index])
         self.description = build_list[6]
         return None
 
