@@ -9,7 +9,7 @@ class default_method(default_method_template):
         super().__init__() # 继承父类
         self.label = "default_method"
         self.version = "1.0"
-        self.method_list = ["get", "add", "delete", "search", "edit", "backup", "reload"]
+        self.method_list = ["get", "add", "delete", "search", "edit", "backup", "reload", "sys_info"]
     
     def method_info(self):
         return super().method_info()
@@ -432,3 +432,17 @@ class default_method(default_method_template):
         container_list[:] = temp_container_list
         system_pkg["system_msg"](f"已导入{file_path}")
         return (system_pkg["CONDITION_SUCCESS"], None)
+    
+    def sys_info(self, command_parameter:str, container_list:list, system_pkg:dict):
+        """获取system_pkg信息"""
+        if command_parameter != "":
+            user_input = command_parameter
+        else:
+            user_input = system_pkg["normal_input"]("输入查询的信息")
+        if user_input == system_pkg["EXIT"]: return (system_pkg["CONDITION_SUCCESS"], "取消查询system_pkg")
+        try:
+            system_pkg["normal_msg"](system_pkg[user_input])
+            return (system_pkg["CONDITION_SUCCESS"], f"查询system_pkg\"{user_input}\"")
+        except KeyError:
+            system_pkg["system_msg"](f"system_pkg中不包含\"{user_input}\"")
+            return (system_pkg["CONDITION_SUCCESS"], f"system_pkg\"{user_input}\"查询结果不存在")
