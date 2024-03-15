@@ -11,6 +11,15 @@ def convert_to_int(s:str):
     except ValueError:
         return None
 
+def convert_to_float(s:str):
+    """返回字符串是否能转换为float，不修改原字符串
+    
+    接收一个普通字符串，转换失败则返回None"""
+    try:
+        return float(s)
+    except ValueError:
+        return None
+
 def add_index_in_list(input_list:list, start_index = 0, heading = False):
     """为列表里每项添加索引字符串，要求每项均为列表
     
@@ -116,14 +125,14 @@ def file_size_str(file_path):
     else: return f"{size_in_kib/1024:.2f} MiB"
 
 import glob
-def backup_pkl(data, dir:str, system_pkg:dict, interval : int = 3, save_file : int = 3):
+def backup_pkl(data, dir:str, system_pkg:dict, interval : int = 3, backup_total : int = 3):
     """管理main_container_list.pkl备份文件
     
     interval：保存日期间隔
-    save_file：维持的备份文件总数"""
+    backup_total：维持的备份文件总数"""
     # 参数检查
     date_interval = 3 if interval < 0 else interval
-    save_file = 3 if save_file <= 0 else save_file
+    backup_total = 3 if backup_total <= 0 else backup_total
     # 读取符合格式的文件名
     pkl_file_list = []
     if not exists(dir): makedirs(dir)
@@ -144,13 +153,13 @@ def backup_pkl(data, dir:str, system_pkg:dict, interval : int = 3, save_file : i
     # 写入备份pkl文件
     backup_dir = join(dir, file_name)
     with open(backup_dir, 'wb') as f: pickle.dump(data, f)
-    # pkl数量超过save_file，则删除最老的一个
+    # pkl数量超过backup_total，则删除最老的一个
     backup_count = len(pkl_file_list) + 1
-    if backup_count > save_file:
+    if backup_count > backup_total:
         remove(pkl_file_list[0])
         backup_count -= 1
     system_pkg["system_msg"](f"自动备份pkl文件至\"{backup_dir}\"")
-    system_pkg["body_msg"]([f"文件大小：{file_size_str(backup_dir)}", f"备份间隔：{date_interval}天{display_last_backup_time}", f"备份总数：{backup_count}/{save_file}"])
+    system_pkg["body_msg"]([f"文件大小：{file_size_str(backup_dir)}", f"备份间隔：{date_interval}天{display_last_backup_time}", f"备份总数：{backup_count}/{backup_total}"])
 
 def table_analyze_result(method_list:list, method_index_list:list, system_pkg:dict, start_index = 1):
     """[标签，版本，适用类型，指令集]
