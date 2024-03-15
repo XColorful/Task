@@ -67,8 +67,8 @@ class school_task_method(default_method_template):
         temp_container_list = []
         
         with open(".\\backup1.txt", "r", encoding = "utf-8") as f:
-            temp_container_template = system_pkg["default_container_template_list"][0]
-            temp_task_template = system_pkg["default_task_template_list"][0]
+            temp_container_template = system_pkg["df_container_template_list"][0]
+            temp_task_template = system_pkg["df_task_template_list"][0]
             txt_list = f.readlines()
             container_index = -1
             for txt_line in txt_list:
@@ -76,7 +76,7 @@ class school_task_method(default_method_template):
                 if item_list[0] == "Task_object":
                     container_index += 1
                     temp_container = temp_container_template()
-                    temp_container.task_template.append(system_pkg["default_task_template_list"][0])
+                    temp_container.task_template.append(system_pkg["df_task_template_list"][0])
                     temp_container.container_label, temp_container.create_date, temp_container.description = item_list[1:4]
                     temp_container_list.append(temp_container)
                 elif item_list[0] == "Task":

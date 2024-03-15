@@ -67,9 +67,9 @@ class default_method(default_method_template):
         return return_tuple
     
     def add(self, command_parameter:str, container_list:list, system_pkg:dict): # 添加container
-        default_container_template_list = system_pkg["default_container_template_list"]
-        extra_container_template_list = system_pkg["extra_container_template_list"]
-        container_template_list = default_container_template_list + extra_container_template_list
+        df_container_template_list = system_pkg["df_container_template_list"]
+        ex_container_template_list = system_pkg["ex_container_template_list"]
+        container_template_list = df_container_template_list + ex_container_template_list
         if container_template_list == []:
             system_pkg["system_msg"]("没有可用的container模板")
             return (system_pkg["CONDITION_SUCCESS"], "无container模板")
@@ -289,8 +289,8 @@ class default_method(default_method_template):
                     find_container = False
                     select_container = []
                     # 遍历可用的container模板
-                    iterator = system_pkg["default_container_template_list"]
-                    if is_default_type == False: iterator = system_pkg["extra_container_template_list"]
+                    iterator = system_pkg["df_container_template_list"]
+                    if is_default_type == False: iterator = system_pkg["ex_container_template_list"]
                     for container_template in iterator:
                         container = container_template()
                         if is_default_type: # container为default类型
@@ -353,8 +353,8 @@ class default_method(default_method_template):
                     find_task = False
                     select_task = []
                     # 遍历可用的task模板
-                    iterator = system_pkg["default_task_template_list"]
-                    if is_default_type == False: iterator = system_pkg["extra_task_template_list"]
+                    iterator = system_pkg["df_task_template_list"]
+                    if is_default_type == False: iterator = system_pkg["ex_task_template_list"]
                     for task_template in iterator:
                         task = task_template()
                         if is_default_type: # task为default类型
