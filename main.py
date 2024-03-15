@@ -67,12 +67,14 @@ def system_pkg() -> dict:
             "df_container_template_list":df_container_template_list, "ex_container_template_list":ex_container_template_list,
             "df_task_template_list":df_task_template_list, "ex_task_template_list":ex_task_template_list,
             "class_func_list":class_func_list,
-            "settings_dict":settings_dict}
+            "settings_dict":settings_dict,
+            "github":github, "version":version, "contributor":contributor_list}
 
 
 # 初始化变量
 from const import *
 from var import *
+from repo_info import *
 system_msg = print
 error_log_dir = join(working_dir, "error_log")
 
@@ -128,9 +130,9 @@ system_msg, error_msg, tips_msg, table_msg, head_msg, body_msg, normal_msg = mes
 from function import convert_to_int, read_from_pkl, save_pkl, error_log, YYYY_MM_DD_HH_MM_SS, backup_pkl, normal_log, table_analyze_result
 import traceback
 from operator import attrgetter
-normal_msg("<https://github.com/XColorful/Task>")
-head_msg("Task - Version 1.0")
-body_msg(["By Xiao Colorful"])
+normal_msg(f"<{github}>")
+head_msg(f"Task - Version {version}")
+body_msg([f"By {", ".join(contributor_list)}"])
 
 
 # 读取pkl存储路径
