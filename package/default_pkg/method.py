@@ -221,6 +221,8 @@ class default_method(default_method_template):
         except IndexError: AUTO_UPDATE = False
         
         def report_error(txt_list:list, container_index:int, task_index:int, error_message:str, system_pkg:dict):
+            container_index += 1
+            task_index += 1
             system_pkg["error_msg"](error_message)
             system_pkg["system_msg"](f"输出备份文件（{container_index} - {task_index}）")
             body_list = []
@@ -253,8 +255,8 @@ class default_method(default_method_template):
         table_backup_file(display_list, system_pkg)
         system_pkg["tips_msg"]("<Enter>选中默认（最新）")
         user_input = system_pkg["normal_input"]("输入索引")
-        user_input = convert_to_int(user_input)
         if user_input == system_pkg["EXIT"]: return (system_pkg["CONDITION_SUCCESS"], "取消导入备份文件")
+        user_input = convert_to_int(user_input)
         if user_input == None: user_input = -1
         try:
             file_path = file_list[user_input]
