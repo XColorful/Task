@@ -1,50 +1,41 @@
 from os import chdir
-from os.path import dirname, abspath, exists
+from os.path import dirname, abspath, exists, join
 working_dir = dirname(abspath(__file__))
 chdir(working_dir) # 切换工作路径至当前文件目录
 
-try:
-    with open(f".\\pkl_dir.txt", "r", encoding = "utf-8") as f:
-        main_pkl_dir = f.readline()
-        if not exists(main_pkl_dir): raise
-except: main_pkl_dir = working_dir + "main_container_list.pkl" # 工作目录
+# main_func
+def adjust_settings(settings_dict:dict, key:str, value) -> bool:
+    try:
+        if type(settings_dict[key]) != type(value): return False
+    except KeyError: return None
+    settings_dict[key] = value
+    return True
 
-# 初始化变量
-from const import *
-# settings管理器
-"""
-    日后填坑
-"""
-SHOW_TIPS = True
-SETTING_AUTO_SAVE = True
-# 初始化系统变量
-class_func_list = []
-default_container_template_list = []
-extra_container_template_list = []
-io_list = []
-message_list = []
-method_list = []
-default_task_template_list = []
-extra_task_template_list = []
-# 读取package内容
 from importlib import import_module
-def package_loader(package_name, show = True):
+def package_loader(package_name, show = True) -> bool:
+    """从./package/下读取模块
+    
+    True -> 成功读取
+    
+    False -> __init__.py缺少package_dict
+    
+    None -> 模块不存在"""
     try: pkg = import_module(f'package.{package_name}') # package.{package_name}
     except ModuleNotFoundError:
-        if show == True: system_msg(f"包\"{package_name}\"不存在")
+        if show == True: system_msg(f"模块\"{package_name}\"不存在")
         return None
     try: package_dict = pkg.package_dict
     except AttributeError:
-        if show == True: system_msg(f"包\"{package_name}\"缺少package_dict")
-        return None
+        if show == True: system_msg(f"模块\"{package_name}\"缺少package_dict")
+        return False
     global class_func_list
     try: class_func_list += package_dict["class_func"]
     except KeyError: pass
-    global default_container_template_list
-    try: default_container_template_list += package_dict["default_container"]
+    global df_container_template_list
+    try: df_container_template_list += package_dict["default_container"]
     except KeyError: pass
-    global extra_container_template_list
-    try: extra_container_template_list += package_dict["extra_container"]
+    global ex_container_template_list
+    try: ex_container_template_list += package_dict["extra_container"]
     except KeyError: pass
     global io_list
     try: io_list += package_dict["io"]
@@ -55,71 +46,136 @@ def package_loader(package_name, show = True):
     global method_list
     try: method_list += package_dict["method"]
     except KeyError: pass
-    global default_task_template_list
-    try: default_task_template_list += package_dict["default_task"]
+    global df_task_template_list
+    try: df_task_template_list += package_dict["default_task"]
     except KeyError: pass
-    global extra_task_template_list
-    try: extra_task_template_list += package_dict["extra_task"]
+    global ex_task_template_list
+    try: ex_task_template_list += package_dict["extra_task"]
     except KeyError: pass
     # 确保已经有system_msg才调整show = True
     if show == True: system_msg(f"已读取\"{package_name}\"")
-    return None
-# 读取默认包
-package_loader("default_pkg", show = False)
-# io_list
-command_input = io_list[0]["command_input"]
-normal_input = io_list[0]["normal_input"]
-strict_input = io_list[0]["strict_input"]
-block_input = io_list[0]["block_input"]
-# message
-system_msg = message_list[0]["system_msg"]
-error_msg = message_list[0]["error_msg"]
-tips_msg = message_list[0]["tips_msg"]
-table_msg = message_list[0]["table_msg"]
-head_msg = message_list[0]["head_msg"]
-body_msg = message_list[0]["body_msg"]
-normal_msg = message_list[0]["normal_msg"]
-# 读取extra包
-"""
-    日后填坑：./package.txt，指定添加的package
-"""
-package_loader("categorize")
-package_loader("container_manager")
-package_loader("school_task")
-package_loader("account")
+    return True
 
-def system_pkg():
+def system_pkg() -> dict:
+    """返回系统变量，供程序各处访问
+    """
     return {"system_msg":system_msg, "error_msg":error_msg, "tips_msg":tips_msg, "table_msg":table_msg, "head_msg":head_msg, "body_msg":body_msg, "normal_msg":normal_msg,
             "EXIT":EXIT,
             "command_input":command_input, "normal_input":normal_input, "strict_input":strict_input, "block_input":block_input,
             "CONDITION_SUCCESS":CONDITION_SUCCESS, "CONDITION_FAIL":CONDITION_FAIL, "BLOCK_LIST":BLOCK_LIST,
             "TYPE_DEFAULT_CONTAINER":TYPE_DEFAULT_CONTAINER, "TYPE_EXTRA_CONTAINER":TYPE_EXTRA_CONTAINER, "TYPE_DEFAULT_METHOD":TYPE_DEFAULT_METHOD, "TYPE_EXTRA_METHOD":TYPE_EXTRA_METHOD, "TYPE_DEFAULT_CLASS_FUNC":TYPE_DEFAULT_CLASS_FUNC, "TYPE_EXTRA_CLASS_FUNC":TYPE_EXTRA_CLASS_FUNC,
-            "default_container_template_list":default_container_template_list, "extra_container_template_list":extra_container_template_list,
-            "default_task_template_list":default_task_template_list, "extra_task_template_list":extra_task_template_list,
-            "class_func_list":class_func_list
-            }
+            "df_container_template_list":df_container_template_list, "ex_container_template_list":ex_container_template_list,
+            "df_task_template_list":df_task_template_list, "ex_task_template_list":ex_task_template_list,
+            "class_func_list":class_func_list,
+            "settings_dict":settings_dict}
+
+
+# 初始化变量
+from const import *
+from var import *
+system_msg = print
+error_log_dir = join(working_dir, "error_log")
+
+# settings管理器
+settings_dict = {"SHOW_TIPS":True,
+                "AUTO_SAVE":True,
+                "AUTO_BACKUP":True}
+try:
+    with open(f".\\settings.txt", "r", encoding = "utf-8") as f:
+        settings_list = f.readlines()
+        for setting in settings_list:
+            setting = setting.rstrip("\n")
+            try: set_key, set_value = setting.split("|", 1)
+            except: continue
+            if set_value == "True": set_value = True
+            elif set_value == "False": set_value = False
+            elif set_value == "None": set_value = None
+            adjust_settings(settings_dict, set_key, set_value)
+except FileNotFoundError: pass
+
+# 模块管理器
+# 读取默认模块
+load_condition = package_loader("default_pkg", show = False)
+if load_condition == False:
+    system_msg("模块\"default_pkg\"缺少package_dict")
+    system_msg("按任意键退出")
+    exit()
+elif load_condition == None:
+    system_msg("缺少必要模块\"default_pkg\"")
+    system_msg("按任意键退出")
+    exit()
+# 读取package下模块
+try:
+    with open(f".\\load_package.txt", "r", encoding = "utf-8") as f:
+        package_list = f.readlines()
+        for package_name in package_list:
+            package_name = package_name.rstrip("\n")
+            load_condition = package_loader(package_name, show = False)
+            if load_condition == True: continue
+            elif load_condition == None: system_msg(f"模块\"{package_name}\"不存在")
+            elif load_condition == False: system_msg(f"读取模块\"{package_name}\"失败")
+except FileNotFoundError: pass
+
+
+# 设定默认值
+# io_list
+command_input, normal_input, strict_input, block_input = io_list[0]["command_input"], io_list[0]["normal_input"], io_list[0]["strict_input"], io_list[0]["block_input"]
+# message
+system_msg, error_msg, tips_msg, table_msg, head_msg, body_msg, normal_msg = message_list[0]["system_msg"], message_list[0]["error_msg"], message_list[0]["tips_msg"], message_list[0]["table_msg"], message_list[0]["head_msg"], message_list[0]["body_msg"], message_list[0]["normal_msg"]
+
 
 # 主程序
-from function import convert_to_int, read_from_pkl, save_pkl, error_log, YYYY_MM_DD, YYYY_MM_DD_HH_MM_SS, backup_pkl, normal_log, table_analyze_result
-from os.path import join
+from function import convert_to_int, read_from_pkl, save_pkl, error_log, YYYY_MM_DD_HH_MM_SS, backup_pkl, normal_log, table_analyze_result
 import traceback
 from operator import attrgetter
+normal_msg("<https://github.com/XColorful/Task>")
 head_msg("Task - Version 1.0")
 body_msg(["By Xiao Colorful"])
-# tips_msg("To -> settings for more help.")
 
-# 读取主容器列表
-main_container_list = []
+
+# 读取pkl存储路径
+try:
+    with open(f".\\pkl_dir.txt", "r", encoding = "utf-8") as f:
+        main_pkl_dir = f.readline()
+        if not exists(main_pkl_dir): raise
+except: main_pkl_dir = join(working_dir, "main_container_list.pkl") # 工作目录
+# 读取主容器pkl文件
+from pickle import UnpicklingError
 try:
     main_container_list = read_from_pkl(main_pkl_dir)
-except:
-    system_msg("没有可用的pkl数据文件")
+except FileNotFoundError:
+    system_msg(f"没有可用的pkl数据文件\"{main_pkl_dir}\"")
     save_pkl(main_container_list, main_pkl_dir)
-if main_container_list == []:
-    normal_msg("注：主容器列表为空")
+except ModuleNotFoundError as e:
+    system_msg(f"缺少模块\"{str(e).split("'")[1]}\"，请检查目录\"./package/\"")
+    normal_input("按任意键退出")
+    exit()
+except AttributeError as e:
+    exception_msg = traceback.format_exc()
+    system_msg(f"读取模块\"{str(e).split("'")[1]}\"异常，缺少必要属性")
+    system_msg("展示错误信息")
+    body_msg(exception_msg.split("\n"))
+    error_log_filename = f"exception_{YYYY_MM_DD_HH_MM_SS()}.txt"
+    error_log(exception_msg, error_log_dir, error_log_filename)
+    system_msg(f"错误信息保存至{join(error_log_dir, error_log_filename)}")
+    normal_input("按任意键退出")
+    exit()
+except UnpicklingError:
+    exception_msg = traceback.format_exc()
+    system_msg("读取文件\"main_pkl_dir\"异常，可能已损坏")
+    system_msg("展示错误信息")
+    body_msg(exception_msg.split("\n"))
+    error_log_filename = f"exception_{YYYY_MM_DD_HH_MM_SS()}.txt"
+    error_log(exception_msg, error_log_dir, error_log_filename)
+    system_msg(f"错误信息保存至{join(error_log_dir, error_log_filename)}")
+    normal_input("按任意键退出")
+    exit()
+if main_container_list == []: normal_msg("注：主容器列表为空")
+
 
 # 程序主循环
 while True:
+    # 获取用户输入
     main_cmd_list = command_input("main")
     if main_cmd_list[0] == system_pkg()["EXIT"]: exit()
     if main_cmd_list[0] == "":
@@ -131,7 +187,7 @@ while True:
     exec_index_list = []
     fail_index_list = []
     cmd_proceed_time = YYYY_MM_DD_HH_MM_SS()
-    cmd_proceed_date = YYYY_MM_DD()
+    cmd_proceed_date = cmd_proceed_time[0:10] # "YYYY_MM_DD"
     proceed_condition = None
     exception = False
     # 遍历可执行的method
@@ -149,53 +205,48 @@ while True:
         if fail_index_list != []:
             if normal_input("展示所有可用指令(y/n)").lower() != "y": continue
             table_analyze_result(cmd_analyse_list, fail_index_list, system_pkg())
-            continue
-        else:
-            body_msg(["无可用指令"])
-            continue
+        else: body_msg(["无可用指令"])
+        continue
     # 有可执行指令
-    else:
-        try:
-            # 仅有一个可执行指令
-            if len(exec_index_list) == 1:
-                method_index = exec_index_list[0]
-                return_tuple = method_list[method_index].proceed(main_cmd_list, main_container_list, system_pkg())
-                proceed_condition = return_tuple[0]
-                proceed_return = return_tuple[1]
-            # 有多个可执行指令
+    try:
+        # 仅有一个可执行指令
+        if len(exec_index_list) == 1:
+            method_index = exec_index_list[0]
+            return_tuple = method_list[method_index].proceed(main_cmd_list, main_container_list, system_pkg())
+            proceed_condition, proceed_return = return_tuple[0], return_tuple[1]
+        # 有多个可执行指令
+        else:
+            table_analyze_result(cmd_analyse_list, exec_index_list, system_pkg())
+            user_input = normal_input("输入索引")
+            if user_input == EXIT: continue
+            method_index = convert_to_int(user_input)
+            # 输入非int字符串
+            if method_index == None:
+                system_msg(f"\"{user_input}\"不是一个整数")
+                continue
+            # 输入int字符串
             else:
-                table_analyze_result(cmd_analyse_list, exec_index_list, system_pkg())
-                user_input = normal_input("输入索引")
-                if user_input == EXIT: continue
-                method_index = convert_to_int(user_input)
-                # 输入非int字符串
-                if method_index == None:
-                    system_msg(f"\"{user_input}\"不是一个整数")
+                if not (method_index in exec_index_list):
+                    system_msg(f"\"{method_index}\"不在列出的索引内")
                     continue
-                # 输入int字符串
-                else:
-                    if not (method_index in exec_index_list):
-                        system_msg(f"\"{method_index}\"不在列出的索引内")
-                        continue
-                # 确认可用索引
-                return_tuple = method_list[method_index].proceed(main_cmd_list, main_container_list, system_pkg())
-                proceed_condition = return_tuple[0]
-                proceed_return = return_tuple[1]
-        # 捕捉报错信息
-        except:
-            exception_msg = traceback.format_exc()
-            proceed_return = "Exception"
-            exception = True
+            # 确认可用索引
+            return_tuple = method_list[method_index].proceed(main_cmd_list, main_container_list, system_pkg())
+            proceed_condition, proceed_return = return_tuple[0], return_tuple[1]
+    # 捕捉报错信息
+    except:
+        exception_msg = traceback.format_exc()
+        proceed_condition, proceed_return = CONDITION_FAIL, "Exception"
+        exception = True
     # 执行指令后
-    command_done_time = YYYY_MM_DD_HH_MM_SS()
-    proceed_info_list = [method_list[method_index], proceed_condition, proceed_return]
+    cmd_donetime = YYYY_MM_DD_HH_MM_SS()
     log_dir = join(working_dir, f"log")
     log_filename = f"log_{cmd_proceed_date}.txt"
+    proceed_info_list = [method_list[method_index], proceed_condition, proceed_return]
     if proceed_condition == CONDITION_SUCCESS:
-        normal_log([cmd_proceed_time, command_done_time], main_cmd_list, proceed_info_list, log_dir, log_filename) # 写入日志文件
+        normal_log([cmd_proceed_time, cmd_donetime], main_cmd_list, proceed_info_list, log_dir, log_filename) # 写入日志文件
     elif proceed_condition == CONDITION_FAIL:
         error_msg(proceed_return)
-        normal_log([cmd_proceed_time, command_done_time], main_cmd_list, proceed_info_list, log_dir, log_filename) # 写入日志文件
+        normal_log([cmd_proceed_time, cmd_donetime], main_cmd_list, proceed_info_list, log_dir, log_filename) # 写入日志文件
     else:
         error_msg("请检查程序是否有返回状态值")
     # 程序报错判断
@@ -203,13 +254,13 @@ while True:
         error_msg("运行出现错误，展示错误信息")
         body_msg(exception_msg.split("\n"))
         error_log_filename = f"exception_{YYYY_MM_DD_HH_MM_SS()}.txt"
-        error_log_dir = join(working_dir, "error_log")
         error_log(exception_msg, error_log_dir, error_log_filename) # 写入错误日志
         system_msg(f"错误信息保存至{join(error_log_dir, error_log_filename)}")
-    # 常规保存
-    save_pkl(main_container_list, main_pkl_dir)
-    tips_msg("--------已自动备份pkl文件--------")
-    # 检查自动保存是否开启
-    if SETTING_AUTO_SAVE == True:
+    # 自动保存pkl文件
+    if settings_dict["AUTO_SAVE"] == True:
+        save_pkl(main_container_list, main_pkl_dir)
+        tips_msg("--------已保存pkl文件--------")
+    # 自动备份pkl文件
+    if settings_dict["AUTO_BACKUP"] == True:
         main_container_list.sort(key=attrgetter("container_label"))
         backup_pkl(main_container_list, f"{join(working_dir, "backup_pkl")}", system_pkg(), interval = 3, save_file = 3)
