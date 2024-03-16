@@ -48,6 +48,7 @@ class categorize_task(default_container_func_template):
             return None
         for task in container.task_list:
             task_attr = task.attribute
+            if task_attr == "": task_attr = "None"
             find = False
             for index, pair in enumerate(attr_category):
                 if task_attr == pair[0]:
@@ -89,6 +90,7 @@ class categorize_task(default_container_func_template):
             return None
         for task in container.task_list:
             task_date = task.date[:7]
+            if task_date == "": task_date = "None"
             find = False
             for index, pair in enumerate(date_category):
                 if task_date == pair[0]:
