@@ -9,18 +9,18 @@ class default_method(default_method_template):
         super().__init__() # 继承父类
         self.label = "default_method"
         self.version = "1.0"
-        self.method_list = ["get", "add", "delete", "search", "edit", "backup", "reload", "sys_info"]
+        self.method_list = ["get", "add", "delete", "edit"]
     
     def method_info(self):
         return super().method_info()
     
-    def analyze(self, command_list:list, container_list:list, system_pkg:dict): # 分析是否存在可用指令，返回(bool，[标签，版本，类型])
-        return super().analyze(command_list, container_list, system_pkg)
+    def analyze(self, cmd_list:list, container_list:list, system_pkg:dict): # 分析是否存在可用指令，返回(bool，[标签，版本，类型])
+        return super().analyze(cmd_list, container_list, system_pkg)
 
-    def proceed(self, command_list:list, container_list:list, system_pkg:dict):
-        return super().proceed(command_list, container_list, system_pkg)
+    def proceed(self, cmd_list:list, container_list:list, system_pkg:dict):
+        return super().proceed(cmd_list, container_list, system_pkg)
     
-    def get(self, command_parameter:str, container_list:list, system_pkg:dict): # 获取container列表，进入container.interface()
+    def get(self, cmd_parameter:str, container_list:list, system_pkg:dict): # 获取container列表，进入container.interface()
         get_index = "" # 用于get的索引
         MAX_INDEX = len(container_list) - 1
         if MAX_INDEX == -1:
@@ -29,11 +29,11 @@ class default_method(default_method_template):
         # 展示container_list
         table_container_list(range(0, MAX_INDEX +1), container_list, system_pkg)
         # 获取container_list索引值
+        if cmd_parameter != "": # 有参数则跳过首次获取user_input
+            user_input = cmd_parameter
         while get_index == "":
             # 获取user_input
-            if command_parameter != "": # 有参数则跳过首次获取user_input
-                user_input = command_parameter
-            else:
+            if user_input == "":
                 system_pkg["tips_msg"]("匹配首个符合的标签，输入\"exit\"退出")
                 user_input = system_pkg["normal_input"]("输入索引或标签")
             if user_input == system_pkg["EXIT"]: return (system_pkg["CONDITION_SUCCESS"], "exit")
@@ -62,11 +62,13 @@ class default_method(default_method_template):
                     system_pkg["system_msg"](f"没有找到\"{user_input}\"")
                 else: # 用户输入有多项匹配，仅显示筛选的container
                     table_container_list(index_list, container_list, system_pkg)
+            # 重置user_input
+            user_input = ""
         # 进入container.instance()界面
         return_tuple = container_list[get_index].interface(system_pkg) # 进入container.interface()并提供system_pkg
         return return_tuple
     
-    def add(self, command_parameter:str, container_list:list, system_pkg:dict): # 添加container
+    def add(self, cmd_parameter:str, container_list:list, system_pkg:dict): # 添加container
         df_container_template_list = system_pkg["df_container_template_list"]
         ex_container_template_list = system_pkg["ex_container_template_list"]
         container_template_list = df_container_template_list + ex_container_template_list
@@ -74,8 +76,8 @@ class default_method(default_method_template):
             system_pkg["system_msg"]("没有可用的container模板")
             return (system_pkg["CONDITION_SUCCESS"], "无container模板")
         # 选定container_template
-        if command_parameter != "": # 用参数预输入
-            user_input = command_parameter
+        if cmd_parameter != "": # 用参数预输入
+            user_input = cmd_parameter
         else: # 无参数预输入
             # 展示container_template
             container_label_list = table_container_template(container_template_list, system_pkg)
@@ -107,7 +109,7 @@ class default_method(default_method_template):
         if user_input != "y": return (system_pkg["CONDITION_SUCCESS"], "不补充容器信息")
         container_list[-1].update_info(system_pkg); return (system_pkg["CONDITION_SUCCESS"], "立即补充容器信息")
     
-    def delete(self, command_parameter:str, container_list:list, system_pkg:dict): # 删除container，尝试创建备份文件
+    def delete(self, cmd_parameter:str, container_list:list, system_pkg:dict): # 删除container，尝试创建备份文件
         get_index = "" # 用于get的索引
         MAX_INDEX = len(container_list) - 1
         if MAX_INDEX == -1:
@@ -118,8 +120,8 @@ class default_method(default_method_template):
         # 获取container_list索引值
         while get_index == "":
             # 获取user_input
-            if command_parameter != "": # 有参数则跳过首次获取user_input
-                user_input = command_parameter
+            if cmd_parameter != "": # 有参数则跳过首次获取user_input
+                user_input = cmd_parameter
             else:
                 system_pkg["tips_msg"]("匹配首个符合的标签，输入\"exit\"退出")
                 user_input = system_pkg["normal_input"]("输入索引或标签")
@@ -158,14 +160,28 @@ class default_method(default_method_template):
             system_pkg["system_msg"](f"已删除\"{select_container_label}\"")
         return (system_pkg["CONDITION_SUCCESS"], f"删除container{select_container_label}")
     
-    def search(self, command_parameter:str, container_list:list, system_pkg:dict): # 调用container可用的search()
-        return (system_pkg["CONDITION_SUCCESS"], None)
-    
-    def edit(self, command_parameter:str, container_list:list, system_pkg:dict): # 编辑container信息，单独编辑，使用container内置函数
+    def edit(self, cmd_parameter:str, container_list:list, system_pkg:dict): # 编辑container信息，单独编辑，使用container内置函数
         # 更改container_label, description, create_date
         return (system_pkg["CONDITION_SUCCESS"], None)
+
+
+class default_txt_operation(default_method_template):
+    def __init__(self):
+        super().__init__() # 继承父类
+        self.label = "default_txt_operation"
+        self.version = "1.0"
+        self.method_list = ["backup", "reload"]
     
-    def backup(self, command_parameter:str, container_list:list, system_pkg:dict): # 备份container，全局备份
+    def method_info(self):
+        return super().method_info()
+    
+    def analyze(self, cmd_list:list, container_list:list, system_pkg:dict): # 分析是否存在可用指令，返回(bool，[标签，版本，类型])
+        return super().analyze(cmd_list, container_list, system_pkg)
+
+    def proceed(self, cmd_list:list, container_list:list, system_pkg:dict):
+        return super().proceed(cmd_list, container_list, system_pkg)
+    
+    def backup(self, cmd_parameter:str, container_list:list, system_pkg:dict): # 备份container，全局备份
         backup_dir = ".\\backup_all\\"
         if not exists(backup_dir): mkdir(backup_dir)
         file_path = join(f"{backup_dir}", f"backup_{YYYY_MM_DD_HH_MM_SS()}.txt")
@@ -210,13 +226,13 @@ class default_method(default_method_template):
         system_pkg["body_msg"](backup_info)
         return (system_pkg["CONDITION_SUCCESS"], f"生成备份文件{working_dir}{file_path[1:]}")
     
-    def reload(self, command_parameter:str, container_list:list, system_pkg:dict): # 从.\\backup\\的txt文件读取container及其task_list，显示备份文件中不可用的模板，统计所有出现的类型及数量
+    def reload(self, cmd_parameter:str, container_list:list, system_pkg:dict): # 从.\\backup\\的txt文件读取container及其task_list，显示备份文件中不可用的模板，统计所有出现的类型及数量
         """参数第一个字符为"u"则自动升级可用版本，参数第一个字符为"n"则取消升级"""
         AUTO_UPDATE = False
         try:
-            if command_parameter[0] == "u":
+            if cmd_parameter[0] == "u":
                 AUTO_UPDATE = True
-            elif command_parameter[0] == "n":
+            elif cmd_parameter[0] == "n":
                 AUTO_UPDATE = None
         except IndexError: AUTO_UPDATE = False
         
@@ -432,11 +448,28 @@ class default_method(default_method_template):
         container_list[:] = temp_container_list
         system_pkg["system_msg"](f"已导入{file_path}")
         return (system_pkg["CONDITION_SUCCESS"], None)
+
+
+class default_sys_method(default_method_template):
+    def __init__(self):
+        super().__init__() # 继承父类
+        self.label = "default_sys_method"
+        self.version = "1.0"
+        self.method_list = ["sys_info"]
     
-    def sys_info(self, command_parameter:str, container_list:list, system_pkg:dict):
+    def method_info(self):
+        return super().method_info()
+    
+    def analyze(self, cmd_list:list, container_list:list, system_pkg:dict): # 分析是否存在可用指令，返回(bool，[标签，版本，类型])
+        return super().analyze(cmd_list, container_list, system_pkg)
+
+    def proceed(self, cmd_list:list, container_list:list, system_pkg:dict):
+        return super().proceed(cmd_list, container_list, system_pkg)
+    
+    def sys_info(self, cmd_parameter:str, container_list:list, system_pkg:dict):
         """获取system_pkg信息"""
-        if command_parameter != "":
-            user_input = command_parameter
+        if cmd_parameter != "":
+            user_input = cmd_parameter
         else:
             user_input = system_pkg["normal_input"]("输入查询的信息")
         if user_input == system_pkg["EXIT"]: return (system_pkg["CONDITION_SUCCESS"], "取消查询system_pkg")
