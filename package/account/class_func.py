@@ -15,5 +15,5 @@ class account_container_func(extra_container_func_template):
     def get_info(self):
         return super().get_info()
     
-    def proceed(self, command_list:list, container, system_pkg:dict):
-        super().proceed(command_list, container, system_pkg)
+    def proceed(self, cmd_list:list, container, system_pkg:dict):
+        super().proceed(cmd_list, container, system_pkg)

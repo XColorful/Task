@@ -20,8 +20,8 @@ class categorize_task(default_container_func_template):
     def get_info(self):
         return super().get_info()
 
-    def proceed(self, command_list:list, container, system_pkg:dict):
-        return super().proceed(command_list, container, system_pkg)
+    def proceed(self, cmd_list:list, container, system_pkg:dict):
+        return super().proceed(cmd_list, container, system_pkg)
     
     def categorize(self, command_parameter:str, container, system_pkg:dict):
         """可选参数attr, date

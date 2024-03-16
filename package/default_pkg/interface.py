@@ -49,20 +49,20 @@ def default_interface(container, system_pkg): # container -> container
             interface_help(system_pkg)
             continue
         # 判断指令类型
-        command_list = user_input.split(" ", 1)
-        if command_list[0] == " ":
+        cmd_list = user_input.split(" ", 1)
+        if cmd_list[0] == " ":
             system_pkg["system_msg"]("输入不能以空格开头")
             system_pkg["tips_msg"]("输入\"/info\"获取更多信息")
             continue
-        if user_input[0] == "/": command_list = user_input[1:].split(" ", 1)
-        elif user_input[0] == "+": command_list = ["search", user_input[1:]]
-        command = command_list[0]
+        if user_input[0] == "/": cmd_list = user_input[1:].split(" ", 1)
+        elif user_input[0] == "+": cmd_list = ["search", user_input[1:]]
+        cmd = cmd_list[0]
         # 查找可用指令
         default_function = False
         available_func_index = []
         for class_func_index in range(0, len(function_list)):
             for function in function_list[class_func_index].function_list:
-                if command == function:
+                if cmd == function:
                     available_func_index.append(class_func_index)
                 if function == "search": # 本interface默认执行的功能
                     default_function = True
@@ -73,21 +73,21 @@ def default_interface(container, system_pkg): # container -> container
             proceed_function = function_list[available_func_index[0]]
         elif available_func_index_len == 0: # 没有找到指令
             # 尝试识别为索引
-            convert_result = convert_to_int(command)
+            convert_result = convert_to_int(cmd)
             if convert_result != None: # 执行搜索，参数为int索引
                 # 执行默认function
                 if default_function == True:
-                    command_list = ["search", convert_result]
-                    default_proceed_function.proceed(command_list, container, system_pkg)
+                    cmd_list = ["search", convert_result]
+                    default_proceed_function.proceed(cmd_list, container, system_pkg)
                     show_task = False
                 continue
             else: # 既不为可用指令，又不为非负索引
-                system_pkg["system_msg"](f"没有可用的指令\"{command}\"")
+                system_pkg["system_msg"](f"没有可用的指令\"{cmd}\"")
                 system_pkg["tips_msg"]("输入\"/info\"获取更多信息")
                 # 执行默认function
                 if default_function == True:
-                    command_list = ["search", user_input]
-                    default_proceed_function.proceed(command_list, container, system_pkg)
+                    cmd_list = ["search", user_input]
+                    default_proceed_function.proceed(cmd_list, container, system_pkg)
                     show_task = False
                 continue
         else: # 有多个可用指令
@@ -103,5 +103,5 @@ def default_interface(container, system_pkg): # container -> container
                 else:
                     system_pkg["system_msg"](f"索引\"{user_input}\"不存在"); continue
         # 执行指令
-        proceed_function.proceed(command_list, container, system_pkg)
+        proceed_function.proceed(cmd_list, container, system_pkg)
         show_task = True

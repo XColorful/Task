@@ -11,13 +11,13 @@ class school_task_method(default_method_template):
     def method_info(self):
         return super().method_info()
     
-    def analyze(self, command_list:list, container_list:list, system_pkg:dict): # 分析是否存在可用指令，返回(bool，[标签，版本，类型])
-        return super().analyze(command_list, container_list, system_pkg)
+    def analyze(self, cmd_list:list, container_list:list, system_pkg:dict): # 分析是否存在可用指令，返回(bool，[标签，版本，类型])
+        return super().analyze(cmd_list, container_list, system_pkg)
 
-    def proceed(self, command_list:list, container_list:list, system_pkg:dict):
-        return super().proceed(command_list, container_list, system_pkg)
+    def proceed(self, cmd_list:list, container_list:list, system_pkg:dict):
+        return super().proceed(cmd_list, container_list, system_pkg)
    
-    def today(self, command_list:list, container_list:list, system_pkg:dict):
+    def today(self, cmd_list:list, container_list:list, system_pkg:dict):
         current_date = YYYY_MM_DD()
         user_input = system_pkg["normal_input"](f"输入时间({current_date})")
         if user_input != "": current_date = user_input
@@ -42,7 +42,7 @@ class school_task_method(default_method_template):
         system_pkg["system_msg"]("已生成Task1.2 today.txt")
         return (system_pkg["CONDITION_SUCCESS"], "today")
     
-    def txt1(self, command_list:list, container_list:list, system_pkg:dict):
+    def txt1(self, cmd_list:list, container_list:list, system_pkg:dict):
         with open(".\\task1.txt", "w", encoding = "utf-8") as f:
             for container in container_list:
                 f.write(f"{container.container_label} ({container.create_date} - {container.create_date})\n")
@@ -54,7 +54,7 @@ class school_task_method(default_method_template):
         system_pkg["system_msg"]("已创建Task1.2 txt1.txt")
         return (system_pkg["CONDITION_SUCCESS"], "txt1")
     
-    def backup1(self, command_list:list, container_list:list, system_pkg:dict):
+    def backup1(self, cmd_list:list, container_list:list, system_pkg:dict):
         system_pkg("system_msg")("注意：此功能为适配早期版本创建，请使用默认模块\"backup\"命令代替")
         if system_pkg("normal_input")("继续执行(y/n)") != "y": return (system_pkg["CONDITION_SUCCESS"], "取消backup1")
         with open(".\\backup1.txt", "w", encoding = "utf-8") as f:
@@ -65,7 +65,7 @@ class school_task_method(default_method_template):
         system_pkg["system_msg"]("已生成Task1.2 backup1.txt")
         return (system_pkg["CONDITION_SUCCESS"], "backup1")
     
-    def reload1(self, command_list:list, container_list:list, system_pkg:dict):
+    def reload1(self, cmd_list:list, container_list:list, system_pkg:dict):
         system_pkg("system_msg")("注意：此功能为适配早期版本创建，请使用默认模块\"backup\"命令及\"reload\"代替")
         system_pkg("system_msg")("注意：此方法将不保留task创建日期更变，所有extra类型数据")
         if system_pkg("normal_input")("继续执行(y/n)") != "y": return (system_pkg["CONDITION_SUCCESS"], "取消reload1")
