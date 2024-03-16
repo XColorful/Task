@@ -3,7 +3,7 @@ from os.path import dirname, abspath, exists, join
 working_dir = dirname(abspath(__file__))
 chdir(working_dir) # 切换工作路径至当前文件目录
 
-# main_func
+# main_func--------+--------+--------+--------+--------+--------+--------+--------+ Begin
 from function import convert_to_int, convert_to_float
 def adjust_settings(settings_dict:dict, key:str, value:str) -> bool:
     # int, float, bool类型转换
@@ -83,9 +83,13 @@ def system_pkg() -> dict:
             "settings_dict":settings_dict,
             "github":github, "version":version, "contributor":contributor_list}
 
-def no_tips(msg_str):
+def no_tips(msg_str): # 用于settings_dict中"SHOW_TIPS"=False
     return
 
+# main_func--------+--------+--------+--------+--------+--------+--------+--------+ End
+
+
+# 预处理--------+--------+--------+--------+--------+--------+--------+--------+ Begin
 # 初始化变量
 from const import *
 from val import *
@@ -93,8 +97,9 @@ from repo_info import *
 system_msg = print
 error_log_dir = join(working_dir, "error_log")
 
+
 # settings管理器，设置初始化
-# settings_list位于./val.py
+# settings_dict初始化于./val.py
 try:
     with open(f".\\settings.txt", "r", encoding = "utf-8") as f:
         settings_list = f.readlines()
@@ -104,6 +109,7 @@ try:
             except: continue
             adjust_settings(settings_dict, set_key, set_value)
 except FileNotFoundError: pass
+
 
 # 模块管理器
 # 读取默认模块
@@ -135,15 +141,20 @@ command_input, normal_input, strict_input, block_input = io_list[0]["command_inp
 # message
 system_msg, error_msg, tips_msg, table_msg, head_msg, body_msg, normal_msg = message_list[0]["system_msg"], message_list[0]["error_msg"], message_list[0]["tips_msg"], message_list[0]["table_msg"], message_list[0]["head_msg"], message_list[0]["body_msg"], message_list[0]["normal_msg"]
 if settings_dict["SHOW_TIPS"] == False:
-    tips_msg = no_tips
+    tips_msg = no_tips # 将tips_msg改为无内容的空函数（仍接收参数）
     """
     这个以后再改得完善一点，避免直接去除了
     """
 
+# 预处理--------+--------+--------+--------+--------+--------+--------+--------+ End
+
+
+# 主程序--------+--------+--------+--------+--------+--------+--------+--------+ Start
 # 主程序
 from function import read_from_pkl, save_pkl, error_log, YYYY_MM_DD_HH_MM_SS, backup_pkl, normal_log, table_analyze_result
 import traceback
 from operator import attrgetter
+# 启动提示
 normal_msg(f"<{github}>")
 head_msg(f"Task - Version {version}")
 body_msg([f"By {", ".join(contributor_list)}"])
@@ -163,7 +174,7 @@ except FileNotFoundError:
     system_msg(f"没有可用的pkl数据文件\"{main_pkl_dir}\"")
     save_pkl(main_container_list, main_pkl_dir)
 except ModuleNotFoundError as e:
-    system_msg(f"缺少模块\"{str(e).split("'")[1]}\"，请检查目录\"./package/\"")
+    system_msg(f"缺少模块\"{str(e).split("'")[1]}\"，请检查目录\"./package/\"或尝试运行\"./安装.cmd\"安装所需依赖")
     normal_input("按任意键退出")
     exit()
 except AttributeError as e:
@@ -192,7 +203,7 @@ if main_container_list == []: normal_msg("注：主容器列表为空")
 # 程序主循环
 while True:
     # 获取用户输入
-    main_cmd_list = command_input("main")
+    main_cmd_list = command_input("main") # 用" "分隔 -> [cmd:str, cmd_parameter:str]
     if main_cmd_list[0] == system_pkg()["EXIT"]: exit()
     if main_cmd_list[0] == "":
         if main_cmd_list[1] != "":
@@ -207,13 +218,33 @@ while True:
     proceed_condition = None
     exception = False
     # 遍历可执行的method
+    try_df_method = True if (main_cmd_list[1] == "" and settings_dict["DEFAULT_METHOD"] != "") else False
+    if try_df_method == True:
+        df_cmd_list = [settings_dict["DEFAULT_METHOD"], main_cmd_list[0]] # 用" "分隔 -> [cmd:str, cmd_parameter:str] （格式与main_cmd_list相同）
     for method_index in range(0, len(method_list)):
+        # 对cmd进行一般搜索
         analyze_result = method_list[method_index].analyze(main_cmd_list, main_container_list, system_pkg())
-        cmd_analyse_list.append(analyze_result[1])
+        # 搜索成功
         if analyze_result[0] == CONDITION_SUCCESS:
+            cmd_analyse_list.append(analyze_result[1])
             exec_index_list.append(method_index)
-        else:
+            continue
+        # 搜索失败
+        elif analyze_result[0] == CONDITION_FAIL:
+            # 尝试搜索默认method
+            if try_df_method == True:
+                df_analyze_result = method_list[method_index].analyze(df_cmd_list, main_container_list, system_pkg())
+                # 搜索成功
+                if df_analyze_result[0] == CONDITION_SUCCESS:
+                    cmd_analyse_list.append(df_analyze_result[1])
+                    exec_index_list.append(method_index)
+                    continue
+                # 搜索失败
+                elif df_analyze_result[0] == CONDITION_FAIL: pass
+            # 添加cmd一般搜索结果
+            cmd_analyse_list.append(analyze_result[1])
             fail_index_list.append(method_index)
+            continue
     # 判断是否有可执行指令
     # 无可执行指令
     if exec_index_list == []:
@@ -228,7 +259,10 @@ while True:
         # 仅有一个可执行指令
         if len(exec_index_list) == 1:
             method_index = exec_index_list[0]
-            return_tuple = method_list[method_index].proceed(main_cmd_list, main_container_list, system_pkg())
+            if try_df_method == True: # 执行默认method
+                return_tuple = method_list[method_index].proceed(df_cmd_list, main_container_list, system_pkg())
+            else: # 一般执行method
+                return_tuple = method_list[method_index].proceed(main_cmd_list, main_container_list, system_pkg())
             proceed_condition, proceed_return = return_tuple[0], return_tuple[1]
         # 有多个可执行指令
         else:
@@ -280,3 +314,7 @@ while True:
     if settings_dict["AUTO_BACKUP"] == True:
         main_container_list.sort(key=attrgetter("container_label"))
         backup_pkl(main_container_list, f"{join(working_dir, "backup_pkl")}", system_pkg(), interval = settings_dict["BACKUP_INTERVAL"], backup_total = settings_dict["BACKUP_TOTAL"])
+    # 输出空行
+    normal_msg("")
+
+# 主程序--------+--------+--------+--------+--------+--------+--------+--------+ End
