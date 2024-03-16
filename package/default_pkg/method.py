@@ -21,16 +21,18 @@ class default_method(default_method_template):
         return super().proceed(cmd_list, container_list, system_pkg)
     
     def get(self, cmd_parameter:str, container_list:list, system_pkg:dict): # 获取container列表，进入container.interface()
-        get_index = "" # 用于get的索引
+        # 检测空container_list
         MAX_INDEX = len(container_list) - 1
         if MAX_INDEX == -1:
             system_pkg["system_msg"]("container_list为空，请先用指令\"add\"创建一个container")
             return (system_pkg["CONDITION_SUCCESS"], "container_list为空")
-        # 展示container_list
-        table_container_list(range(0, MAX_INDEX +1), container_list, system_pkg)
-        # 获取container_list索引值
-        if cmd_parameter != "": # 有参数则跳过首次获取user_input
+        # 有参数则跳过首次获取user_input
+        if cmd_parameter != "":
             user_input = cmd_parameter
+        else: # 展示container_list
+            table_container_list(range(0, MAX_INDEX +1), container_list, system_pkg)
+        # 获取container_list索引值
+        get_index = "" # 用于get的索引
         while get_index == "":
             # 获取user_input
             if user_input == "":
