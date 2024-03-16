@@ -2,7 +2,7 @@ from .class_func import default_container_func
 from .container import default_container
 from .io import command_input, normal_input, strict_input, block_input
 from .message import system_msg, error_msg, tips_msg, table_msg, head_msg, body_msg, normal_msg
-from .method import default_method
+from .method import default_method, default_txt_operation, default_sys_method
 from .task import default_task
 package_dict = {"class_func":[default_container_func],
                 "default_container":[default_container],
@@ -22,5 +22,5 @@ package_dict = {"class_func":[default_container_func],
                             "normal_msg":normal_msg}
                             # message:2 （可拓展）
                             ],
-                "method":[default_method()],
+                "method":[default_method(), default_txt_operation(), default_sys_method()],
                 "default_task":[default_task]}
