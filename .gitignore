@@ -1,9 +1,9 @@
 __pycache__
-*.pyc
+backup_all
+backup_pkl
+error_log
+log
 *.pkl
-backup_*.txt
-exception_*.txt
-log_*.txt
 backup1.txt
 load_package.txt
 pkl_dir.txt
