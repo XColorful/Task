@@ -1,23 +1,23 @@
 from default_method import default_method_template
 from .function import convert_to_int, convert_to_float, table_container_function_list, table_class_func, table_show_container_func
 
-class default_container_manager(default_method_template):
+class container_manager(default_method_template):
     def __init__(self):
         super().__init__() # 继承父类
-        self.label = "default_container_manager"
+        self.label = "container_manager"
         self.version = "1.0"
         self.method_list = ["add_func", "del_func"]
     
     def method_info(self):
         return super().method_info()
     
-    def analyze(self, command_list:list, container_list:list, system_pkg:dict): # 分析是否存在可用指令，返回(bool，[标签，版本，类型])
-        return super().analyze(command_list, container_list, system_pkg)
+    def analyze(self, cmd_list:list, container_list:list, system_pkg:dict): # 分析是否存在可用指令，返回(bool，[标签，版本，类型])
+        return super().analyze(cmd_list, container_list, system_pkg)
 
-    def proceed(self, command_list:list, container_list:list, system_pkg:dict):
-        return super().proceed(command_list, container_list, system_pkg)
+    def proceed(self, cmd_list:list, container_list:list, system_pkg:dict):
+        return super().proceed(cmd_list, container_list, system_pkg)
     
-    def add_func(self, command_parameter:str, container_list:list, system_pkg:dict):
+    def add_func(self, cmd_parameter:str, container_list:list, system_pkg:dict):
         # 选取container
         get_index = "" # 用于get的索引
         MAX_INDEX = len(container_list) - 1
@@ -29,8 +29,8 @@ class default_container_manager(default_method_template):
         # 获取container_list索引值
         while get_index == "":
             # 获取user_input
-            if command_parameter != "": # 有参数则跳过首次获取user_input
-                user_input = command_parameter
+            if cmd_parameter != "": # 有参数则跳过首次获取user_input
+                user_input = cmd_parameter
             else:
                 system_pkg["tips_msg"]("匹配首个符合的标签，输入\"exit\"退出")
                 user_input = system_pkg["normal_input"]("输入索引或标签")
@@ -125,7 +125,7 @@ class default_container_manager(default_method_template):
             return (system_pkg["CONDITION_SUCCESS"], f"{container_list[container_index].container_label}.function_list添加\"{class_func.label}\"")
         return (system_pkg["CONDITION_SUCCESS"], "取消添加class_func")
 
-    def del_func(self, command_parameter:str, container_list:list, system_pkg:dict):
+    def del_func(self, cmd_parameter:str, container_list:list, system_pkg:dict):
         # 选取container
         get_index = "" # 用于get的索引
         MAX_INDEX = len(container_list) - 1
@@ -137,8 +137,8 @@ class default_container_manager(default_method_template):
         # 获取container_list索引值
         while get_index == "":
             # 获取user_input
-            if command_parameter != "": # 有参数则跳过首次获取user_input
-                user_input = command_parameter
+            if cmd_parameter != "": # 有参数则跳过首次获取user_input
+                user_input = cmd_parameter
             else:
                 system_pkg["tips_msg"]("匹配符合的标签，输入\"exit\"退出")
                 user_input = system_pkg["normal_input"]("输入索引或标签")
