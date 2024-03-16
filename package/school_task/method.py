@@ -55,8 +55,8 @@ class school_task_method(default_method_template):
         return (system_pkg["CONDITION_SUCCESS"], "txt1")
     
     def backup1(self, cmd_list:list, container_list:list, system_pkg:dict):
-        system_pkg("system_msg")("注意：此功能为适配早期版本创建，请使用默认模块\"backup\"命令代替")
-        if system_pkg("normal_input")("继续执行(y/n)") != "y": return (system_pkg["CONDITION_SUCCESS"], "取消backup1")
+        system_pkg["system_msg"]("注意：此功能为适配早期版本创建，请使用默认模块\"backup\"命令代替")
+        if system_pkg["normal_input"]("继续执行(y/n)") != "y": return (system_pkg["CONDITION_SUCCESS"], "取消backup1")
         with open(".\\backup1.txt", "w", encoding = "utf-8") as f:
             for container in container_list:
                 f.write(f"Task_object|{container.container_label}|{container.create_date}|{container.description}\n")
@@ -66,9 +66,9 @@ class school_task_method(default_method_template):
         return (system_pkg["CONDITION_SUCCESS"], "backup1")
     
     def reload1(self, cmd_list:list, container_list:list, system_pkg:dict):
-        system_pkg("system_msg")("注意：此功能为适配早期版本创建，请使用默认模块\"backup\"命令及\"reload\"代替")
-        system_pkg("system_msg")("注意：此方法将不保留task创建日期更变，所有extra类型数据")
-        if system_pkg("normal_input")("继续执行(y/n)") != "y": return (system_pkg["CONDITION_SUCCESS"], "取消reload1")
+        system_pkg["system_msg"]("注意：此功能为适配早期版本创建，请使用默认模块\"backup\"命令及\"reload\"代替")
+        system_pkg["system_msg"]("注意：此方法将不保留task创建日期更变，所有extra类型数据")
+        if system_pkg["normal_input"]("继续执行(y/n)") != "y": return (system_pkg["CONDITION_SUCCESS"], "取消reload1")
         temp_container_list = []
         
         with open(".\\backup1.txt", "r", encoding = "utf-8") as f:
