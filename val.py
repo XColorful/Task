@@ -13,4 +13,5 @@ settings_dict = {"SHOW_TIPS":True,
                 "AUTO_SAVE":True,
                 "AUTO_BACKUP":True,
                 "BACKUP_INTERVAL":3,
-                "BACKUP_TOTAL":3}
+                "BACKUP_TOTAL":3,
+                "DEFAULT_METHOD":""}
