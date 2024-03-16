@@ -12,12 +12,12 @@ class default_container_func_template():
     def get_info(self):
         return [self.label, self.version, self.type, self.function_list]
 
-    def proceed(self, command_list:list, container, system_pkg:dict):
-        command = command_list[0]
-        try: command_parameter = command_list[1]
-        except IndexError: command_parameter = ""
-        proceed_function = getattr(self, command)
-        proceed_function(command_parameter, container, system_pkg)
+    def proceed(self, cmd_list:list, container, system_pkg:dict):
+        cmd = cmd_list[0]
+        try: cmd_parameter = cmd_list[1]
+        except IndexError: cmd_parameter = ""
+        proceed_function = getattr(self, cmd)
+        proceed_function(cmd_parameter, container, system_pkg)
         return None
 
 class extra_container_func_template(default_container_func_template):
@@ -34,5 +34,5 @@ class extra_container_func_template(default_container_func_template):
     def get_info(self):
         return super().get_info()
     
-    def proceed(self, command_list:list, container, system_pkg:dict):
+    def proceed(self, cmd_list:list, container, system_pkg:dict):
         super().proceed()

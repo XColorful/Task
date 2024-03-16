@@ -106,7 +106,7 @@ def error_log(exception_message:str, folder_dir:str, filename:str):
     with open(file_dir, "w", encoding = "utf-8") as f:
         f.write(exception_message)
 
-def normal_log(time_list:list, command_list:list, proceed_info_list:list, folder_dir:str, filename:str):
+def normal_log(time_list:list, cmd_list:list, proceed_info_list:list, folder_dir:str, filename:str):
     if not exists(folder_dir): mkdir(folder_dir) # 创建目录
     file_dir = join(folder_dir, filename)
     with open(file_dir, "a", encoding = "utf-8") as f:
@@ -114,7 +114,7 @@ def normal_log(time_list:list, command_list:list, proceed_info_list:list, folder
         method_info = proceed_info_list[0].method_info()
         method_list = proceed_info_list[0].method_list
         f.write(f"\tlabel:{method_info[0]}; version:{method_info[1]}; type:{method_info[2]}; method_list:{str(method_list)}\n")
-        f.write(f"\tcommand_list:{str(command_list)}\n")
+        f.write(f"\tcommand_list:{str(cmd_list)}\n")
         f.write(f"\tproceed_condition:{proceed_info_list[1]}; proceed_return:{proceed_info_list[2]}\n")
     return None
 
@@ -161,7 +161,7 @@ def backup_pkl(data, dir:str, system_pkg:dict, interval : int = 3, backup_total 
     system_pkg["system_msg"](f"自动备份pkl文件至\"{backup_dir}\"")
     system_pkg["body_msg"]([f"文件大小：{file_size_str(backup_dir)}", f"备份间隔：{date_interval}天{display_last_backup_time}", f"备份总数：{backup_count}/{backup_total}"])
 
-def table_analyze_result(method_list:list, method_index_list:list, system_pkg:dict, start_index = 1):
+def table_analyze_result(method_info_list:list, method_index_list:list, system_pkg:dict, start_index = 1):
     """[标签，版本，适用类型，指令集]
     
     """
@@ -169,7 +169,7 @@ def table_analyze_result(method_list:list, method_index_list:list, system_pkg:di
     heading = ["标签", "版本", "适用类型", "指令集"]
     table_list.append(heading)
     for index in method_index_list:
-        table_list.append(method_list[index])
+        table_list.append(method_info_list[index])
     add_index_in_list(table_list, start_index, heading = True) # 添加序号
     system_pkg["table_msg"](table_list, heading = True)
     return None
