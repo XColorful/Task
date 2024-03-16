@@ -238,6 +238,7 @@ while True:
                 if df_analyze_result[0] == CONDITION_SUCCESS:
                     cmd_analyse_list.append(df_analyze_result[1])
                     exec_index_list.append(method_index)
+                    df_exec_method_index = method_index
                     continue
                 # 搜索失败
                 elif df_analyze_result[0] == CONDITION_FAIL: pass
@@ -257,16 +258,22 @@ while True:
     # 有可执行指令
     try:
         # 仅有一个可执行指令
-        if len(exec_index_list) == 1:
+        if len(exec_index_list) == 1 or (len(exec_index_list) == 2 and try_df_method == True):
             method_index = exec_index_list[0]
-            if try_df_method == True: # 执行默认method
+            # 执行默认method
+            if try_df_method == True and len(exec_index_list) == 1:
+                method_index = df_exec_method_index
                 return_tuple = method_list[method_index].proceed(df_cmd_list, main_container_list, system_pkg())
-            else: # 一般执行method
+            # 一般执行method
+            else:
+                # 使用非默认method
+                try: method_index = exec_index_list[1] if exec_index_list[1] != df_exec_method_index else exec_index_list[0]
+                except IndexError: method_index = exec_index_list[0]
                 return_tuple = method_list[method_index].proceed(main_cmd_list, main_container_list, system_pkg())
             proceed_condition, proceed_return = return_tuple[0], return_tuple[1]
         # 有多个可执行指令
         else:
-            table_analyze_result(cmd_analyse_list, exec_index_list, system_pkg())
+            table_analyze_result(cmd_analyse_list, exec_index_list, system_pkg(), start_index = 1)
             user_input = normal_input("输入索引")
             if user_input == EXIT: continue
             method_index = convert_to_int(user_input)
@@ -276,11 +283,11 @@ while True:
                 continue
             # 输入int字符串
             else:
-                if not (method_index in exec_index_list):
+                if not (method_index in range(1, len(exec_index_list) + 1)):
                     system_msg(f"\"{method_index}\"不在列出的索引内")
                     continue
             # 确认可用索引
-            return_tuple = method_list[method_index].proceed(main_cmd_list, main_container_list, system_pkg())
+            return_tuple = method_list[exec_index_list[method_index - 1]].proceed(main_cmd_list, main_container_list, system_pkg())
             proceed_condition, proceed_return = return_tuple[0], return_tuple[1]
     # 捕捉报错信息
     except:
