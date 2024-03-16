@@ -20,7 +20,7 @@ def convert_to_float(s:str):
     except ValueError:
         return None
 
-def add_index_in_list(input_list:list, start_index = 0, heading = False):
+def add_index_in_list(input_list:list, start_index = 0, heading = False, index_column = ""):
     """为列表里每项添加索引字符串，要求每项均为列表
     
     [["a", "b"], ["c", "d"]] -> [["0", "a", "b"], ["1", "c", "d"]]
@@ -33,7 +33,7 @@ def add_index_in_list(input_list:list, start_index = 0, heading = False):
     index_for_list = start_index
     list_start_index = 0
     if heading == True:
-        input_list[0].insert(0, "")
+        input_list[0].insert(0, index_column)
         list_start_index += 1
     for index_for_input_list in range(list_start_index, len(input_list)):
         index_str = str(index_for_list)
@@ -161,7 +161,7 @@ def backup_pkl(data, dir:str, system_pkg:dict, interval : int = 3, backup_total 
     system_pkg["system_msg"](f"自动备份pkl文件至\"{backup_dir}\"")
     system_pkg["body_msg"]([f"文件大小：{file_size_str(backup_dir)}", f"备份间隔：{date_interval}天{display_last_backup_time}", f"备份总数：{backup_count}/{backup_total}"])
 
-def table_analyze_result(method_info_list:list, method_index_list:list, system_pkg:dict, start_index = 1):
+def table_analyze_result(method_info_list:list, method_index_list:list, system_pkg:dict, start_index = 0):
     """[标签，版本，适用类型，指令集]
     
     """
@@ -170,6 +170,6 @@ def table_analyze_result(method_info_list:list, method_index_list:list, system_p
     table_list.append(heading)
     for index in method_index_list:
         table_list.append(method_info_list[index])
-    add_index_in_list(table_list, start_index, heading = True) # 添加序号
+    add_index_in_list(table_list, start_index, heading = True, index_column = "索引") # 添加序号
     system_pkg["table_msg"](table_list, heading = True)
     return None
