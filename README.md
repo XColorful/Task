@@ -19,9 +19,13 @@ _注：在任意界面均可输入"**exit**"退出当前操作_
 - 主界面输入"_**add**_"，输入"_**回车**_"创建默认类型的Tasker
 - 输入"_**y**_"立即补充该标签，描述；输入"_**回车**_"添加默认Task类型模板
 
+    ![1.创建一个Tasker](https://github.com/XColorful/Task/raw/main/Tutorial/1.创建一个Tasker.png)
+
 ## 2. 进入Tasker界面
 
 - 主界面输入"_**get**_"，选中索引或标签即可进入Tasker界面
+
+    ![2.进入Tasker界面](https://github.com/XColorful/Task/raw/main/Tutorial/2.进入Tasker界面.png)
 
 ## 3. 默认Tasker界面
 
@@ -29,11 +33,15 @@ _注：在任意界面均可输入"**exit**"退出当前操作_
 
     > _可以尝试输入"_**/info**_"获取更多帮助_
 
+    ![3.默认Tasker界面](https://github.com/XColorful/Task/raw/main/Tutorial/3.默认Tasker界面.png)
+
 ## 4. 记录一项Task
 
 - 默认Tasker界面内输入"_**new**_"，依次填入"**日期**"，"**属性**"，"**内容**"，"**注释**"
 
     > _除"**内容**"外，输入"**回车**"即可填入默认内容_
+
+    ![4.记录一项Task.png](https://github.com/XColorful/Task/raw/main/Tutorial/4.记录一项Task.png)
 
 ##  其他功能
 
@@ -42,10 +50,14 @@ _注：在任意界面均可输入"**exit**"退出当前操作_
 - 主界面输入"_**backup**_"，创建备份文件至代码目录下"**_.\\\\backup_all\\\\backup_YYYY_MM_DD - HH-MM-SS.txt_**"
 - 主界面输入"_**reload**_"，选择代码目录下"**_.\\\\backup_all\\\\_**"中的"**_backup\_\*.txt_**"文件进行读取
 
+    ![备份与读取.png](https://github.com/XColorful/Task/raw/main/Tutorial/备份与读取.png)
+
 ## 添加导入模块
 
 - 在代码目录下创建"_**load_module.txt**_"
 - 选择输入"_**代码目录/package/**_"下的文件夹名称即可在程序启动时导入模块
+
+    ![添加导入模块.png](https://github.com/XColorful/Task/raw/main/Tutorial/添加导入模块.png)
 
 ## 为Tasker添加功能
 
