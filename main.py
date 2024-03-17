@@ -221,9 +221,11 @@ while True:
     try_df_method = True if (main_cmd_list[1] == "" and settings_dict["DEFAULT_METHOD"] != "") else False
     if try_df_method == True:
         df_cmd_list = [settings_dict["DEFAULT_METHOD"], main_cmd_list[0]] # 用" "分隔 -> [cmd:str, cmd_parameter:str] （格式与main_cmd_list相同）
+    df_exec_method_index = None
     for method_index in range(0, len(method_list)):
         # 对cmd进行一般搜索
         analyze_result = method_list[method_index].analyze(main_cmd_list, main_container_list, system_pkg())
+        # 优先级：一般搜索结果 > 默认method
         # 搜索成功
         if analyze_result[0] == CONDITION_SUCCESS:
             cmd_analyse_list.append(analyze_result[1])
@@ -260,10 +262,12 @@ while True:
         # 仅有一个可执行指令
         if len(exec_index_list) == 1 or (len(exec_index_list) == 2 and try_df_method == True):
             method_index = exec_index_list[0]
-            # 执行默认method
+            # 尝试执行默认method
             if try_df_method == True and len(exec_index_list) == 1:
-                method_index = df_exec_method_index
-                return_tuple = method_list[method_index].proceed(df_cmd_list, main_container_list, system_pkg())
+                if df_exec_method_index != None:
+                    return_tuple = method_list[df_exec_method_index].proceed(df_cmd_list, main_container_list, system_pkg())
+                else: # 执行非默认设置method
+                    return_tuple = method_list[method_index].proceed(main_cmd_list, main_container_list, system_pkg())
             # 一般执行method
             else:
                 # 使用非默认method
