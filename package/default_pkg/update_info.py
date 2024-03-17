@@ -7,7 +7,6 @@ def default_update_info(self, system_pkg):
         return_tuple = system_pkg["strict_input"]("输入容器标签", block_list, system_pkg)
         if return_tuple[0] == False: return (system_pkg["CONDITION_SUCCESS"], "取消输入容器标签")
         self.container_label = return_tuple[1]
-        # 还未做重名判断
     
     if self.description == "": # 添加容器描述
         return_tuple = system_pkg["strict_input"]("输入容器描述", block_list, system_pkg)
@@ -19,7 +18,7 @@ def default_update_info(self, system_pkg):
         # 筛选符合版本的task模板类型
         task_template_list = []
         task_instance_list = []
-        for task_template in system_pkg["default_task_template_list"]:
+        for task_template in system_pkg["df_task_template_list"]:
             task_instance = task_template()
             if task_instance.type != self.type: continue
             if convert_to_float(str(task_instance.version)) > convert_to_float(str(self.version)): continue # 高版本则不兼容
