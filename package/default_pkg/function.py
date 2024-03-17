@@ -50,7 +50,7 @@ def table_container_template(container_template_list, system_pkg:dict):
                             template_instance.version,
                             template_instance.type,
                             template_instance.description])
-        container_label_list.append(template_instance.container_label)
+        container_label_list.append(template_instance.version)
     system_pkg["table_msg"](table_list, heading = True)
     return container_label_list
 

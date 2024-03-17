@@ -1,6 +1,6 @@
 from default_method import default_method_template
 from .function import convert_to_int, convert_to_float, table_container_list, table_container_template, YYYY_MM_DD_HH_MM_SS, table_backup_file
-from os import mkdir
+from os import mkdir, getcwd
 from os.path import exists, join, dirname, abspath
 from glob import glob
 
@@ -27,6 +27,7 @@ class default_method(default_method_template):
             system_pkg["system_msg"]("container_list为空，请先用指令\"add\"创建一个container")
             return (system_pkg["CONDITION_SUCCESS"], "container_list为空")
         # 有参数则跳过首次获取user_input
+        user_input = ""
         if cmd_parameter != "":
             user_input = cmd_parameter
         else: # 展示container_list
@@ -82,27 +83,27 @@ class default_method(default_method_template):
             user_input = cmd_parameter
         else: # 无参数预输入
             # 展示container_template
-            container_label_list = table_container_template(container_template_list, system_pkg)
-            system_pkg["tips_msg"]("匹配首个符合的标签，输入\"exit\"取消创建")
-            user_input = system_pkg["normal_input"]("输入索引或标签")
+            container_show_list = table_container_template(container_template_list, system_pkg)
+            system_pkg["tips_msg"]("匹配首个符合的模板，输入\"exit\"取消创建")
+            user_input = system_pkg["normal_input"]("输入索引或版本")
         if user_input == system_pkg["EXIT"]: return (system_pkg["CONDITION_SUCCESS"], "取消添加container模板")
         convert_result = convert_to_int(user_input)
-        if convert_result != None: # 用户输入为int
+        # 尝试识别为索引
+        container_template_list_index = None
+        if convert_result != None:
             MAX_INDEX = len(container_template_list) - 1
             if 0 <= convert_result <= MAX_INDEX:
                 container_template_list_index = convert_result
             else:
-                system_pkg["system_msg"](f"索引值{user_input}超出范围(0 ~ {MAX_INDEX})")
-                return (system_pkg["CONDITION_SUCCESS"], f"索引值{user_input}超出范围(0 ~ {MAX_INDEX})")
-        else: # 用户输入不为int
-            try:
-                for index in range(0, len(container_label_list)):
-                    if user_input in container_label_list[index]:
-                        container_template_list_index = index
-                        break
-            except ValueError:
-                system_pkg["system_msg"](f"容器标签{user_input}不匹配")
-                return (system_pkg["CONDITION_SUCCESS"], f"容器标签{user_input}不匹配")
+                system_pkg["system_msg"](f"索引值{user_input}超出范围（0 ~ {MAX_INDEX}）")
+                return (system_pkg["CONDITION_SUCCESS"], f"索引值{user_input}超出范围（0 ~ {MAX_INDEX}）")
+        # 尝试识别为字符串
+        if container_template_list_index == None:
+            for index, container_version in enumerate(container_show_list):
+                if user_input in container_version:
+                    container_template_list_index = index
+                    break
+        if container_template_list_index == None: return (system_pkg["CONDITION_SUCCESS"], f"无容器添加结果")
         # 创建container实例
         container_instance = container_template_list[container_template_list_index]()
         container_list.append(container_instance)
@@ -210,8 +211,12 @@ class default_txt_operation(default_method_template):
             # 写入container行
             f.write(f"{build_list}\n")
             container_count += 1
+            # 写入task行
             for task in container.task_list:
                 build_list = task.backup_list()
+                if build_list == False: # task内部定义的读取异常（不是抛出exception）
+                    system_pkg["system_msg"]("获取task备份列表失败")
+                    return (system_pkg["CONDITION_SUCCESS"], "获取backup_list失败")
                 build_list = "||||".join(build_list)
                 f.write(f"\t{build_list}\n")
                 task_count += 1
@@ -230,13 +235,13 @@ class default_txt_operation(default_method_template):
     
     def reload(self, cmd_parameter:str, container_list:list, system_pkg:dict): # 从.\\backup\\的txt文件读取container及其task_list，显示备份文件中不可用的模板，统计所有出现的类型及数量
         """参数第一个字符为"u"则自动升级可用版本，参数第一个字符为"n"则取消升级"""
-        AUTO_UPDATE = False
+        AUTO_UPDATE_VERSION = False
         try:
             if cmd_parameter[0] == "u":
-                AUTO_UPDATE = True
+                AUTO_UPDATE_VERSION = True
             elif cmd_parameter[0] == "n":
-                AUTO_UPDATE = None
-        except IndexError: AUTO_UPDATE = False
+                AUTO_UPDATE_VERSION = None
+        except IndexError: AUTO_UPDATE_VERSION = False
         
         def report_error(txt_list:list, container_index:int, task_index:int, error_message:str, system_pkg:dict):
             container_index += 1
@@ -260,17 +265,22 @@ class default_txt_operation(default_method_template):
                 container_type, container_version = pair_list
                 table_list.append([str(index), container_type.type, container_version])
             system_pkg["table_msg"](table_list, heading = True)
+        
+        # 检测可用的备份txt文件
         backup_dir = ".\\backup_all\\"
         file_list = glob(join((backup_dir), "backup_*.txt"))
         file_list.sort()
         if file_list == []:
             system_pkg["system_msg"]("无可导入的备份文件")
             return (system_pkg["CONDITION_SUCCESS"], "无可导入的备份文件")
-        working_dir = dirname(abspath(__file__))
+        # 显示当前工作路径
+        working_dir = getcwd()
         system_pkg["system_msg"](f"当前工作路径{working_dir}")
+        # 显示txt文件列表
         display_list = file_list[:]
         display_list[-1] = display_list[-1] + "（默认）"
         table_backup_file(display_list, system_pkg)
+        # 选中备份文件
         system_pkg["tips_msg"]("<Enter>选中默认（最新）")
         user_input = system_pkg["normal_input"]("输入索引")
         if user_input == system_pkg["EXIT"]: return (system_pkg["CONDITION_SUCCESS"], "取消导入备份文件")
@@ -281,56 +291,79 @@ class default_txt_operation(default_method_template):
         except IndexError:
             system_pkg["system_msg"](f"索引\"{user_input}\"错误")
             return (system_pkg["CONDITION_SUCCESS"], "取消导入备份文件（输入索引错误）")
-        f = open(file_path, "r", encoding = "utf-8")
-        txt_list = f.readlines()
+        # 读取txt文件
+        with open(file_path, "r", encoding = "utf-8") as f:
+            txt_list = f.readlines()
         current_container_index = 0
         current_task_index = 0
         temp_container_list = []
-        garbage_task_count = 0 # 用于统计无归属container的task
+        total_garbage_task = 0 # 用于统计无归属container的task
         for index, txt_line in enumerate(txt_list):
             txt_line = txt_line[:-1] # 去除最右的\n
             if txt_line == "/end": break
             elif txt_line == "":
                 continue
-            if txt_line[0] != "\t": # 创建container
+            # 开始检测
+            
+            # 创建container--------+--------+--------+--------+--------+--------+--------+ Begin
+            if txt_line[0] != "\t":
                 current_container_index = index
                 current_task_index = index
                 build_list = txt_line.split("||||")
                 # 长度至少为以下形式，拓展部分在container内部处理
                 # [self.type, self.version, self.container_label, self.create_date, function_list, task_template_list, self.description]
+                # 尝试创建container
                 try:
-                    is_default_type =  build_list[0] == system_pkg["TYPE_DEFAULT_CONTAINER"]
-                    if is_default_type == True:
+                    is_default_type = (build_list[0] == system_pkg["TYPE_DEFAULT_CONTAINER"])
+                    if is_default_type == True: # container为默认类型
                         read_version = convert_to_float(build_list[1])
-                        if read_version == None:
+                        if read_version == None: # container版本格式不符
                             report_error(txt_list, current_container_index, current_task_index, f"容器版本\"{build_list[0]}\"错误", system_pkg)
                             return (system_pkg["CONDITION_FAIL"], "读取备份文件错误")
-                    
                     find_container = False
                     select_container = []
                     # 遍历可用的container模板
                     iterator = system_pkg["df_container_template_list"]
+                    # 选择遍历默认模板或extra模板
                     if is_default_type == False: iterator = system_pkg["ex_container_template_list"]
+                    # 开始遍历
                     for container_template in iterator:
                         container = container_template()
-                        if is_default_type: # container为default类型
+                        if is_default_type:
+                            # container为default类型
                             if read_version <= convert_to_float(container.version):
-                                container.build(build_list, system_pkg)
+                                # 建立container
+                                build_condition = container.build(build_list, system_pkg)
+                                if build_condition == False: # container内部定义的读取失败
+                                    system_pkg["system_msg"]("容器建立失败")
+                                    return (system_pkg["CONDITION_SUCCESS"], "container.build失败")
+                                # 添加到temp_container_list
                                 select_container.append([container, container.version])
                                 find_container = True
-                        else: # container为extra类型
+                        else:
+                            # container为extra类型
                             if build_list[1] == container.version:
-                                container.build(build_list, system_pkg)
+                                # 建立container
+                                build_condition = container.build(build_list, system_pkg)
+                                if build_condition == False: # container内部定义的读取失败
+                                    system_pkg["system_msg"]("容器建立失败")
+                                    return (system_pkg["CONDITION_SUCCESS"], "container.build失败")
+                                # 添加到temp_container_list
                                 find_container = True
                                 temp_container_list.append(container)
                                 break
                     if find_container == True:
-                        if is_default_type == True:
+                        # container匹配已有模板
+                        
+                        # 版本选择--------+--------+--------+--------+--------+--------+ Begin
+                        if is_default_type == True: # extra类型不需要在此选择版本
                             select_container.sort(key = lambda x: x[0])
-                            if AUTO_UPDATE == None: temp_container_list.append(select_container[-1][0])
-                            elif AUTO_UPDATE == True: temp_container_list.append(select_container[-1][0])
-                            elif AUTO_UPDATE == False:
-                                if len(select_container) != 1: # 若有多项可选
+                            if AUTO_UPDATE_VERSION == None: temp_container_list.append(select_container[-1][0])
+                            elif AUTO_UPDATE_VERSION == True: temp_container_list.append(select_container[-1][0])
+                            elif AUTO_UPDATE_VERSION == False:
+                                # 有多个版本选择
+                                if len(select_container) != 1:
+                                    # 显示不同container版本
                                     compare_selection(select_container, system_pkg, "容器")
                                     user_input = system_pkg["normal_input"]("输入索引")
                                     if user_input == system_pkg["EXIT"]: return ("CONDITION_SUCCESS", "取消读取备份文件")
@@ -338,24 +371,29 @@ class default_txt_operation(default_method_template):
                                     if user_input != None:
                                         try:
                                             temp_container_list.append(select_container[user_input][0])
-                                            continue # 输入成功
-                                        except IndexError:
-                                            pass
+                                            continue # 输入成功，添加container
+                                        except IndexError: pass # 输入失败，取消reload
                                     system_pkg["system_msg"](f"索引\"{user_input}\"不存在")
                                     return ("CONDITION_SUCCESS", "输入备份文件容器类型索引错误")
-                                else: # 若只有一项可选
-                                    temp_container_list.append(select_container[0][0])
+                                # 只有一个版本选择
+                                else: temp_container_list.append(select_container[0][0])
                         continue # 若为extra类型则跳过以上判断
+                        # 版本选择--------+--------+--------+--------+--------+--------+ End
+                        
                     else:
+                        # container不匹配已有模板
                         report_error(txt_list, current_container_index, current_task_index, f"容器版本\"{build_list[0]}\"不可用", system_pkg)
                         return (system_pkg["CONDITION_FAIL"], "读取备份文件错误")
                 except KeyError:
                     report_error(txt_list, current_container_index, current_task_index, f"容器类型\"{build_list[0]}\"不存在", system_pkg)
                     return (system_pkg["CONDITION_FAIL"], "读取备份文件错误")
+            # 创建container--------+--------+--------+--------+--------+--------+--------+ End
             
-            else: # 行开头为"\t" -> task
+            # 创建task--------+--------+--------+--------+--------+--------+--------+ Begin
+            else: # 行开头为"\t"
+                # 如果前面没有读取container
                 if len(temp_container_list) == 0:
-                    garbage_task_count += 1
+                    total_garbage_task += 1
                     continue
                 current_task_index = index
                 txt_line = txt_line[1:]
@@ -364,37 +402,55 @@ class default_txt_operation(default_method_template):
                 # [self.type, self.version, self.create_date, self.date, self.attribute, self.content, self.comment]
                 try:
                     is_default_type =  build_list[0] == system_pkg["TYPE_DEFAULT_CONTAINER"]
-                    if is_default_type == True:
+                    if is_default_type == True: # task为默认类
                         read_version = convert_to_float(build_list[1])
-                        if read_version == None:
+                        if read_version == None: # task版本格式不符
                             report_error(txt_list, current_container_index, current_task_index, f"task版本\"{build_list[0]}\"错误", system_pkg)
                             return (system_pkg["CONDITION_FAIL"], "读取备份文件错误")
-                    
                     find_task = False
                     select_task = []
                     # 遍历可用的task模板
                     iterator = system_pkg["df_task_template_list"]
+                    # 选择遍历默认模板或extra模板
                     if is_default_type == False: iterator = system_pkg["ex_task_template_list"]
+                    # 开始遍历
                     for task_template in iterator:
                         task = task_template()
-                        if is_default_type: # task为default类型
+                        if is_default_type:
+                            # task为default类型
                             if read_version <= convert_to_float(task.version):
-                                task.build(build_list) # task的build不需要system_pkg
+                                # 建立task
+                                build_condition = task.build(build_list) # task的build不需要system_pkg
+                                if build_condition == False: # task内部定义的读取失败
+                                    system_pkg["system_msg"]("task建立失败")
+                                    return (system_pkg["CONDITION_SUCCESS"], "task.build失败")
+                                # 添加到container
                                 select_task.append([task, task.version])
                                 find_task = True
-                        else: # task为extra类型
+                        else:
+                            # task为extra类型
                             if build_list[1] == task.version:
-                                task.build(build_list) # task的build不需要system_pkg
+                                # 建立task
+                                build_condition = task.build(build_list) # task的build不需要system_pkg
+                                if build_condition == False: # task内部定义的读取失败
+                                    system_pkg["system_msg"]("task建立失败")
+                                    return (system_pkg["CONDITION_SUCCESS"], "task.build失败")
+                                # 添加到container
                                 find_task = True
                                 temp_container_list[-1].task_list.append(task)
                                 break
                     if find_task == True:
-                        if is_default_type == True:
+                        # task匹配已有模板
+                        
+                        # 版本选择--------+--------+--------+--------+--------+--------+ Begin
+                        if is_default_type == True: # extra类型不需要在此选择版本
                             select_task.sort(key = lambda x: x[0])
-                            if AUTO_UPDATE == None: temp_container_list[-1].task_list.append(select_task[-1][0])
-                            elif AUTO_UPDATE == True: temp_container_list[-1].task_list.append(select_task[-1][0])
-                            elif AUTO_UPDATE == False:
-                                if len(select_task) != 1: # 若有多项可选
+                            if AUTO_UPDATE_VERSION == None: temp_container_list[-1].task_list.append(select_task[-1][0])
+                            elif AUTO_UPDATE_VERSION == True: temp_container_list[-1].task_list.append(select_task[-1][0])
+                            elif AUTO_UPDATE_VERSION == False:
+                                # 有多个版本选择
+                                if len(select_task) != 1:
+                                    # 显示不同task版本
                                     compare_selection(select_task, system_pkg, "task")
                                     user_input = system_pkg["normal_input"]("输入索引")
                                     if user_input == system_pkg["EXIT"]: return ("CONDITION_SUCCESS", "取消读取备份文件")
@@ -402,49 +458,62 @@ class default_txt_operation(default_method_template):
                                     if user_input != None:
                                         try:
                                             temp_container_list[-1].task_list.append(select_task[user_input][0])
-                                            continue # 输入成功
-                                        except IndexError:
-                                            pass
+                                            continue # 输入成功，添加task
+                                        except IndexError: pass # 输入失败，取消reload
                                     system_pkg["system_msg"](f"索引\"{user_input}\"不存在")
                                     return ("CONDITION_SUCCESS", "输入备份文件task类型索引错误")
-                                else: # 若只有一项可选
+                                # 只有一个版本选择
+                                else:
                                     temp_container_list[-1].task_list.append(select_task[0][0])
                         continue # 若为extra类型则跳过以上判断
+                        # 版本选择--------+--------+--------+--------+--------+--------+ End
+                        
                     else:
+                        # task不匹配已有模板
                         report_error(txt_list, current_container_index, current_task_index, f"容器版本\"{build_list[0]}\"不可用", system_pkg)
                         return (system_pkg["CONDITION_FAIL"], "读取备份文件错误")
                 except KeyError:
                     report_error(txt_list, current_container_index, current_task_index, f"容器类型\"{build_list[0]}\"不存在", system_pkg)
                     return (system_pkg["CONDITION_FAIL"], "读取备份文件错误")
-        # 输出比较信息
-        # garbage_task_count
-        # 总container数
-        # 总task数
-        old_container_count = len(container_list)
-        new_container_count = len(temp_container_list)
-        old_total_task = 0
+            # 创建task--------+--------+--------+--------+--------+--------+--------+ End
+            
+        total_old_container = len(container_list)
+        total_new_container = len(temp_container_list)
+        total_old_task = 0
         for i in container_list:
-            old_total_task += len(i.task_list)
-        new_total_task = 0
+            total_old_task += len(i.task_list)
+        total_new_task = 0
         for i in temp_container_list:
-            new_total_task += len(i.task_list)
-        # 容器数量变动
-        container_count_change = new_container_count - old_container_count
-        if container_count_change == 0: container_count_change = f"（相同）"
-        elif container_count_change > 0: container_count_change = f"（+{container_count_change}）"
-        else: container_count_change = f"（{container_count_change}）"
-        # task数量变动
-        total_task_change = new_total_task - old_total_task
-        if total_task_change == 0: total_task_change = f"（相同）"
-        elif total_task_change > 0: total_task_change = f"（+{total_task_change}）"
-        else: total_task_change = f"（{total_task_change}）"
+            total_new_task += len(i.task_list)
+        # 统计container数量变动
+        total_container_change = total_new_container - total_old_container
+        if total_container_change == 0:
+            container_change = f"（相同）"
+        elif total_container_change > 0:
+            container_change = f"（+{total_container_change}）"
+        else:
+            container_change = f"（{total_container_change}）"
+        # 统计task数量变动
+        total_task_change = total_new_task - total_old_task
+        if total_task_change == 0:
+            task_change = f"（相同）"
+        elif total_task_change > 0:
+            task_change = f"（+{total_task_change}）"
+        else:
+            task_change = f"（{total_task_change}）"
+        # 显示比较信息
         table_list = [["", "导入前", "导入后"],
-                      ["container数", str(old_container_count), f"{str(new_container_count)}{container_count_change}"],
-                      ["task数", str(old_total_task), f"{str(new_total_task)}{total_task_change}"]]
+                      ["container数", str(total_old_container), f"{str(total_new_container)}{container_change}"],
+                      ["task数", str(total_old_task), f"{str(total_new_task)}{task_change}"]]
         system_pkg["table_msg"](table_list, heading = True)
-        if container_count_change == 0 or total_task_change == 0:
-            system_pkg["system_msg"]("请检查备份文件，拒绝rm -rf")
-            return (system_pkg["CONDITION_SUCCESS"], "备份文件异常")
+        # 显示将被丢弃的task数量（放置于backup文件的顺序错误，可能是人为导致）
+        if total_garbage_task != 0:
+            system_pkg["system_msg"](f"注：备份文件中含有{total_garbage_task}项task被丢弃")
+        # 空备份文件检测，可能不包含可读取内容
+        if total_new_container == 0 or total_new_task == 0:
+            system_pkg["system_msg"]("请检查备份文件，防止\"rm -rf\"（此操作将清空所有内容）")
+            return (system_pkg["CONDITION_SUCCESS"], "备份文件为空，拒绝reload")
+        # 读取确认（覆盖原数据）
         user_input = system_pkg["normal_input"]("确认导入(y/n)")
         if user_input != "y": return (system_pkg["CONDITION_SUCCESS"], "取消导入备份文件")
         container_list[:] = temp_container_list
