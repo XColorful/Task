@@ -4,12 +4,14 @@ def interface_info(system_pkg, show_msg = True):
     interface_label = "default_interface"
     interface_version = "1.0"
     interface_type = "Default_Template"
-    table_list=[]
-    heading = ["interface标签", "interface版本", "interface类型"]
-    table_list.append(heading)
-    table_list.append([interface_label, interface_version, interface_type])
-    if show_msg == True: system_pkg["table_msg"](table_list)
-    return [interface_label, interface_version, interface_type]
+    info_list = [interface_label, interface_version, interface_type]
+    if show_msg == True:
+        table_list=[]
+        heading = ["interface标签", "interface版本", "interface类型"]
+        table_list.append(heading)
+        table_list.append(info_list)
+        system_pkg["table_msg"](table_list)
+    return info_list
 
 def interface_help(system_pkg):
     system_pkg["tips_msg"]("以\"/\"开头强制识别为指令")
