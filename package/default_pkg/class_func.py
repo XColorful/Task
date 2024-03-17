@@ -149,9 +149,14 @@ class default_container_func(default_container_func_template):
         pass
     
     def backup(self, parameter, container, system_pkg):
-        """暂无实际参数
+        """备份单个container，删除空项
         
-        """
+        parameter以"e"开头，尝试备份extra类型"""
+        if container.type != system_pkg["TYPE_DEFAULT_CONTAINER"]:
+            if parameter[0:] != "e":
+                system_pkg["system_msg"]("该功能默认不备份extra类型容器")
+                system_pkg["tips_msg"]("参数为\"e\"开头则尝试备份")
+                return None
         existed_task_template = {}
         clean_count = 0
         task_list = container.task_list
@@ -186,10 +191,14 @@ class default_container_func(default_container_func_template):
             # 写入container行
             f.write(f"{container.type}||||{container.version}||||{container.container_label}||||{container.create_date}||||{show_function_list}||||{all_existed_task_template}||||{container.description}\n")
             # 写入task
-            for task in task_list:
-                backup_str = task.backup()
-                if backup_str == "": continue
-                f.write(f"\t{backup_str}\n")
+            try:
+                for task in task_list:
+                    backup_str = task.backup()
+                    if backup_str == "": continue
+                    f.write(f"\t{backup_str}\n")
+            except AttributeError:
+                system_pkg["system_msg"]("写入中断，task不包含backup()方法")
+                return None
         system_pkg["system_msg"](f"已备份至\"{file_path}\"")
         return None
 
