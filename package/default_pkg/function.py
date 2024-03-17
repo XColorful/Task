@@ -36,11 +36,11 @@ def table_tasker_list(iterator, tasker_list:list, system_pkg:dict ):
     return None
 
 def table_tasker_template(tasker_template_list, system_pkg:dict):
-    """["索引", "版本", "Tasker类型", "描述"]
+    """["索引", "版本", "Tasker类型", "介绍"]
     
     返回tasker_label_list Tasker模板标签列表"""
     table_list = []
-    heading = ["索引", "版本", "Tasker类型", "描述"]
+    heading = ["索引", "版本", "Tasker类型", "介绍"]
     table_list.append(heading)
     tasker_label_list = []
     # 获取展示列表，创建标签列表
