@@ -27,7 +27,7 @@ class default_method(default_method_template):
             system_pkg["system_msg"]("tasker_list为空，请先用指令\"add\"创建一个tasker")
             return (system_pkg["CONDITION_SUCCESS"], "tasker_list为空")
         # 有参数则跳过首次获取user_input
-        if user_input := cmd_parameter == "": # 展示tasker_list
+        if (user_input := cmd_parameter) == "": # 展示tasker_list
             table_tasker_list(range(0, MAX_INDEX +1), tasker_list, system_pkg)
         # 获取tasker_list索引值
         get_index = "" # 用于get的索引
