@@ -4,11 +4,12 @@ from .interface import account_interface
 from .update_info import account_update_info
 
 class account_tasker(extra_tasker_template):
+    version = "account"
+    introduction = "account类Tasker"
     def __init__(self):
         super().__init__() # 继承父类
         self.function_list.append(account_tasker_func()) # Default_Template版本仅有一种，不可修改
-        self.version = "account"
-        self.description = "account类Tasker"
+        self.description = ""
     
     def interface(self, system_pkg): # 仅有一种，不可修改
         if self.create_date == "": # 如果create_date为空（未补充过Tasker信息）

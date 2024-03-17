@@ -1,11 +1,11 @@
 class default_tasker_template():
+    version = "0" # 用数字表示
+    type = "Default_Template"
     def __init__(self):
         self.tasker_label = ""
         self.description = ""
         self.function_list = []
         self.create_date = ""
-        self.version = "0" # 用数字表示
-        self.type = "Default_Template"
         self.task_list = []
         self.task_template = []
     
@@ -55,10 +55,10 @@ class default_tasker_template():
         return None
 
 class default_task_template():
+    version = "0"
+    type = "Default_Template"
     def __init__(self):
         self.create_date = ""
-        self.version = "0"
-        self.type = "Default_Template"
         self.date = ""
         self.attribute = ""
         self.content = ""
@@ -92,11 +92,11 @@ class default_task_template():
         self.comment = build_list[6]
 
 class extra_tasker_template(default_tasker_template):
+    version = "0" # 用字符串表示
+    type = "Extra_Template"
     def __init__(self):
         super().__init__() #继承父类
         self.description = ""
-        self.version = "0" # 用字符串表示
-        self.type = "Extra_Template"
 
     def interface(self, system_pkg):
         return (system_pkg["CONDITION_SUCCESS"], None)
@@ -111,10 +111,10 @@ class extra_tasker_template(default_tasker_template):
         return None
 
 class extra_task_template(default_task_template):
+    version = "" # 用字符串表示，不能为数字（应不能被float()转换）
+    type = "Extra_Template"
     def __init__(self):
         super().__init__() #继承父类
-        self.version = "" # 用字符串表示，不能为数字（应不能被float()转换）
-        self.type = "Extra_Template"
     
     def update(self, info_dict:dict):
         return None

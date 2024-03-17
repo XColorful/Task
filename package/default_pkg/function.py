@@ -49,7 +49,7 @@ def table_tasker_template(tasker_template_list, system_pkg:dict):
         table_list.append([str(tasker_template_index),
                             template_instance.version,
                             template_instance.type,
-                            template_instance.description])
+                            template_instance.introduction])
         tasker_label_list.append(template_instance.version)
     system_pkg["table_msg"](table_list, heading = True)
     return tasker_label_list

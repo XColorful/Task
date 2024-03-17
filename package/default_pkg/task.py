@@ -1,9 +1,9 @@
 from default_class import default_task_template
 
 class default_task(default_task_template):
+    version = "1.0" # 2024_02_15
     def __init__(self):
         super().__init__() # 继承父类
-        self.version = "1.0" # 2024_02_15
     
     def __str__(self):
         return f"{self.date}|{self.attribute}|{self.content}"
