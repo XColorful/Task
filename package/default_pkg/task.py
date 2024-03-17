@@ -12,5 +12,10 @@ class default_task(default_task_template):
         super().update(info_dict, system_pkg)
     
     def backup(self):
-        if self.create_date == "": return "" # 未创建的task不返回备份
-        return f"{self.type}||||{self.version}||||{self.create_date}||||{self.date}||||{self.attribute}||||{self.content}||||{self.comment}"
+        return super().backup()
+    
+    def backup_list(self):
+        return super().backup_list()
+    
+    def build(self, build_list:list):
+        super().build(build_list)
