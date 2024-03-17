@@ -1,4 +1,4 @@
-class default_container_func_template():
+class default_tasker_func_template():
     def __init__(self):
         # 确定必要信息
         self.label = ""
@@ -12,15 +12,15 @@ class default_container_func_template():
     def get_info(self):
         return [self.label, self.version, self.type, self.function_list]
 
-    def proceed(self, cmd_list:list, container, system_pkg:dict):
+    def proceed(self, cmd_list:list, tasker, system_pkg:dict):
         cmd = cmd_list[0]
         try: cmd_parameter = cmd_list[1]
         except IndexError: cmd_parameter = ""
         proceed_function = getattr(self, cmd)
-        proceed_function(cmd_parameter, container, system_pkg)
+        proceed_function(cmd_parameter, tasker, system_pkg)
         return None
 
-class extra_container_func_template(default_container_func_template):
+class extra_tasker_func_template(default_tasker_func_template):
     def __init__(self):
         super().__init__() # 继承父类
         self.label = ""
@@ -34,5 +34,5 @@ class extra_container_func_template(default_container_func_template):
     def get_info(self):
         return super().get_info()
     
-    def proceed(self, cmd_list:list, container, system_pkg:dict):
-        super().proceed(cmd_list, container, system_pkg)
+    def proceed(self, cmd_list:list, tasker, system_pkg:dict):
+        super().proceed(cmd_list, tasker, system_pkg)

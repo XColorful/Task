@@ -1,11 +1,11 @@
-from default_class_func import default_container_func_template
+from default_class_func import default_tasker_func_template
 from .function import YYYY_MM_DD, table_categorize_task_result
 import matplotlib.pyplot as plt
 import numpy as np
 from pylab import mpl
 mpl.rcParams["font.sans-serif"] = ["Microsoft YaHei"]
 
-class categorize_task(default_container_func_template):
+class categorize_task(default_tasker_func_template):
     def __init__(self):
         super().__init__()  # 继承父类
         self.label = "categorize_task"
@@ -20,10 +20,10 @@ class categorize_task(default_container_func_template):
     def get_info(self):
         return super().get_info()
 
-    def proceed(self, cmd_list:list, container, system_pkg:dict):
-        return super().proceed(cmd_list, container, system_pkg)
+    def proceed(self, cmd_list:list, tasker, system_pkg:dict):
+        return super().proceed(cmd_list, tasker, system_pkg)
     
-    def categorize(self, command_parameter:str, container, system_pkg:dict):
+    def categorize(self, command_parameter:str, tasker, system_pkg:dict):
         """可选参数attr, date
         
         """
@@ -34,19 +34,19 @@ class categorize_task(default_container_func_template):
         if user_input == system_pkg["EXIT"]: return None
         
         if user_input == "attr":
-            self.attr_count(container, system_pkg)
+            self.attr_count(tasker, system_pkg)
         elif user_input == "date":
-            self.date_count(container, system_pkg)
+            self.date_count(tasker, system_pkg)
         else:
             system_pkg["system_msg"](f"参数\"{user_input}\"不存在")
         return None
     
-    def attr_count(self, container, system_pkg:dict):
+    def attr_count(self, tasker, system_pkg:dict):
         attr_category = [] # [ ["attr1", 12] , ["attr2", 12], ]
-        if container.task_list == []:
+        if tasker.task_list == []:
             system_pkg["system_msg"]("容器task_list为空")
             return None
-        for task in container.task_list:
+        for task in tasker.task_list:
             task_attr = task.attribute
             if task_attr == "": task_attr = "None"
             find = False
@@ -73,7 +73,7 @@ class categorize_task(default_container_func_template):
         plt.subplot(1, 2, 1)
         plt.pie(attr_y, labels = labels, explode = attr_explode, shadow = True)
         plt.legend(labels)
-        plt.title(f"\"{container.container_label}\"各task占比")
+        plt.title(f"\"{tasker.tasker_label}\"各task占比")
         # 表2：
         plt.subplot(1, 2, 2)
         plt.bar(attr_labels, attr_y)
@@ -83,12 +83,12 @@ class categorize_task(default_container_func_template):
         plt.show()
         return None
     
-    def date_count(self, container, system_pkg:dict):
+    def date_count(self, tasker, system_pkg:dict):
         date_category = [] # [ ["2023_09", 12], ["2024_03", 15] ]
-        if container.task_list == []:
+        if tasker.task_list == []:
             system_pkg["system_msg"]("容器task_list为空")
             return None
-        for task in container.task_list:
+        for task in tasker.task_list:
             task_date = task.date[:7]
             if task_date == "": task_date = "None"
             find = False
@@ -115,7 +115,7 @@ class categorize_task(default_container_func_template):
         plt.subplot(1, 2, 1)
         plt.pie(date_y, labels = labels, autopct='%1.1f%%', explode = date_explode, shadow = True)
         plt.legend(labels)
-        title = f"\"{str(container.container_label)}\"各月task占比"
+        title = f"\"{str(tasker.tasker_label)}\"各月task占比"
         plt.title(title)
         # 表2：
         plt.subplot(1, 2, 2)

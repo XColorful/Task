@@ -1,8 +1,8 @@
 # 初始化变量
-main_container_list = []
+main_tasker_list = []
 class_func_list = []
-df_container_template_list = []
-ex_container_template_list = []
+df_tasker_template_list = []
+ex_tasker_template_list = []
 io_list = []
 message_list = []
 method_list = []

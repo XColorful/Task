@@ -3,10 +3,10 @@ from .function import YYYY_MM_DD
 def account_update_info(self, system_pkg):
     block_list = system_pkg["BLOCK_LIST"] + [" "]
     
-    if self.container_label == "": # 添加容器标签
+    if self.tasker_label == "": # 添加容器标签
         return_tuple = system_pkg["strict_input"]("输入容器标签", block_list, system_pkg)
         if return_tuple[0] == False: return (system_pkg["CONDITION_SUCCESS"], "取消输入容器标签")
-        self.container_label = return_tuple[1]
+        self.tasker_label = return_tuple[1]
     
     if self.create_date == "": # 添加容器描述
         return_tuple = system_pkg["strict_input"]("输入容器描述", block_list, system_pkg)

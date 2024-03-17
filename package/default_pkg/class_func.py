@@ -1,14 +1,14 @@
-from default_class_func import default_container_func_template
+from default_class_func import default_tasker_func_template
 from .function import convert_to_int, convert_to_float, YYYY_MM_DD, YYYY_MM_DD_HH_MM_SS, table_task_template_instance, table_compare_task_list
 from os import mkdir
 from os.path import exists, join
 from glob import glob
 from pyperclip import copy as py_cp
 
-class default_container_func(default_container_func_template):
+class default_tasker_func(default_tasker_func_template):
     def __init__(self):
         super().__init__() # 继承父类
-        self.label = "default_container_func"
+        self.label = "default_tasker_func"
         self.version = "1.0"
         self.function_list = ["search", "new", "txt", "backup", "edit", "reload"]
         # 供调试时查看信息用，不可见
@@ -20,21 +20,21 @@ class default_container_func(default_container_func_template):
     def get_info(self):
         return super().get_info()
 
-    def proceed(self, command_list:list, container, system_pkg:dict):
-        return super().proceed(command_list, container, system_pkg)
+    def proceed(self, command_list:list, tasker, system_pkg:dict):
+        return super().proceed(command_list, tasker, system_pkg)
     
-    def search(self, parameter, container, system_pkg, show_msg = True):
+    def search(self, parameter, tasker, system_pkg, show_msg = True):
         index_search_result = []
         string_search_result = []
         index_search_index = []
         string_search_index = []
         index_error = False
-        task_list_length = len(container.task_list)
+        task_list_length = len(tasker.task_list)
         convert_result = convert_to_int(parameter)
         if convert_result != None: # 索引搜索
             try:
                 index = convert_result
-                task = container.task_list[index]
+                task = tasker.task_list[index]
                 if index < 0 : index = task_list_length + index # 索引相反则取为正
                 show_string = f"{parameter} -> |{task.date}|{task.attribute}|{task.content}|{task.comment}"
                 index_search_index.append(index)
@@ -43,7 +43,7 @@ class default_container_func(default_container_func_template):
                 index_error = True
         search_count = 1 # 用于展示搜索到的序号
         for task_index in range(0, task_list_length): # 字符串搜索
-            task = container.task_list[task_index]
+            task = tasker.task_list[task_index]
             task_info_list = [task.content, task.date, task.attribute, task.comment]
             for i in task_info_list:
                 if str(parameter) in i: # 输入参数重新取为str
@@ -66,26 +66,26 @@ class default_container_func(default_container_func_template):
         else: return_index = string_search_index
         return return_index
     
-    def new(self, parameter, container, system_pkg):
+    def new(self, parameter, tasker, system_pkg):
         """用空格分隔参数，参数1为索引则选取task模板列表，参数2为"n"开头则创建空模板
         
         """
         task_template_count = 0
         extra_template_count = 0
-        for task_template in container.task_template:
+        for task_template in tasker.task_template:
             task = task_template()
-            if task.type == system_pkg["TYPE_DEFAULT_CONTAINER"]: task_template_count += 1
+            if task.type == system_pkg["TYPE_DEFAULT_TASKER"]: task_template_count += 1
             else: extra_template_count += 1
         select_task_template_index = 0
         create_empty_task = False
-        if extra_template_count != 0: system_pkg["system_pkg"](f"忽略{extra_template_count}项非\"{system_pkg["TYPE_DEFAULT_CONTAINER"]}\"类型task模板")
+        if extra_template_count != 0: system_pkg["system_pkg"](f"忽略{extra_template_count}项非\"{system_pkg["TYPE_DEFAULT_TASKER"]}\"类型task模板")
         if task_template_count == 0: # 无默认类型task模板
             system_pkg["system_msg"]("无可用的默认task模板")
             return None
-        elif task_template_count == 1: task_template = container.task_template # 有1个默认类型task模板
+        elif task_template_count == 1: task_template = tasker.task_template # 有1个默认类型task模板
         elif task_template_count != 1: # 有多个默认类型task模板
             task_instance_list = []
-            for task_template in container.task_template:
+            for task_template in tasker.task_template:
                 task_instance = task_template()
                 task_instance_list.append(task_instance)
             table_task_template_instance(task_instance_list, system_pkg)
@@ -133,12 +133,12 @@ class default_container_func(default_container_func_template):
         
         info_dict = {"create_date":current_date, "date":date_input, "attribute":attribute_input, "content":content_input, "comment":comment_input}
         temp_task.update(info_dict, system_pkg)
-        container.task_list.append(temp_task)
+        tasker.task_list.append(temp_task)
         system_pkg["normal_msg"]("已创建task")
         system_pkg["body_msg"]([f"{temp_task.create_date}|{temp_task.date}|{temp_task.attribute}|{temp_task.content}|{temp_task.comment}"])
         return None
 
-    def txt(self, parameter, container, system_pkg):
+    def txt(self, parameter, tasker, system_pkg):
         """用空格分隔参数，参数为保存路径(?)
         
         这个先不急
@@ -148,18 +148,18 @@ class default_container_func(default_container_func_template):
         # 生成txt文件
         pass
     
-    def backup(self, parameter, container, system_pkg):
-        """备份单个container，删除空项
+    def backup(self, parameter, tasker, system_pkg):
+        """备份单个tasker，删除空项
         
         parameter以"e"开头，尝试备份extra类型"""
-        if container.type != system_pkg["TYPE_DEFAULT_CONTAINER"]:
+        if tasker.type != system_pkg["TYPE_DEFAULT_TASKER"]:
             if parameter[0:] != "e":
                 system_pkg["system_msg"]("该功能默认不备份extra类型容器")
                 system_pkg["tips_msg"]("参数为\"e\"开头则尝试备份")
                 return None
         existed_task_template = {}
         clean_count = 0
-        task_list = container.task_list
+        task_list = tasker.task_list
         for task_index in range(len(task_list) - 1, -1, -1): # 倒序，用于后续删除index不产生错误
             try:
                 # 删除空项
@@ -182,14 +182,14 @@ class default_container_func(default_container_func_template):
         # 创建备份文件夹路径
         backup_dir = ".\\backup_single\\"
         if not exists(backup_dir): mkdir(backup_dir)
-        file_path = join(f"{backup_dir}", f"{container.container_label}_{YYYY_MM_DD_HH_MM_SS()}.txt")
+        file_path = join(f"{backup_dir}", f"{tasker.tasker_label}_{YYYY_MM_DD_HH_MM_SS()}.txt")
         with open(file_path, "w", encoding = "utf-8") as f:
             function_list = []
-            for class_func in container.function_list:
+            for class_func in tasker.function_list:
                 function_list.append(str(class_func))
             show_function_list = " ".join(function_list)
-            # 写入container行
-            f.write(f"{container.type}||||{container.version}||||{container.container_label}||||{container.create_date}||||{show_function_list}||||{all_existed_task_template}||||{container.description}\n")
+            # 写入tasker行
+            f.write(f"{tasker.type}||||{tasker.version}||||{tasker.tasker_label}||||{tasker.create_date}||||{show_function_list}||||{all_existed_task_template}||||{tasker.description}\n")
             # 写入task
             try:
                 for task in task_list:
@@ -202,7 +202,7 @@ class default_container_func(default_container_func_template):
         system_pkg["system_msg"](f"已备份至\"{file_path}\"")
         return None
 
-    def edit(self, parameter, container, system_pkg):
+    def edit(self, parameter, tasker, system_pkg):
         """参数非空时指定搜索对象，为索引或搜索，选取最后一个搜索到的（task_list末端）
         
         """
@@ -213,19 +213,19 @@ class default_container_func(default_container_func_template):
             user_input = system_pkg["normal_input"]("指定编辑对象")
             if user_input == system_pkg["EXIT"]: return None
             if user_input == "": # 搜索空task
-                for i in range( len(container.task_list) - 1, -1, -1):
-                    if container.task_list[i].create_date == "":
+                for i in range( len(tasker.task_list) - 1, -1, -1):
+                    if tasker.task_list[i].create_date == "":
                         index.append(i)
                         break
-            else: index = self.search(user_input, container, system_pkg, show_msg = False) # 搜索非空task，返回列表
-        else: index = self.search(user_input, container, system_pkg, show_msg = False) # 搜索非空task，返回列表
+            else: index = self.search(user_input, tasker, system_pkg, show_msg = False) # 搜索非空task，返回列表
+        else: index = self.search(user_input, tasker, system_pkg, show_msg = False) # 搜索非空task，返回列表
         # 搜索结果
         if index == []:
             system_pkg["system_msg"]("无指定对象")
             return None
         else: index = index[-1] # 搜索结果选取最后添加的task
         # 输入task编辑内容
-        task = container.task_list[int(index)] # 重新取为int
+        task = tasker.task_list[int(index)] # 重新取为int
         system_pkg["normal_msg"](f"{index}|{task.date}|{task.attribute}|{task.content}|{task.comment}")
         
         py_cp(task.date)
@@ -277,28 +277,28 @@ class default_container_func(default_container_func_template):
             if date_input and attribute_input and content_input: task.create_date = YYYY_MM_DD()
         return None
     
-    def reload(self, parameter, container, system_pkg):
+    def reload(self, parameter, tasker, system_pkg):
         """暂无实际参数
         
         """
-        if container.type != system_pkg["TYPE_DEFAULT_CONTAINER"]:
-            system_pkg["system_msg"](f"容器类型\"{container.type}\"不适用于\"{system_pkg["TYPE_DEFAULT_CONTAINER"]}\"类型的方法")
+        if tasker.type != system_pkg["TYPE_DEFAULT_TASKER"]:
+            system_pkg["system_msg"](f"容器类型\"{tasker.type}\"不适用于\"{system_pkg["TYPE_DEFAULT_TASKER"]}\"类型的方法")
             return None
         backup_dir = ".\\backup_single\\"
         # 读取路径检测
         if not exists(backup_dir): return system_pkg["system_msg"](f"读取路径\"{backup_dir}\"不存在")
         # 显示读取参数
         system_pkg["normal_msg"](f"读取路径\"{backup_dir}\"")
-        file_list = glob(join((backup_dir), f"{container.container_label}_*.txt"))
-        if file_list == []: return system_pkg["system_msg"](f"无可用的\"{container.container_label}\"备份文件")
+        file_list = glob(join((backup_dir), f"{tasker.tasker_label}_*.txt"))
+        if file_list == []: return system_pkg["system_msg"](f"无可用的\"{tasker.tasker_label}\"备份文件")
         file_list.sort()
         file_path = file_list[-1]
         with open(file_path, "r", encoding = "utf-8") as f:
             txt_list = f.readlines()
             MAX_TXT_LIST_INDEX = len(txt_list)
             check_index = 0
-            # container信息读取
-            container_check = False
+            # tasker信息读取
+            tasker_check = False
             for index in range(check_index, MAX_TXT_LIST_INDEX):
                 check_line = txt_list[index]
                 if check_line == "": # 排除空行
@@ -310,42 +310,42 @@ class default_container_func(default_container_func_template):
                     check_index += 1
                     continue
                 try:
-                    container_type, container_version = check_list[0:2]
+                    tasker_type, tasker_version = check_list[0:2]
                 except ValueError:
                     system_pkg["body_msg"]([f"Line{check_index}:缺少[类型, 版本]"])
-                # container.type
-                if container_type != container.type:
-                    system_pkg["body_msg"]([f"Line{check_index}:容器类型\"{container_type}\"不匹配"])
+                # tasker.type
+                if tasker_type != tasker.type:
+                    system_pkg["body_msg"]([f"Line{check_index}:容器类型\"{tasker_type}\"不匹配"])
                     check_index += 1
                     continue
-                # container.version
-                container_version = convert_to_float(container_version)
-                if (container_version == None) or (container_version > (convert_to_float(container.version))):
-                    system_pkg["body_msg"]([f"Line{check_index}:容器版本\"{container_version}\"不匹配"])
+                # tasker.version
+                tasker_version = convert_to_float(tasker_version)
+                if (tasker_version == None) or (tasker_version > (convert_to_float(tasker.version))):
+                    system_pkg["body_msg"]([f"Line{check_index}:容器版本\"{tasker_version}\"不匹配"])
                     check_index += 1
                     continue
                 try:
-                    container_container_label, container_create_date, container_function_list, container_task_template, container_description = check_list[2:7]
+                    tasker_tasker_label, tasker_create_date, tasker_function_list, tasker_task_template, tasker_description = check_list[2:7]
                 except ValueError:
                     system_pkg["body_msg"]([f"Line{check_index}:缺少完整数据[容器标签, 创建日期, 功能列表, task模板, 容器描述]"])
                     check_index += 1
                     continue
-                # container.container_label
-                if container_container_label != container.container_label:
-                    system_pkg["body_msg"]([f"Line{check_index}:容器标签\"{container_container_label}\"不匹配"])
+                # tasker.tasker_label
+                if tasker_tasker_label != tasker.tasker_label:
+                    system_pkg["body_msg"]([f"Line{check_index}:容器标签\"{tasker_tasker_label}\"不匹配"])
                     check_index += 1
                     continue
-                # container.create_date
-                if container_create_date != container.create_date:
-                    system_pkg["body_msg"]([f"Line{check_index}:容器创建日期\"{container_create_date}\"不匹配"])
+                # tasker.create_date
+                if tasker_create_date != tasker.create_date:
+                    system_pkg["body_msg"]([f"Line{check_index}:容器创建日期\"{tasker_create_date}\"不匹配"])
                     
                     if system_pkg["normal_input"]("更改原容器创建日期(y/n)") != "y":
                         check_index += 1
                         continue
-                    container.create_date = container_create_date
+                    tasker.create_date = tasker_create_date
 
-                # container.funciton_list
-                function_list = container_function_list.split(" ")
+                # tasker.funciton_list
+                function_list = tasker_function_list.split(" ")
                 if len(function_list) % 3 != 0:
                     system_pkg["body_msg"]([f"Line{check_index}:容器功能列表\"{function_list}\"格式错误"])
                     check_index += 1
@@ -354,7 +354,7 @@ class default_container_func(default_container_func_template):
                     function_label, function_version, function_type = function_list[index:index+3]
                     # 对于每一个class_func
                     check = False
-                    for class_func in container.function_list:
+                    for class_func in tasker.function_list:
                         if function_label != class_func.label:
                             check_index += 1
                             continue
@@ -369,17 +369,17 @@ class default_container_func(default_container_func_template):
                         break
                     if check == False:
                         system_pkg["body_msg"]([f"Line{check_index}:容器功能列表\"{function_list}\"有不适用功能"])
-                # container.task_template
-                task_template_list = container_task_template.split(" ")
+                # tasker.task_template
+                task_template_list = tasker_task_template.split(" ")
                 if len(task_template_list) % 2 != 0:
-                    system_pkg["body_msg"]([f"Line{check_index}:容器task模板\"{container_task_template}\"格式错误"])
+                    system_pkg["body_msg"]([f"Line{check_index}:容器task模板\"{tasker_task_template}\"格式错误"])
                     check_index += 1
                     continue
                 for index in range(0, len(task_template_list), 2):
                     task_type, task_version = task_template_list[index:2]
                     # 对于每一个task_template
                     check = False
-                    for task_template in container.task_template:
+                    for task_template in tasker.task_template:
                         task_instance = task_template()
                         if task_type != task_instance.type:
                             check_index += 1
@@ -393,20 +393,20 @@ class default_container_func(default_container_func_template):
                         break
                     if check == False:
                         system_pkg["body_msg"]([f"Line{check_index}:容器task模板\"{task_template_list}\"有不适用模板"])
-                # container.description
-                if container_description != container.description:
+                # tasker.description
+                if tasker_description != tasker.description:
                     
                     if system_pkg["normal_input"]("更改原容器描述(y/n)") != "y":
                         check_index += 1
                         continue
-                    container.description = container_description
+                    tasker.description = tasker_description
 
-                container_check = True
+                tasker_check = True
                 check_index += 1
                 break
-            # container信息检测
-            if container_check == False: return system_pkg["system_msg"](f"识别容器信息失败，请检查备份文件\"{file_path}\"")
-            system_pkg["system_msg"](f"读取到容器{container.container_label}")
+            # tasker信息检测
+            if tasker_check == False: return system_pkg["system_msg"](f"识别容器信息失败，请检查备份文件\"{file_path}\"")
+            system_pkg["system_msg"](f"读取到容器{tasker.tasker_label}")
             # task读取
             task_list = []
             for index in range(check_index, MAX_TXT_LIST_INDEX):
@@ -426,7 +426,7 @@ class default_container_func(default_container_func_template):
                 task_type, task_version, task_create_date, task_date, task_attribute, task_content, task_comment = check_list
                 # 创建空task模板
                 temp_task = None
-                for task_template in container.task_template:
+                for task_template in tasker.task_template:
                     task_instance = task_template()
                     if task_type != task_instance.type: continue
                     task_version = convert_to_float(task_version)
@@ -444,11 +444,11 @@ class default_container_func(default_container_func_template):
                 system_pkg["system_msg"]("无读取的task，不进行覆写操作")
                 return None
             # task_list信息比较
-            table_compare_task_list(container.task_list, task_list, system_pkg, display = 8)
+            table_compare_task_list(tasker.task_list, task_list, system_pkg, display = 8)
             # 确认读取task_list
             user_input = system_pkg["normal_input"]("确认读取(y/n)")
             if user_input != "y": return None
             # 覆写task_list
-            container.task_list = task_list
+            tasker.task_list = task_list
             system_pkg["system_msg"](f"已读取\"{file_path}\"")
             return None

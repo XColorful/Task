@@ -1,6 +1,6 @@
-class default_container_template():
+class default_tasker_template():
     def __init__(self):
-        self.container_label = ""
+        self.tasker_label = ""
         self.description = ""
         self.function_list = []
         self.create_date = ""
@@ -23,10 +23,10 @@ class default_container_template():
         for task_template in self.task_template:
             task = task_template()
             task_template_list.append([task.type, task.version])
-        return [self.type, self.version, self.container_label, self.create_date, function_list, task_template_list, self.description]
+        return [self.type, self.version, self.tasker_label, self.create_date, function_list, task_template_list, self.description]
     
     def build(self, build_list:list, system_pkg:dict):
-        self.container_label = build_list[2]
+        self.tasker_label = build_list[2]
         self.create_date = build_list[3]
         # 添加class_func
         function_pair_list = build_list[4].split(" ")
@@ -91,7 +91,7 @@ class default_task_template():
         self.content = build_list[5]
         self.comment = build_list[6]
 
-class extra_container_template(default_container_template):
+class extra_tasker_template(default_tasker_template):
     def __init__(self):
         super().__init__() #继承父类
         self.description = ""

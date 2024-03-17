@@ -44,11 +44,11 @@ def package_loader(package_name, show = True) -> bool:
     global class_func_list
     try: class_func_list += package_dict["class_func"]
     except KeyError: pass
-    global df_container_template_list
-    try: df_container_template_list += package_dict["default_container"]
+    global df_tasker_template_list
+    try: df_tasker_template_list += package_dict["default_tasker"]
     except KeyError: pass
-    global ex_container_template_list
-    try: ex_container_template_list += package_dict["extra_container"]
+    global ex_tasker_template_list
+    try: ex_tasker_template_list += package_dict["extra_tasker"]
     except KeyError: pass
     global io_list
     try: io_list += package_dict["io"]
@@ -76,8 +76,8 @@ def system_pkg() -> dict:
             "EXIT":EXIT,
             "command_input":command_input, "normal_input":normal_input, "strict_input":strict_input, "block_input":block_input,
             "CONDITION_SUCCESS":CONDITION_SUCCESS, "CONDITION_FAIL":CONDITION_FAIL, "BLOCK_LIST":BLOCK_LIST,
-            "TYPE_DEFAULT_CONTAINER":TYPE_DEFAULT_CONTAINER, "TYPE_EXTRA_CONTAINER":TYPE_EXTRA_CONTAINER, "TYPE_DEFAULT_METHOD":TYPE_DEFAULT_METHOD, "TYPE_EXTRA_METHOD":TYPE_EXTRA_METHOD, "TYPE_DEFAULT_CLASS_FUNC":TYPE_DEFAULT_CLASS_FUNC, "TYPE_EXTRA_CLASS_FUNC":TYPE_EXTRA_CLASS_FUNC,
-            "df_container_template_list":df_container_template_list, "ex_container_template_list":ex_container_template_list,
+            "TYPE_DEFAULT_TASKER":TYPE_DEFAULT_TASKER, "TYPE_EXTRA_TASKER":TYPE_EXTRA_TASKER, "TYPE_DEFAULT_METHOD":TYPE_DEFAULT_METHOD, "TYPE_EXTRA_METHOD":TYPE_EXTRA_METHOD, "TYPE_DEFAULT_CLASS_FUNC":TYPE_DEFAULT_CLASS_FUNC, "TYPE_EXTRA_CLASS_FUNC":TYPE_EXTRA_CLASS_FUNC,
+            "df_tasker_template_list":df_tasker_template_list, "ex_tasker_template_list":ex_tasker_template_list,
             "df_task_template_list":df_task_template_list, "ex_task_template_list":ex_task_template_list,
             "class_func_list":class_func_list,
             "settings_dict":settings_dict,
@@ -165,14 +165,14 @@ try:
     with open(f".\\pkl_dir.txt", "r", encoding = "utf-8") as f:
         main_pkl_dir = f.readline()
         if not exists(main_pkl_dir): raise
-except: main_pkl_dir = join(working_dir, "main_container_list.pkl") # 工作目录
+except: main_pkl_dir = join(working_dir, "main_tasker_list.pkl") # 工作目录
 # 读取主容器pkl文件
 from pickle import UnpicklingError
 try:
-    main_container_list = read_from_pkl(main_pkl_dir)
+    main_tasker_list = read_from_pkl(main_pkl_dir)
 except FileNotFoundError:
     system_msg(f"没有可用的pkl数据文件\"{main_pkl_dir}\"")
-    save_pkl(main_container_list, main_pkl_dir)
+    save_pkl(main_tasker_list, main_pkl_dir)
 except ModuleNotFoundError as e:
     system_msg(f"缺少模块\"{str(e).split("'")[1]}\"，请检查目录\"./package/\"或尝试运行\"./安装.cmd\"安装所需依赖")
     normal_input("按任意键退出")
@@ -197,7 +197,7 @@ except UnpicklingError:
     system_msg(f"错误信息保存至{join(error_log_dir, error_log_filename)}")
     normal_input("按任意键退出")
     exit()
-if main_container_list == []: normal_msg("注：主容器列表为空")
+if main_tasker_list == []: normal_msg("注：主容器列表为空")
 
 
 # 程序主循环
@@ -224,7 +224,7 @@ while True:
     df_exec_method_index = None
     for method_index in range(0, len(method_list)):
         # 对cmd进行一般搜索
-        analyze_result = method_list[method_index].analyze(main_cmd_list, main_container_list, system_pkg())
+        analyze_result = method_list[method_index].analyze(main_cmd_list, main_tasker_list, system_pkg())
         # 优先级：一般搜索结果 > 默认method
         # 搜索成功
         if analyze_result[0] == CONDITION_SUCCESS:
@@ -235,7 +235,7 @@ while True:
         elif analyze_result[0] == CONDITION_FAIL:
             # 尝试搜索默认method
             if try_df_method == True:
-                df_analyze_result = method_list[method_index].analyze(df_cmd_list, main_container_list, system_pkg())
+                df_analyze_result = method_list[method_index].analyze(df_cmd_list, main_tasker_list, system_pkg())
                 # 搜索成功
                 if df_analyze_result[0] == CONDITION_SUCCESS:
                     cmd_analyse_list.append(df_analyze_result[1])
@@ -265,15 +265,15 @@ while True:
             # 尝试执行默认method
             if try_df_method == True and len(exec_index_list) == 1:
                 if df_exec_method_index != None:
-                    return_tuple = method_list[df_exec_method_index].proceed(df_cmd_list, main_container_list, system_pkg())
+                    return_tuple = method_list[df_exec_method_index].proceed(df_cmd_list, main_tasker_list, system_pkg())
                 else: # 执行非默认设置method
-                    return_tuple = method_list[method_index].proceed(main_cmd_list, main_container_list, system_pkg())
+                    return_tuple = method_list[method_index].proceed(main_cmd_list, main_tasker_list, system_pkg())
             # 一般执行method
             else:
                 # 使用非默认method
                 try: method_index = exec_index_list[1] if exec_index_list[1] != df_exec_method_index else exec_index_list[0]
                 except IndexError: method_index = exec_index_list[0]
-                return_tuple = method_list[method_index].proceed(main_cmd_list, main_container_list, system_pkg())
+                return_tuple = method_list[method_index].proceed(main_cmd_list, main_tasker_list, system_pkg())
             proceed_condition, proceed_return = return_tuple[0], return_tuple[1]
         # 有多个可执行指令
         else:
@@ -291,7 +291,7 @@ while True:
                     system_msg(f"\"{method_index}\"不在列出的索引内")
                     continue
             # 确认可用索引
-            return_tuple = method_list[exec_index_list[method_index - 1]].proceed(main_cmd_list, main_container_list, system_pkg())
+            return_tuple = method_list[exec_index_list[method_index - 1]].proceed(main_cmd_list, main_tasker_list, system_pkg())
             proceed_condition, proceed_return = return_tuple[0], return_tuple[1]
     # 捕捉报错信息
     except:
@@ -319,12 +319,12 @@ while True:
         system_msg(f"错误信息保存至{join(error_log_dir, error_log_filename)}")
     # 自动保存pkl文件
     if settings_dict["AUTO_SAVE"] == True:
-        save_pkl(main_container_list, main_pkl_dir)
+        save_pkl(main_tasker_list, main_pkl_dir)
         tips_msg("--------已保存pkl文件--------")
     # 自动备份pkl文件
     if settings_dict["AUTO_BACKUP"] == True:
-        main_container_list.sort(key=attrgetter("container_label"))
-        backup_pkl(main_container_list, f"{join(working_dir, "backup_pkl")}", system_pkg(), interval = settings_dict["BACKUP_INTERVAL"], backup_total = settings_dict["BACKUP_TOTAL"])
+        main_tasker_list.sort(key=attrgetter("tasker_label"))
+        backup_pkl(main_tasker_list, f"{join(working_dir, "backup_pkl")}", system_pkg(), interval = settings_dict["BACKUP_INTERVAL"], backup_total = settings_dict["BACKUP_TOTAL"])
     # 输出空行
     normal_msg("")
 

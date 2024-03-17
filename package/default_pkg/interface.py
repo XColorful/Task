@@ -19,7 +19,7 @@ def interface_help(system_pkg):
     system_pkg["tips_msg"]("用空格分隔指令与内容")
     system_pkg["tips_msg"]("输入\"/info\"执行interface内置info功能")
 
-def default_interface(container, system_pkg): # container -> container
+def default_interface(tasker, system_pkg): # tasker -> tasker
     """输入时默认执行search
     
     """
@@ -28,20 +28,20 @@ def default_interface(container, system_pkg): # container -> container
     while True:
         # 显示最后8项task
         if show_task == True:
-            system_pkg["normal_msg"](f"--------{container.container_label}--------")
-            MAX_INDEX_TASK_LIST = len(container.task_list) - 1 # task_list最大索引
-            show_task_list = container.task_list[-8:]
+            system_pkg["normal_msg"](f"--------{tasker.tasker_label}--------")
+            MAX_INDEX_TASK_LIST = len(tasker.task_list) - 1 # task_list最大索引
+            show_task_list = tasker.task_list[-8:]
             show_index = MAX_INDEX_TASK_LIST - len(show_task_list) + 1
             for task in show_task_list:
                 system_pkg["normal_msg"](f"{show_index}|{task}")
                 show_index += 1
         # 查看是否有可用的class_func
-        function_list = container.function_list
+        function_list = tasker.function_list
         if function_list == []: system_pkg["system_msg"]("无可用的class_func")
         # 用户输入
-        user_input = system_pkg["normal_input"](f"{container.container_label}")
+        user_input = system_pkg["normal_input"](f"{tasker.tasker_label}")
         # 输入类型预筛选
-        if user_input == system_pkg["EXIT"]: return (system_pkg["CONDITION_SUCCESS"], f"{container.container_label}.interface界面")
+        if user_input == system_pkg["EXIT"]: return (system_pkg["CONDITION_SUCCESS"], f"{tasker.tasker_label}.interface界面")
         if user_input == "":
             show_task = False
             continue
@@ -80,7 +80,7 @@ def default_interface(container, system_pkg): # container -> container
                 # 执行默认function
                 if default_function == True:
                     cmd_list = ["search", convert_result]
-                    default_proceed_function.proceed(cmd_list, container, system_pkg)
+                    default_proceed_function.proceed(cmd_list, tasker, system_pkg)
                     show_task = False
                 continue
             else: # 既不为可用指令，又不为非负索引
@@ -89,7 +89,7 @@ def default_interface(container, system_pkg): # container -> container
                 # 执行默认function
                 if default_function == True:
                     cmd_list = ["search", user_input]
-                    default_proceed_function.proceed(cmd_list, container, system_pkg)
+                    default_proceed_function.proceed(cmd_list, tasker, system_pkg)
                     show_task = False
                 continue
         else: # 有多个可用指令
@@ -105,5 +105,5 @@ def default_interface(container, system_pkg): # container -> container
                 else:
                     system_pkg["system_msg"](f"索引\"{user_input}\"不存在"); continue
         # 执行指令
-        proceed_function.proceed(cmd_list, container, system_pkg)
+        proceed_function.proceed(cmd_list, tasker, system_pkg)
         show_task = True

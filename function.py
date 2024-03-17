@@ -126,7 +126,7 @@ def file_size_str(file_path):
 
 import glob
 def backup_pkl(data, dir:str, system_pkg:dict, interval : int = 3, backup_total : int = 3):
-    """管理main_container_list.pkl备份文件
+    """管理main_tasker_list.pkl备份文件
     
     interval：保存日期间隔
     backup_total：维持的备份文件总数"""

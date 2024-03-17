@@ -1,11 +1,11 @@
-from default_class_func import extra_container_func_template
+from default_class_func import extra_tasker_func_template
 from .function import YYYY_MM_DD, convert_to_int
 from pyperclip import copy as py_cp
 
-class account_container_func(extra_container_func_template):
+class account_tasker_func(extra_tasker_func_template):
     def __init__(self):
         super().__init__() # 继承父类
-        self.label = "account_container_func"
+        self.label = "account_tasker_func"
         self.version = "account"
         self.function_list = ["new", "get", "search", "update", "edit", "delete"]
         self.create_date = YYYY_MM_DD()
@@ -16,23 +16,23 @@ class account_container_func(extra_container_func_template):
     def get_info(self):
         return super().get_info()
     
-    def proceed(self, cmd_list:list, container, system_pkg:dict):
-        super().proceed(cmd_list, container, system_pkg)
+    def proceed(self, cmd_list:list, tasker, system_pkg:dict):
+        super().proceed(cmd_list, tasker, system_pkg)
     
-    def new(self, parameter, container, system_pkg) -> None:
+    def new(self, parameter, tasker, system_pkg) -> None:
         """建立新account
         
         """
         block_list = system_pkg["BLOCK_LIST"]
         # 创建task实例
         ready = False
-        for task_template in container.task_template:
+        for task_template in tasker.task_template:
             task = task_template()
-            if task.version == container.version:
+            if task.version == tasker.version:
                 ready = True
                 break
         if ready == False:
-            system_pkg["system_msg"](f"缺少类型（{container.version}）匹配的task模板")
+            system_pkg["system_msg"](f"缺少类型（{tasker.version}）匹配的task模板")
             return None
         # 显示account信息参考
         current_date = YYYY_MM_DD()
@@ -104,16 +104,16 @@ class account_container_func(extra_container_func_template):
         
         # 更新创建日期
         task.create_date = current_date
-        container.task_list.append(task)
+        tasker.task_list.append(task)
         # 显示创建成功
         show_alias = f"（{task.label}）" if task.label != task.account_type else ""
         system_pkg["system_msg"](f"账号\"{task.account_type}\"{show_alias}已创建")
         # 立即更新密码（可选）
         user_input = system_pkg["normal_input"]("立即更新密码(y/n)")
         if user_input != "y": return None
-        self.update(-1, container, system_pkg)
+        self.update(-1, tasker, system_pkg)
     
-    def get(self, parameter:str, container, system_pkg, linked_account = True, show = True) -> list: # label, account_type, linked_account
+    def get(self, parameter:str, tasker, system_pkg, linked_account = True, show = True) -> list: # label, account_type, linked_account
         """参数为"/"开头则强制执行索引搜索，参数为"+"开头则不搜索索引
         
         返回列表
@@ -168,14 +168,14 @@ class account_container_func(extra_container_func_template):
             index_search = convert_to_int(user_input)
             try:
                 if user_input[0] == "/": user_input = user_input[1:]
-                container.task_list[index_search]
+                tasker.task_list[index_search]
                 task_index = index_search
             except IndexError: pass
             except TypeError: pass
         if select_search_index != True:
         # 字符串搜索
-            for index, task in enumerate(container.task_list):
-                if task.type != container.type: continue # 跳过非account类型
+            for index, task in enumerate(tasker.task_list):
+                if task.type != tasker.type: continue # 跳过非account类型
                 # 搜索task.label
                 if user_input in task.label:
                     label_index.append(index)
@@ -207,26 +207,26 @@ class account_container_func(extra_container_func_template):
                 if label_index != []:
                     system_pkg["head_msg"](f"标签（{len(label_index)}）")
                     for index in label_index:
-                        show_search_result(container.task_list[index], show_index, system_pkg)
+                        show_search_result(tasker.task_list[index], show_index, system_pkg)
                         show_index += 1
                 if select_search_index == None:
                     if task_index != None:
                         system_pkg["head_msg"](f"索引")
-                        show_search_result(container.task_list[task_index], index = None, system_pkg = system_pkg)
+                        show_search_result(tasker.task_list[task_index], index = None, system_pkg = system_pkg)
                 if account_type_index != []:
                     system_pkg["head_msg"](f"账号类型（{len(account_type_index)}）")
                     for index in account_type_index:
-                        show_search_result(container.task_list[index], show_index, system_pkg)
+                        show_search_result(tasker.task_list[index], show_index, system_pkg)
                         show_index += 1
                 if linked_account_index != []:
                     system_pkg["head_msg"](f"账号关联（{len(linked_account_index)}）")
-                    for index in linked_account_index: show_search_result(container.task_list[index], show_index, system_pkg, linked_acccout = True)
+                    for index in linked_account_index: show_search_result(tasker.task_list[index], show_index, system_pkg, linked_acccout = True)
                     show_index += 1
         # 显示搜索结果--------+--------+--------+--------+--------+--------+--------+ End
         
         # 获取密码到剪贴板
-        def get_password(container, index, system_pkg):
-            task = container.task_list[index]
+        def get_password(tasker, index, system_pkg):
+            task = tasker.task_list[index]
             password = task.password
             show_alias = f"（{task.label}）" if task.label != task.account_type else ""
             if password != "":
@@ -237,12 +237,12 @@ class account_container_func(extra_container_func_template):
         
         # 获取password（索引搜索结果）
         if task_index != None:
-            get_password(container, task_index, system_pkg)
+            get_password(tasker, task_index, system_pkg)
         # 获取password（非索引搜索结果）
         if select_search_index != True:
             all_index_list = label_index + account_type_index + linked_account_index
             if len(all_index_list) == 1:
-                task = container.task_list[all_index_list[0]]
+                task = tasker.task_list[all_index_list[0]]
                 password = task.password
                 if password != "":
                     py_cp(password)
@@ -256,7 +256,7 @@ class account_container_func(extra_container_func_template):
                     input_convert = convert_to_int(user_input)
                     if input_convert <= 0: system_pkg["system_msg"]("索引需为正")
                     else: index = all_index_list[input_convert - 1]
-                    get_password(container, index, system_pkg)
+                    get_password(tasker, index, system_pkg)
                 except TypeError:
                     system_pkg["system_msg"](f"索引\"{user_input}\"错误")
                 except IndexError:
@@ -265,10 +265,10 @@ class account_container_func(extra_container_func_template):
         # 返回get索引
         return [label_index, task_index, account_type_index, linked_account_index]
     
-    def search(self, parameter, container, system_pkg): # 详细搜索，显示详细信息
+    def search(self, parameter, tasker, system_pkg): # 详细搜索，显示详细信息
         pass
     
-    def update(self, parameter, container, system_pkg): # label, account_type
+    def update(self, parameter, tasker, system_pkg): # label, account_type
         # 调用get, linked_account = False，返回None则退出，返回None则提示没搜到
         # parameter优先识别为索引，其次为label, account_type
         # 手动输入password或输入生成的
@@ -276,10 +276,10 @@ class account_container_func(extra_container_func_template):
         # 更新task.last_date
         pass
     
-    def edit(self, parameter, container, system_pkg): # label, account_type
+    def edit(self, parameter, tasker, system_pkg): # label, account_type
         # 调用get, 参数均为False，返回None则退出，返回None则提示没搜到
         pass
     
-    def delete(self, parameter, container, system_pkg): # label, account_type
+    def delete(self, parameter, tasker, system_pkg): # label, account_type
         # 调用get, linked_account = False，返回None则退出，返回None则提示没搜到
         pass

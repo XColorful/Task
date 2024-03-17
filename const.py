@@ -1,5 +1,5 @@
-TYPE_DEFAULT_CONTAINER = "Default_Template"
-TYPE_EXTRA_CONTAINER = "Extra_Template"
+TYPE_DEFAULT_TASKER = "Default_Template"
+TYPE_EXTRA_TASKER = "Extra_Template"
 TYPE_DEFAULT_METHOD = "Default_Template"
 TYPE_EXTRA_METHOD = "Extra_Template"
 TYPE_DEFAULT_CLASS_FUNC = "Default_Template"
