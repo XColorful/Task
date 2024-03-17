@@ -27,10 +27,7 @@ class default_method(default_method_template):
             system_pkg["system_msg"]("tasker_list为空，请先用指令\"add\"创建一个tasker")
             return (system_pkg["CONDITION_SUCCESS"], "tasker_list为空")
         # 有参数则跳过首次获取user_input
-        user_input = ""
-        if cmd_parameter != "":
-            user_input = cmd_parameter
-        else: # 展示tasker_list
+        if user_input := cmd_parameter == "": # 展示tasker_list
             table_tasker_list(range(0, MAX_INDEX +1), tasker_list, system_pkg)
         # 获取tasker_list索引值
         get_index = "" # 用于get的索引
@@ -83,29 +80,29 @@ class default_method(default_method_template):
             user_input = cmd_parameter
         else: # 无参数预输入
             # 展示tasker_template
-            tasker_show_list = table_tasker_template(tasker_template_list, system_pkg)
+            table_tasker_template(tasker_template_list, system_pkg)
             system_pkg["tips_msg"]("匹配首个符合的模板，输入\"exit\"取消创建")
             user_input = system_pkg["normal_input"]("输入索引或版本")
         if user_input == system_pkg["EXIT"]: return (system_pkg["CONDITION_SUCCESS"], "取消添加tasker模板")
         convert_result = convert_to_int(user_input)
         # 尝试识别为索引
-        tasker_template_list_index = None
+        tasker_template_index = None
         if convert_result != None:
             MAX_INDEX = len(tasker_template_list) - 1
             if 0 <= convert_result <= MAX_INDEX:
-                tasker_template_list_index = convert_result
+                tasker_template_index = convert_result
             else:
                 system_pkg["system_msg"](f"索引值{user_input}超出范围（0 ~ {MAX_INDEX}）")
                 return (system_pkg["CONDITION_SUCCESS"], f"索引值{user_input}超出范围（0 ~ {MAX_INDEX}）")
         # 尝试识别为字符串
-        if tasker_template_list_index == None:
-            for index, tasker_version in enumerate(tasker_show_list):
-                if user_input in tasker_version:
-                    tasker_template_list_index = index
+        if tasker_template_index == None:
+            for index, tasker_template in enumerate(tasker_template_list):
+                if user_input in tasker_template.version:
+                    tasker_template_index = index
                     break
-        if tasker_template_list_index == None: return (system_pkg["CONDITION_SUCCESS"], f"无Tasker添加结果")
+        if tasker_template_index == None: return (system_pkg["CONDITION_SUCCESS"], f"无Tasker添加结果")
         # 创建tasker实例
-        tasker_instance = tasker_template_list[tasker_template_list_index]()
+        tasker_instance = tasker_template_list[tasker_template_index]()
         tasker_list.append(tasker_instance)
         # 确认是否立即更新信息
         user_input = system_pkg["normal_input"]("是否立即补充Tasker信息(y/n)")

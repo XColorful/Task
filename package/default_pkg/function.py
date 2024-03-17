@@ -19,7 +19,7 @@ def convert_to_float(s:str):
     except ValueError:
         return None
 
-def table_tasker_list(iterator, tasker_list:list, system_pkg:dict ):
+def table_tasker_list(iterator, tasker_list:list, system_pkg:dict):
     """["索引", "创建日期", "标签", "版本", "Tasker类型"]
     
     """
@@ -35,24 +35,21 @@ def table_tasker_list(iterator, tasker_list:list, system_pkg:dict ):
     system_pkg["table_msg"](table_list, heading = True)
     return None
 
-def table_tasker_template(tasker_template_list, system_pkg:dict):
+def table_tasker_template(tasker_template_list, system_pkg:dict) -> None:
     """["索引", "版本", "Tasker类型", "介绍"]
     
-    返回tasker_label_list Tasker模板标签列表"""
+    返回tasker_version_list Tasker模板标签列表"""
     table_list = []
     heading = ["索引", "版本", "Tasker类型", "介绍"]
     table_list.append(heading)
-    tasker_label_list = []
     # 获取展示列表，创建标签列表
-    for tasker_template_index in range(0, len(tasker_template_list)):
-        template_instance = tasker_template_list[tasker_template_index]()
-        table_list.append([str(tasker_template_index),
-                            template_instance.version,
-                            template_instance.type,
-                            template_instance.introduction])
-        tasker_label_list.append(template_instance.version)
+    for index, tasker_template in enumerate(tasker_template_list):
+        table_list.append([str(index),
+                           tasker_template.version,
+                           tasker_template.type,
+                           tasker_template.introduction])
     system_pkg["table_msg"](table_list, heading = True)
-    return tasker_label_list
+    return None
 
 def get_list_width(input_list:list):
     global chinese_word
