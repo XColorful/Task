@@ -35,4 +35,4 @@ class extra_container_func_template(default_container_func_template):
         return super().get_info()
     
     def proceed(self, cmd_list:list, container, system_pkg:dict):
-        super().proceed()
+        super().proceed(cmd_list, container, system_pkg)

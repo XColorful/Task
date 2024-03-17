@@ -79,7 +79,7 @@ class default_task_template():
         self.comment = comment
     
     def backup(self):
-        return None
+        return f"{self.type}||||{self.version}||||{self.create_date}||||{self.date}||||{self.attribute}||||{self.content}||||{self.comment}"
     
     def backup_list(self):
         return [self.type, self.version, self.create_date, self.date, self.attribute, self.content, self.comment]
@@ -105,7 +105,7 @@ class extra_container_template(default_container_template):
         return (system_pkg["CONDITION_SUCCESS"], None)
     
     def backup_list(self):
-        return []
+        return super().backup_list()
     
     def build(self):
         return None
