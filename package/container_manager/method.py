@@ -62,8 +62,9 @@ class container_manager(default_method_template):
                     table_container_function_list(index_list, container_list, system_pkg)
         # 显示container信息
         container_index = get_index
-        system_pkg["head_msg"](f"{container_list[container_index].container_label}")
-        system_pkg["body_msg"](container_list[container_index].function_list)
+        container = container_list[container_index]
+        system_pkg["head_msg"](f"{container.container_label}")
+        system_pkg["body_msg"](container.function_list)
         # 显示所有可用功能
         class_func_list = system_pkg["class_func_list"]
         class_func_label_list = table_class_func(range(len(class_func_list)), class_func_list, system_pkg)
@@ -107,22 +108,60 @@ class container_manager(default_method_template):
         class_func_index = get_index
         class_func = class_func_list[class_func_index]()
         class_func_type = class_func.type
-        # extra类型排除
-        if class_func.type == system_pkg["TYPE_EXTRA_CLASS_FUNC"]:
-            if container_list[container_index] == system_pkg["TYPE_DEFAULT_CONTAINER"]:
-                system_pkg["system_msg"](f"默认容器类型不支持{system_pkg["TYPE_EXTRA_CLASS_FUNC"]}")
-                return (system_pkg["CONDITION_SUCCESS"], f"\"{class_func.label}\"不支持容器\"{container_list[container_index].container_label}\"")
-        # class_func版本匹配
-        class_func_version = convert_to_float(class_func.version)
-        if (class_func_version == None) or (class_func_version > convert_to_float(container_list[container_index].version)):
-            system_pkg["system_msg"](f"class_func\"{class_func.label}\"版本不匹配")
-            return (system_pkg["CONDITION_SUCCESS"], f"\"{class_func.label}\"版本不支持容器\"{container_list[container_index].container_label}\"")
+        container_type = container.type
+        class_func_version = class_func.version
+        container_version = container.version
+        # container为默认类型
+        if container_type == system_pkg["TYPE_DEFAULT_CONTAINER"]:
+            # class_func为extra类型
+            if class_func_type == system_pkg["TYPE_EXTRA_CLASS_FUNC"]:
+                system_pkg["system_msg"](f"默认容器类型不支持Extra类型class_func")
+                return (system_pkg["CONDITION_SUCCESS"], f"\"{class_func.label}\"（extra类型）不支持容器\"{container.container_label}\"")
+            # class_func为default类型
+            else: # 进行版本比较
+                class_func_version = convert_to_float(class_func.version) # 转换为float类型或None
+                if class_func_version == None:
+                    system_pkg["system_msg"](f"class_func\"{class_func.label}\"版本格式错误")
+                    return (system_pkg["CONDITION_SUCCESS"], f"\"{class_func.label}\"版本格式错误")
+                else:
+                    if class_func_version > convert_to_float(container_version):
+                        system_pkg["system_msg"](f"class_func\"{class_func.label}\"版本不支持")
+                        return (system_pkg["CONDITION_SUCCESS"], f"\"{class_func.label}\"版本不支持容器\"{container.container_label}\"")
+        # container为extra类型
+        elif container_type == system_pkg["TYPE_EXTRA_CONTAINER"]:
+            # class_func为extra类型
+            if class_func_type == system_pkg["TYPE_EXTRA_CLASS_FUNC"]:
+                if class_func_version != container_version: # extra版本不同
+                    system_pkg["system_msg"](f"容器\"{container_type}\"（extra类型）仅支持相同版本的class_func（extra类型）")
+                    return (system_pkg["CONDITION_SUCCESS"], f"\"{class_func.label}\"（extra类型）不支持容器\"{container.container_label}\"（extra类型）")
+            # class_func为default类型
+            else: # 进行默认版本比较
+                suit_task = False
+                error_task = False
+                for task_template in container.task_template:
+                    task = task_template()
+                    task_version = convert_to_float(task.version)
+                    if task_version == None: continue # 跳过extra类型
+                    if convert_to_float(class_func_version) > task_version:
+                        error_task = True
+                        break
+                    else: suit_task = True
+                if error_task == True:
+                    system_pkg["system_msg"](f"容器\"{container.container_label}\"（extra类型）内包含低版本task类型模板")
+                    return (system_pkg["CONDITION_SUCCESS"], f"\"{class_func.label}\"（extra类型）不支持容器\"{container.container_label}\"（extra类型）（含有低版本task模板）")
+                if suit_task == False:
+                    system_pkg["system_msg"](f"容器\"{container.container_label}\"（extra类型）内无可用的默认task类型模板")
+                    return (system_pkg["CONDITION_SUCCESS"], f"\"{class_func.label}\"（extra类型）不支持容器\"{container.container_label}\"（extra类型）（无可用的默认task模板）")
+        # container为未知类型
+        else:
+            system_pkg["system_msg"]("容器类型错误")
+            return (system_pkg["CONDITION_FAIL"], f"容器{container.container_label}类型（{container_type}）异常")
         # 确认是否添加
         user_input = system_pkg["normal_input"]("确认添加(y/n)")
         if user_input == "y":
-            container_list[container_index].function_list.append(class_func)
+            container.function_list.append(class_func)
             system_pkg["system_msg"](f"已添加\"{class_func.label}\"")
-            return (system_pkg["CONDITION_SUCCESS"], f"{container_list[container_index].container_label}.function_list添加\"{class_func.label}\"")
+            return (system_pkg["CONDITION_SUCCESS"], f"{container.container_label}.function_list添加\"{class_func.label}\"")
         return (system_pkg["CONDITION_SUCCESS"], "取消添加class_func")
 
     def del_func(self, cmd_parameter:str, container_list:list, system_pkg:dict):
