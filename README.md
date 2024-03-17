@@ -25,6 +25,8 @@ _注：在任意界面均可输入"**exit**"退出当前操作_
 
 - 主界面输入"_**get**_"，选中索引或标签即可进入Tasker界面
 
+    > _注意：退出Tasker界面时才会自动保存更改_
+
     ![2.进入Tasker界面](https://github.com/XColorful/Task/raw/main/Tutorial/2.进入Tasker界面.png)
 
 ## 3. 默认Tasker界面
