@@ -49,7 +49,7 @@ _注：在任意界面均可输入"**exit**"退出当前操作_
 
 ## 为Tasker添加功能
 
-- 主界面输入"_**add_func**_"，选中需要添加功能的Tasker
+- 导入"**_tasker_manager_**"模块后，在主界面输入"_**add_func**_"，选中需要添加功能的Tasker
 - 选中索引，标签或任意Tasker功能列表
 - 添加后即可在Tasker界面内使用
 
