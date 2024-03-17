@@ -3,14 +3,14 @@ from .function import convert_to_float, YYYY_MM_DD, table_task_template_instance
 def default_update_info(self, system_pkg):
     block_list = system_pkg["BLOCK_LIST"] + [" "]
     
-    if self.tasker_label == "": # 添加容器标签
-        return_tuple = system_pkg["strict_input"]("输入容器标签", block_list, system_pkg)
-        if return_tuple[0] == False: return (system_pkg["CONDITION_SUCCESS"], "取消输入容器标签")
+    if self.tasker_label == "": # 添加Tasker标签
+        return_tuple = system_pkg["strict_input"]("输入Tasker标签", block_list, system_pkg)
+        if return_tuple[0] == False: return (system_pkg["CONDITION_SUCCESS"], "取消输入Tasker标签")
         self.tasker_label = return_tuple[1]
     
-    if self.description == "": # 添加容器描述
-        return_tuple = system_pkg["strict_input"]("输入容器描述", block_list, system_pkg)
-        if return_tuple[0] == False: return (system_pkg["CONDITION_SUCCESS"], "取消输入容器描述")
+    if self.description == "": # 添加Tasker描述
+        return_tuple = system_pkg["strict_input"]("输入Tasker描述", block_list, system_pkg)
+        if return_tuple[0] == False: return (system_pkg["CONDITION_SUCCESS"], "取消输入Tasker描述")
         self.description = return_tuple[1]
     
     if self.task_template == []:
@@ -41,4 +41,4 @@ def default_update_info(self, system_pkg):
     if self.create_date == "": # 更新创建日期
         self.create_date = YYYY_MM_DD()
     
-    return (system_pkg["CONDITION_SUCCESS"], "更新容器信息")
+    return (system_pkg["CONDITION_SUCCESS"], "更新Tasker信息")

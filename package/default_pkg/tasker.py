@@ -10,7 +10,7 @@ class default_tasker(default_tasker_template):
         self.version = "1.0" # 2024_02_15
     
     def interface(self, system_pkg): # 仅有一种，不可修改
-        if self.create_date == "": # 如果create_date为空（未补充过容器信息）
+        if self.create_date == "": # 如果create_date为空（未补充过Tasker信息）
             return_tuple = self.update_info(system_pkg)
             if self.create_date == "": return return_tuple # 如果未补充完信息
         

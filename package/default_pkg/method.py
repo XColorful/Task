@@ -103,14 +103,14 @@ class default_method(default_method_template):
                 if user_input in tasker_version:
                     tasker_template_list_index = index
                     break
-        if tasker_template_list_index == None: return (system_pkg["CONDITION_SUCCESS"], f"无容器添加结果")
+        if tasker_template_list_index == None: return (system_pkg["CONDITION_SUCCESS"], f"无Tasker添加结果")
         # 创建tasker实例
         tasker_instance = tasker_template_list[tasker_template_list_index]()
         tasker_list.append(tasker_instance)
         # 确认是否立即更新信息
-        user_input = system_pkg["normal_input"]("是否立即补充容器信息(y/n)")
-        if user_input != "y": return (system_pkg["CONDITION_SUCCESS"], "不补充容器信息")
-        tasker_list[-1].update_info(system_pkg); return (system_pkg["CONDITION_SUCCESS"], "立即补充容器信息")
+        user_input = system_pkg["normal_input"]("是否立即补充Tasker信息(y/n)")
+        if user_input != "y": return (system_pkg["CONDITION_SUCCESS"], "不补充Tasker信息")
+        tasker_list[-1].update_info(system_pkg); return (system_pkg["CONDITION_SUCCESS"], "立即补充Tasker信息")
     
     def delete(self, cmd_parameter:str, tasker_list:list, system_pkg:dict): # 删除tasker，尝试创建备份文件
         get_index = "" # 用于get的索引
@@ -222,7 +222,7 @@ class default_txt_operation(default_method_template):
                 task_count += 1
         # 结束备份内容
         f.write(f"/end\n")
-        backup_info = [f"共计{tasker_count}个容器，{task_count}个task",
+        backup_info = [f"共计{tasker_count}个Tasker，{task_count}个task",
                        f"当前工作目录{working_dir}",
                        f"完整路径{working_dir}{file_path[1:]}",
                        f"方法{self.label}，版本{self.version}，使用指令{"backup"}"]
@@ -249,7 +249,7 @@ class default_txt_operation(default_method_template):
             system_pkg["error_msg"](error_message)
             system_pkg["system_msg"](f"输出备份文件（{tasker_index} - {task_index}）")
             body_list = []
-            body_list.append("--------容器行--------")
+            body_list.append("--------Tasker行--------")
             body_list.append(f"line[{tasker_index}] -> |{txt_list[tasker_index][:-1]}")
             if task_index > tasker_index:
                 body_list.append("--------task行--------")
@@ -318,7 +318,7 @@ class default_txt_operation(default_method_template):
                     if is_default_type == True: # tasker为默认类型
                         read_version = convert_to_float(build_list[1])
                         if read_version == None: # tasker版本格式不符
-                            report_error(txt_list, current_tasker_index, current_task_index, f"容器版本\"{build_list[0]}\"错误", system_pkg)
+                            report_error(txt_list, current_tasker_index, current_task_index, f"Tasker版本\"{build_list[0]}\"错误", system_pkg)
                             return (system_pkg["CONDITION_FAIL"], "读取备份文件错误")
                     find_tasker = False
                     select_tasker = []
@@ -335,7 +335,7 @@ class default_txt_operation(default_method_template):
                                 # 建立tasker
                                 build_condition = tasker.build(build_list, system_pkg)
                                 if build_condition == False: # tasker内部定义的读取失败
-                                    system_pkg["system_msg"]("容器建立失败")
+                                    system_pkg["system_msg"]("Tasker建立失败")
                                     return (system_pkg["CONDITION_SUCCESS"], "tasker.build失败")
                                 # 添加到temp_tasker_list
                                 select_tasker.append([tasker, tasker.version])
@@ -346,7 +346,7 @@ class default_txt_operation(default_method_template):
                                 # 建立tasker
                                 build_condition = tasker.build(build_list, system_pkg)
                                 if build_condition == False: # tasker内部定义的读取失败
-                                    system_pkg["system_msg"]("容器建立失败")
+                                    system_pkg["system_msg"]("Tasker建立失败")
                                     return (system_pkg["CONDITION_SUCCESS"], "tasker.build失败")
                                 # 添加到temp_tasker_list
                                 find_tasker = True
@@ -364,7 +364,7 @@ class default_txt_operation(default_method_template):
                                 # 有多个版本选择
                                 if len(select_tasker) != 1:
                                     # 显示不同tasker版本
-                                    compare_selection(select_tasker, system_pkg, "容器")
+                                    compare_selection(select_tasker, system_pkg, "Tasker")
                                     user_input = system_pkg["normal_input"]("输入索引")
                                     if user_input == system_pkg["EXIT"]: return ("CONDITION_SUCCESS", "取消读取备份文件")
                                     user_input = convert_to_int(user_input)
@@ -374,7 +374,7 @@ class default_txt_operation(default_method_template):
                                             continue # 输入成功，添加tasker
                                         except IndexError: pass # 输入失败，取消reload
                                     system_pkg["system_msg"](f"索引\"{user_input}\"不存在")
-                                    return ("CONDITION_SUCCESS", "输入备份文件容器类型索引错误")
+                                    return ("CONDITION_SUCCESS", "输入备份文件Tasker类型索引错误")
                                 # 只有一个版本选择
                                 else: temp_tasker_list.append(select_tasker[0][0])
                         continue # 若为extra类型则跳过以上判断
@@ -382,10 +382,10 @@ class default_txt_operation(default_method_template):
                         
                     else:
                         # tasker不匹配已有模板
-                        report_error(txt_list, current_tasker_index, current_task_index, f"容器版本\"{build_list[0]}\"不可用", system_pkg)
+                        report_error(txt_list, current_tasker_index, current_task_index, f"Tasker版本\"{build_list[0]}\"不可用", system_pkg)
                         return (system_pkg["CONDITION_FAIL"], "读取备份文件错误")
                 except KeyError:
-                    report_error(txt_list, current_tasker_index, current_task_index, f"容器类型\"{build_list[0]}\"不存在", system_pkg)
+                    report_error(txt_list, current_tasker_index, current_task_index, f"Tasker类型\"{build_list[0]}\"不存在", system_pkg)
                     return (system_pkg["CONDITION_FAIL"], "读取备份文件错误")
             # 创建tasker--------+--------+--------+--------+--------+--------+--------+ End
             
@@ -470,10 +470,10 @@ class default_txt_operation(default_method_template):
                         
                     else:
                         # task不匹配已有模板
-                        report_error(txt_list, current_tasker_index, current_task_index, f"容器版本\"{build_list[0]}\"不可用", system_pkg)
+                        report_error(txt_list, current_tasker_index, current_task_index, f"Tasker版本\"{build_list[0]}\"不可用", system_pkg)
                         return (system_pkg["CONDITION_FAIL"], "读取备份文件错误")
                 except KeyError:
-                    report_error(txt_list, current_tasker_index, current_task_index, f"容器类型\"{build_list[0]}\"不存在", system_pkg)
+                    report_error(txt_list, current_tasker_index, current_task_index, f"Tasker类型\"{build_list[0]}\"不存在", system_pkg)
                     return (system_pkg["CONDITION_FAIL"], "读取备份文件错误")
             # 创建task--------+--------+--------+--------+--------+--------+--------+ End
             

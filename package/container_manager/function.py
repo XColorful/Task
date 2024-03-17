@@ -17,11 +17,11 @@ def convert_to_float(s:str):
         return None
 
 def table_container_function_list(iterator, container_list:list, system_pkg:dict):
-    """["索引", "创建日期", "标签", "容器功能列表"]
+    """["索引", "创建日期", "标签", "Tasker功能列表"]
     
     """
     table_list = []
-    heading = ["索引", "创建日期", "标签", "容器功能列表"]
+    heading = ["索引", "创建日期", "标签", "Tasker功能列表"]
     table_list.append(heading)
     for i in iterator:
         function_list = []
@@ -37,7 +37,7 @@ def table_container_function_list(iterator, container_list:list, system_pkg:dict
 def table_class_func(iterator:list, class_func_list:list, system_pkg:dict):
     """["索引", "标签", "版本", "类型", "func"]
     
-    返回使用的class_func, class_func_list容器功能列表(二维)"""
+    返回使用的class_func, class_func_list Tasker功能列表(二维)"""
     table_list = []
     heading = ["索引", "标签", "版本", "类型", "func"]
     table_list.append(heading)

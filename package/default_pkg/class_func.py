@@ -154,7 +154,7 @@ class default_tasker_func(default_tasker_func_template):
         parameter以"e"开头，尝试备份extra类型"""
         if tasker.type != system_pkg["TYPE_DEFAULT_TASKER"]:
             if parameter[0:] != "e":
-                system_pkg["system_msg"]("该功能默认不备份extra类型容器")
+                system_pkg["system_msg"]("该功能默认不备份extra类型Tasker")
                 system_pkg["tips_msg"]("参数为\"e\"开头则尝试备份")
                 return None
         existed_task_template = {}
@@ -282,7 +282,7 @@ class default_tasker_func(default_tasker_func_template):
         
         """
         if tasker.type != system_pkg["TYPE_DEFAULT_TASKER"]:
-            system_pkg["system_msg"](f"容器类型\"{tasker.type}\"不适用于\"{system_pkg["TYPE_DEFAULT_TASKER"]}\"类型的方法")
+            system_pkg["system_msg"](f"Tasker类型\"{tasker.type}\"不适用于\"{system_pkg["TYPE_DEFAULT_TASKER"]}\"类型的方法")
             return None
         backup_dir = ".\\backup_single\\"
         # 读取路径检测
@@ -315,31 +315,31 @@ class default_tasker_func(default_tasker_func_template):
                     system_pkg["body_msg"]([f"Line{check_index}:缺少[类型, 版本]"])
                 # tasker.type
                 if tasker_type != tasker.type:
-                    system_pkg["body_msg"]([f"Line{check_index}:容器类型\"{tasker_type}\"不匹配"])
+                    system_pkg["body_msg"]([f"Line{check_index}:Tasker类型\"{tasker_type}\"不匹配"])
                     check_index += 1
                     continue
                 # tasker.version
                 tasker_version = convert_to_float(tasker_version)
                 if (tasker_version == None) or (tasker_version > (convert_to_float(tasker.version))):
-                    system_pkg["body_msg"]([f"Line{check_index}:容器版本\"{tasker_version}\"不匹配"])
+                    system_pkg["body_msg"]([f"Line{check_index}:Tasker版本\"{tasker_version}\"不匹配"])
                     check_index += 1
                     continue
                 try:
                     tasker_tasker_label, tasker_create_date, tasker_function_list, tasker_task_template, tasker_description = check_list[2:7]
                 except ValueError:
-                    system_pkg["body_msg"]([f"Line{check_index}:缺少完整数据[容器标签, 创建日期, 功能列表, task模板, 容器描述]"])
+                    system_pkg["body_msg"]([f"Line{check_index}:缺少完整数据[Tasker标签, 创建日期, 功能列表, task模板, Tasker描述]"])
                     check_index += 1
                     continue
                 # tasker.tasker_label
                 if tasker_tasker_label != tasker.tasker_label:
-                    system_pkg["body_msg"]([f"Line{check_index}:容器标签\"{tasker_tasker_label}\"不匹配"])
+                    system_pkg["body_msg"]([f"Line{check_index}:Tasker标签\"{tasker_tasker_label}\"不匹配"])
                     check_index += 1
                     continue
                 # tasker.create_date
                 if tasker_create_date != tasker.create_date:
-                    system_pkg["body_msg"]([f"Line{check_index}:容器创建日期\"{tasker_create_date}\"不匹配"])
+                    system_pkg["body_msg"]([f"Line{check_index}:Tasker创建日期\"{tasker_create_date}\"不匹配"])
                     
-                    if system_pkg["normal_input"]("更改原容器创建日期(y/n)") != "y":
+                    if system_pkg["normal_input"]("更改原Tasker创建日期(y/n)") != "y":
                         check_index += 1
                         continue
                     tasker.create_date = tasker_create_date
@@ -347,7 +347,7 @@ class default_tasker_func(default_tasker_func_template):
                 # tasker.funciton_list
                 function_list = tasker_function_list.split(" ")
                 if len(function_list) % 3 != 0:
-                    system_pkg["body_msg"]([f"Line{check_index}:容器功能列表\"{function_list}\"格式错误"])
+                    system_pkg["body_msg"]([f"Line{check_index}:Tasker功能列表\"{function_list}\"格式错误"])
                     check_index += 1
                     continue
                 for index in range(0, len(function_list), 3):
@@ -368,11 +368,11 @@ class default_tasker_func(default_tasker_func_template):
                         check = True
                         break
                     if check == False:
-                        system_pkg["body_msg"]([f"Line{check_index}:容器功能列表\"{function_list}\"有不适用功能"])
+                        system_pkg["body_msg"]([f"Line{check_index}:Tasker功能列表\"{function_list}\"有不适用功能"])
                 # tasker.task_template
                 task_template_list = tasker_task_template.split(" ")
                 if len(task_template_list) % 2 != 0:
-                    system_pkg["body_msg"]([f"Line{check_index}:容器task模板\"{tasker_task_template}\"格式错误"])
+                    system_pkg["body_msg"]([f"Line{check_index}:Taskertask模板\"{tasker_task_template}\"格式错误"])
                     check_index += 1
                     continue
                 for index in range(0, len(task_template_list), 2):
@@ -392,11 +392,11 @@ class default_tasker_func(default_tasker_func_template):
                         check = True
                         break
                     if check == False:
-                        system_pkg["body_msg"]([f"Line{check_index}:容器task模板\"{task_template_list}\"有不适用模板"])
+                        system_pkg["body_msg"]([f"Line{check_index}:Tasker\"{task_template_list}\"有不适用的task模板"])
                 # tasker.description
                 if tasker_description != tasker.description:
                     
-                    if system_pkg["normal_input"]("更改原容器描述(y/n)") != "y":
+                    if system_pkg["normal_input"]("更改原Tasker描述(y/n)") != "y":
                         check_index += 1
                         continue
                     tasker.description = tasker_description
@@ -405,8 +405,8 @@ class default_tasker_func(default_tasker_func_template):
                 check_index += 1
                 break
             # tasker信息检测
-            if tasker_check == False: return system_pkg["system_msg"](f"识别容器信息失败，请检查备份文件\"{file_path}\"")
-            system_pkg["system_msg"](f"读取到容器{tasker.tasker_label}")
+            if tasker_check == False: return system_pkg["system_msg"](f"识别Tasker信息失败，请检查备份文件\"{file_path}\"")
+            system_pkg["system_msg"](f"读取到Tasker{tasker.tasker_label}")
             # task读取
             task_list = []
             for index in range(check_index, MAX_TXT_LIST_INDEX):

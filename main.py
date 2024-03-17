@@ -165,8 +165,8 @@ try:
     with open(f".\\pkl_dir.txt", "r", encoding = "utf-8") as f:
         main_pkl_dir = f.readline()
         if not exists(main_pkl_dir): raise
-except: main_pkl_dir = join(working_dir, "main_tasker_list.pkl") # 工作目录
-# 读取主容器pkl文件
+except: main_pkl_dir = join(working_dir, "Tasker_list.pkl") # 工作目录
+# 读取Taskerpkl文件
 from pickle import UnpicklingError
 try:
     main_tasker_list = read_from_pkl(main_pkl_dir)
@@ -197,7 +197,7 @@ except UnpicklingError:
     system_msg(f"错误信息保存至{join(error_log_dir, error_log_filename)}")
     normal_input("按任意键退出")
     exit()
-if main_tasker_list == []: normal_msg("注：主容器列表为空")
+if main_tasker_list == []: normal_msg("注：Tasker列表为空")
 
 
 # 程序主循环

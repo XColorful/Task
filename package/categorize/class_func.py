@@ -44,7 +44,7 @@ class categorize_task(default_tasker_func_template):
     def attr_count(self, tasker, system_pkg:dict):
         attr_category = [] # [ ["attr1", 12] , ["attr2", 12], ]
         if tasker.task_list == []:
-            system_pkg["system_msg"]("容器task_list为空")
+            system_pkg["system_msg"]("Taskertask_list为空")
             return None
         for task in tasker.task_list:
             task_attr = task.attribute
@@ -86,7 +86,7 @@ class categorize_task(default_tasker_func_template):
     def date_count(self, tasker, system_pkg:dict):
         date_category = [] # [ ["2023_09", 12], ["2024_03", 15] ]
         if tasker.task_list == []:
-            system_pkg["system_msg"]("容器task_list为空")
+            system_pkg["system_msg"]("Taskertask_list为空")
             return None
         for task in tasker.task_list:
             task_date = task.date[:7]
