@@ -510,7 +510,7 @@ class default_txt_operation(default_method_template):
         if total_garbage_task != 0:
             system_pkg["system_msg"](f"注：备份文件中含有{total_garbage_task}项task被丢弃")
         # 空备份文件检测，可能不包含可读取内容
-        if total_new_tasker == 0 or total_new_task == 0:
+        if (total_new_task == 0) and (total_old_task != 0):
             system_pkg["system_msg"]("请检查备份文件，防止\"rm -rf\"（此操作将清空所有内容）")
             return (system_pkg["CONDITION_SUCCESS"], "备份文件为空，拒绝reload")
         # 读取确认（覆盖原数据）
