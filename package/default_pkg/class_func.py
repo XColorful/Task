@@ -66,7 +66,7 @@ class default_tasker_func(default_tasker_func_template):
         else: return_index = string_search_index
         return return_index
     
-    def new(self, parameter, tasker, system_pkg):
+    def new(self, parameter, tasker, system_pkg) -> None:
         """用空格分隔参数，参数1为索引则选取task模板列表，参数2为"n"开头则创建空模板
         
         """
@@ -77,7 +77,7 @@ class default_tasker_func(default_tasker_func_template):
             if task.type == system_pkg["TYPE_DEFAULT_TASKER"]: task_template_count += 1
             else: extra_template_count += 1
         select_task_template_index = 0
-        create_empty_task = False
+        
         if extra_template_count != 0: system_pkg["system_pkg"](f"忽略{extra_template_count}项非\"{system_pkg["TYPE_DEFAULT_TASKER"]}\"类型task模板")
         if task_template_count == 0: # 无默认类型task模板
             system_pkg["system_msg"]("无可用的默认task模板")
@@ -103,13 +103,20 @@ class default_tasker_func(default_tasker_func_template):
                     return None
         # 创建空task检查
         empty_check = parameter.split(" ")
-        for i in empty_check[1:]: # 检查参数"n"
+        create_empty_task = False
+        for i in empty_check[0:]: # 检查参数"n"
             try:
                 if i[0] == "n": create_empty_task = True
                 break
-            except: continue
+            except IndexError: continue
         temp_task = task_template[select_task_template_index]()
-        if create_empty_task == True: return None # 判断是否选择创建空task
+        if create_empty_task == True:
+            current_date = YYYY_MM_DD()
+            info_dict = {"create_date":current_date, "date":current_date, "attribute":"", "content":"", "comment":""}
+            temp_task.update(info_dict, system_pkg)
+            tasker.task_list.append(temp_task)
+            system_pkg["system_msg"]("已创建空Task")
+            return None # 判断是否选择创建空task
         
         current_date = YYYY_MM_DD()
         return_tuple = system_pkg["block_input"](f"日期(默认{current_date})", system_pkg["BLOCK_LIST"], system_pkg, block_number = False)
@@ -118,7 +125,7 @@ class default_tasker_func(default_tasker_func_template):
         else: date_input = return_tuple[1]
         
         return_tuple = system_pkg["block_input"](f"属性(可选)", system_pkg["BLOCK_LIST"], system_pkg, block_number = False)
-        if return_tuple[0] == False: return temp_task
+        if return_tuple[0] == False: return None
         if return_tuple[0] == None: attribute_input = "N/A" # 默认为"N/A"
         else: attribute_input = return_tuple[1]
         
