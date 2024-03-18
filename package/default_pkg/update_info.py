@@ -1,7 +1,7 @@
 from .function import convert_to_float, YYYY_MM_DD, table_task_template_instance, select_valid_index
 
 def default_update_info(self, system_pkg):
-    block_list = system_pkg["BLOCK_LIST"] + [" "]
+    block_list = system_pkg["BLOCK_LIST"]
     
     if self.tasker_label == "": # 添加Tasker标签
         return_tuple = system_pkg["strict_input"]("输入Tasker标签", block_list, system_pkg)
