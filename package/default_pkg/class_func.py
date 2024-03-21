@@ -10,7 +10,7 @@ class default_tasker_func(default_tasker_func_template):
         super().__init__() # 继承父类
         self.label = "default_tasker_func"
         self.version = "1.0"
-        self.function_list = ["search", "new", "txt", "backup", "edit", "reload"]
+        self.function_list = ["search", "new", "delete", "backup", "edit", "reload"]
         # 供调试时查看信息用，不可见
         self.create_date = YYYY_MM_DD()
     
@@ -145,15 +145,36 @@ class default_tasker_func(default_tasker_func_template):
         system_pkg["body_msg"]([f"{temp_task.create_date}|{temp_task.date}|{temp_task.attribute}|{temp_task.content}|{temp_task.comment}"])
         return None
 
-    def txt(self, parameter, tasker, system_pkg):
-        """用空格分隔参数，参数为保存路径(?)
-        
-        这个先不急
+    def delete(self, parameter, tasker, system_pkg) -> None:
+        """参数非空时指定搜索对象，为索引或搜索，选取最后一个搜索到的（task_list末端）
         
         """
-        pass # 刷新信息
-        # 生成txt文件
-        pass
+        index = [] # 存储索引列表
+        user_input = parameter # 用于后续判断是否为空输入，操作空task
+        if user_input == "":
+            system_pkg["tips_msg"]("参数为索引或搜索，选取最后一个搜索到的task（位于列表末端）")
+            user_input = system_pkg["normal_input"]("指定编辑对象")
+            if user_input == system_pkg["EXIT"]: return None
+            if user_input == "": # 搜索空task
+                for i in range( len(tasker.task_list) - 1, -1, -1):
+                    if tasker.task_list[i].create_date == "":
+                        index.append(i)
+                        break
+            else: index = self.search(user_input, tasker, system_pkg, show_msg = False) # 搜索非空task，返回列表
+        else: index = self.search(user_input, tasker, system_pkg, show_msg = False) # 搜索非空task，返回列表
+        # 搜索结果
+        if index == []:
+            system_pkg["system_msg"]("无指定对象")
+            return None
+        else: index = index[-1] # 搜索结果选取最后添加的task
+        # 显示task内容
+        task = tasker.task_list[int(index)] # 重新取为int
+        system_pkg["normal_msg"](f"{index}|{task.date}|{task.attribute}|{task.content}|{task.comment}")
+        user_input = system_pkg["normal_input"](f"确认删除\"{task.content}\"(y/n)")
+        if user_input != "y": return None
+        del tasker.task_list[index]
+        system_pkg["system_msg"]("已删除task")
+        
     
     def backup(self, parameter, tasker, system_pkg):
         """备份单个tasker，删除空项
