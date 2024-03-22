@@ -154,7 +154,7 @@ if settings_dict["SHOW_TIPS"] == False:
 # 预处理--------+--------+--------+--------+--------+--------+--------+--------+ End
 
 # 封装函数--------+--------+--------+--------+--------+--------+--------+--------+ Start
-def welcome() -> None:
+def main_welcome() -> None:
     """进入程序提示"""
     normal_msg(f"<{github}>")
     head_msg(f"Task - Version {version}")
@@ -172,9 +172,31 @@ def get_cmd_list() -> list:
             continue
         else: return main_cmd_list
 
-def search_method(main_cmd_list) -> None:
-    global try_df_method, df_cmd_list, df_exec_method_index, method_list, cmd_analyse_list, exec_index_list, df_analyze_result, fail_index_list
-    try_df_method = True if (main_cmd_list[1] == "" and settings_dict["DEFAULT_METHOD"] != "") else False
+def default_method_check() -> bool:
+    try_df_method = False
+    if (main_cmd_list[1] == "" and settings_dict["DEFAULT_METHOD"] != ""):
+        try_df_method = True
+    return try_df_method
+
+def no_available_method(main_cmd_list, exec_index_list) -> bool:
+    """检查是否已经有可执行的method"""
+    if exec_index_list == []:
+        system_msg(f"指令\"{main_cmd_list[0]}\"不存在")
+        if fail_index_list != []:
+            if normal_input("展示所有可用指令(y/n)").lower() != "y": return True
+            table_analyze_result(cmd_analyse_list, fail_index_list, system_pkg())
+        else: body_msg(["无可用指令"])
+        return True
+    return False
+
+def search_method(main_cmd_list) -> bool:
+    """搜索可用的method，在本函数内创建需要的一些变量
+    
+    有method，返回True
+    
+    无method，返回None"""
+    global cmd_analyse_list, exec_index_list, fail_index_list
+    global try_df_method, df_cmd_list, df_exec_method_index, method_list, df_analyze_result
     if try_df_method == True:
         df_cmd_list = [settings_dict["DEFAULT_METHOD"], main_cmd_list[0]] # 用" "分隔 -> [cmd:str, cmd_parameter:str] （格式与main_cmd_list相同）
     df_exec_method_index = None
@@ -204,6 +226,24 @@ def search_method(main_cmd_list) -> None:
             cmd_analyse_list.append(analyze_result[1])
             fail_index_list.append(method_index)
             continue
+    if no_available_method(main_cmd_list, exec_index_list) == True:
+        return False
+    return True
+
+def select_method_index(cmd_analyse_list, exec_index_list) -> int | None:
+    """有多个可之心的method，选择其一或取消"""
+    table_analyze_result(cmd_analyse_list, exec_index_list, system_pkg(), start_index = 1)
+    if (user_selection := normal_input("输入索引")) == EXIT:
+        return None
+    method_index = convert_to_int(user_selection)
+    if method_index == None: # 输入非int字符串
+        system_msg(f"\"{user_selection}\"不是一个整数")
+        return None
+    # 输入int字符串
+    elif not (method_index in range(1, len(exec_index_list) + 1)):
+        system_msg(f"\"{method_index}\"不在列出的索引内")
+        return None
+    else: return method_index
 
 def write_log(proceed_condition, proceed_time:list, main_cmd_list, proceed_info_list, log_dir) -> None:
     log_filename = f"log_{proceed_time[0]}.txt"
@@ -281,58 +321,17 @@ if main_tasker_list == []: normal_msg("注：Tasker列表为空")
 
 
 # 主程序--------+--------+--------+--------+--------+--------+--------+--------+ Start
-welcome()
+main_welcome() # 程序启动提示
 while True:
     main_cmd_list = get_cmd_list()
     cmd_proceed_time = YYYY_MM_DD_HH_MM_SS()
     cmd_proceed_date = cmd_proceed_time[0:10] # "YYYY_MM_DD"
     # 初始化变量
-    cmd_analyse_list = []
-    exec_index_list = []
-    fail_index_list = []
-    proceed_condition = None
-    # search_method(main_cmd_list)
-    # 遍历可执行的method
-    try_df_method = True if (main_cmd_list[1] == "" and settings_dict["DEFAULT_METHOD"] != "") else False
-    if try_df_method == True:
-        df_cmd_list = [settings_dict["DEFAULT_METHOD"], main_cmd_list[0]] # 用" "分隔 -> [cmd:str, cmd_parameter:str] （格式与main_cmd_list相同）
-    df_exec_method_index = None
-    for method_index in range(0, len(method_list)):
-        # 对cmd进行一般搜索
-        analyze_result = method_list[method_index].analyze(main_cmd_list, main_tasker_list, system_pkg())
-        # 优先级：一般搜索结果 > 默认method
-        # 搜索成功
-        if analyze_result[0] == CONDITION_SUCCESS:
-            cmd_analyse_list.append(analyze_result[1])
-            exec_index_list.append(method_index)
-            continue
-        # 搜索失败
-        elif analyze_result[0] == CONDITION_FAIL:
-            # 尝试搜索默认method
-            if try_df_method == True:
-                df_analyze_result = method_list[method_index].analyze(df_cmd_list, main_tasker_list, system_pkg())
-                # 搜索成功
-                if df_analyze_result[0] == CONDITION_SUCCESS:
-                    cmd_analyse_list.append(df_analyze_result[1])
-                    exec_index_list.append(method_index)
-                    df_exec_method_index = method_index
-                    continue
-                # 搜索失败
-                elif df_analyze_result[0] == CONDITION_FAIL: pass
-            # 添加cmd一般搜索结果
-            cmd_analyse_list.append(analyze_result[1])
-            fail_index_list.append(method_index)
-            continue
-    # 判断是否有可执行指令
-    # 无可执行指令
-    if exec_index_list == []:
-        system_msg(f"指令\"{main_cmd_list[0]}\"不存在")
-        if fail_index_list != []:
-            if normal_input("展示所有可用指令(y/n)").lower() != "y": continue
-            table_analyze_result(cmd_analyse_list, fail_index_list, system_pkg())
-        else: body_msg(["无可用指令"])
+    try_df_method = default_method_check()
+    cmd_analyse_list, exec_index_list, fail_index_list = [], [], []
+    method_check = search_method(main_cmd_list)
+    if method_check == False:
         continue
-    # 有可执行指令
     try:
         # 仅有一个可执行指令
         if len(exec_index_list) == 1 or (len(exec_index_list) == 2 and try_df_method == True):
@@ -349,24 +348,14 @@ while True:
                 try: method_index = exec_index_list[1] if exec_index_list[1] != df_exec_method_index else exec_index_list[0]
                 except IndexError: method_index = exec_index_list[0]
                 return_tuple = method_list[method_index].proceed(main_cmd_list, main_tasker_list, system_pkg())
+            
             proceed_condition, proceed_return = return_tuple[0], return_tuple[1]
         # 有多个可执行指令
         else:
-            table_analyze_result(cmd_analyse_list, exec_index_list, system_pkg(), start_index = 1)
-            user_input = normal_input("输入索引")
-            if user_input == EXIT: continue
-            method_index = convert_to_int(user_input)
-            # 输入非int字符串
-            if method_index == None:
-                system_msg(f"\"{user_input}\"不是一个整数")
-                continue
-            # 输入int字符串
-            else:
-                if not (method_index in range(1, len(exec_index_list) + 1)):
-                    system_msg(f"\"{method_index}\"不在列出的索引内")
-                    continue
-            # 确认可用索引
+            method_index = select_method_index(cmd_analyse_list, exec_index_list)
+            if method_index == None: continue
             return_tuple = method_list[exec_index_list[method_index - 1]].proceed(main_cmd_list, main_tasker_list, system_pkg())
+            
             proceed_condition, proceed_return = return_tuple[0], return_tuple[1]
     # 捕捉报错信息
     except:
