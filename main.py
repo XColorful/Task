@@ -1,10 +1,15 @@
+import traceback
+
+from operator import attrgetter
 from os import chdir
 from os.path import dirname, abspath, exists, join
+
+from function import convert_to_int, convert_to_float, read_from_pkl, save_pkl, error_log, YYYY_MM_DD_HH_MM_SS, backup_pkl, normal_log, table_analyze_result
+
 working_dir = dirname(abspath(__file__))
 chdir(working_dir) # 切换工作路径至当前文件目录
 
 # main_func--------+--------+--------+--------+--------+--------+--------+--------+ Begin
-from function import convert_to_int, convert_to_float
 def adjust_settings(settings_dict:dict, key:str, value:str) -> bool:
     # int, float, bool类型转换
     # bool
@@ -148,16 +153,55 @@ if settings_dict["SHOW_TIPS"] == False:
 
 # 预处理--------+--------+--------+--------+--------+--------+--------+--------+ End
 
+# 封装函数--------+--------+--------+--------+--------+--------+--------+--------+ Start
+def welcome() -> None:
+    """进入程序提示"""
+    normal_msg(f"<{github}>")
+    head_msg(f"Task - Version {version}")
+    body_msg([f"By {", ".join(contributor_list)}"])
 
-# 主程序--------+--------+--------+--------+--------+--------+--------+--------+ Start
-# 主程序
-from function import read_from_pkl, save_pkl, error_log, YYYY_MM_DD_HH_MM_SS, backup_pkl, normal_log, table_analyze_result
-import traceback
-from operator import attrgetter
-# 启动提示
-normal_msg(f"<{github}>")
-head_msg(f"Task - Version {version}")
-body_msg([f"By {", ".join(contributor_list)}"])
+def get_cmd_list() -> list:
+    """获取用户输入的指令，参数"""
+    while True:
+        main_cmd_list = command_input("main") # 用" "分隔 -> [cmd:str, cmd_parameter:str]
+        if main_cmd_list[0] == system_pkg()["EXIT"]: exit()
+        elif main_cmd_list[0] == "":
+            if main_cmd_list[1] != "": system_msg("请先输入指令，或尝试去除最先输入的空格重新输入")
+            continue
+        else: return main_cmd_list
+
+def write_log(proceed_condition, proceed_time:list, main_cmd_list, proceed_info_list, log_dir) -> None:
+    log_filename = f"log_{proceed_time[0]}.txt"
+    if proceed_condition == CONDITION_SUCCESS:
+        normal_log(proceed_time[1:3], main_cmd_list, proceed_info_list, log_dir, log_filename) # 写入日志文件
+    elif proceed_condition == CONDITION_FAIL:
+        error_msg(proceed_return)
+        normal_log(proceed_time[1:3], main_cmd_list, proceed_info_list, log_dir, log_filename) # 写入日志文件
+    else:
+        error_msg("请检查程序是否有返回状态值")
+
+def exception_log(exception_msg) -> None:
+    error_msg("运行出现错误，展示错误信息")
+    body_msg(exception_msg.split("\n"))
+    error_log_filename = f"exception_{YYYY_MM_DD_HH_MM_SS()}.txt"
+    error_log(exception_msg, error_log_dir, error_log_filename) # 写入错误日志
+    system_msg(f"错误信息保存至{join(error_log_dir, error_log_filename)}")
+
+def auto_save_pkl() -> None:
+    # 自动保存pkl文件
+    if settings_dict["AUTO_SAVE"] == True:
+        save_pkl(main_tasker_list,
+                 main_pkl_dir)
+        tips_msg("--------已保存pkl文件--------")
+    # 自动备份pkl文件
+    if settings_dict["AUTO_BACKUP"] == True:
+        main_tasker_list.sort(key=attrgetter("tasker_label"))
+        backup_pkl(main_tasker_list,
+                   f"{join(working_dir, "backup_pkl")}",
+                   system_pkg(),
+                   interval = settings_dict["BACKUP_INTERVAL"],
+                   backup_total = settings_dict["BACKUP_TOTAL"])
+# 封装函数--------+--------+--------+--------+--------+--------+--------+--------+ End
 
 
 # 读取pkl存储路径
@@ -200,23 +244,18 @@ except UnpicklingError:
 if main_tasker_list == []: normal_msg("注：Tasker列表为空")
 
 
-# 程序主循环
+
+# 主程序--------+--------+--------+--------+--------+--------+--------+--------+ Start
+welcome()
 while True:
-    # 获取用户输入
-    main_cmd_list = command_input("main") # 用" "分隔 -> [cmd:str, cmd_parameter:str]
-    if main_cmd_list[0] == system_pkg()["EXIT"]: exit()
-    if main_cmd_list[0] == "":
-        if main_cmd_list[1] != "":
-            system_msg("请先输入指令，或尝试去除最先输入的空格重新输入")
-        continue
+    main_cmd_list = get_cmd_list()
+    cmd_proceed_time = YYYY_MM_DD_HH_MM_SS()
+    cmd_proceed_date = cmd_proceed_time[0:10] # "YYYY_MM_DD"
     # 初始化变量
     cmd_analyse_list = []
     exec_index_list = []
     fail_index_list = []
-    cmd_proceed_time = YYYY_MM_DD_HH_MM_SS()
-    cmd_proceed_date = cmd_proceed_time[0:10] # "YYYY_MM_DD"
     proceed_condition = None
-    exception = False
     # 遍历可执行的method
     try_df_method = True if (main_cmd_list[1] == "" and settings_dict["DEFAULT_METHOD"] != "") else False
     if try_df_method == True:
@@ -296,36 +335,15 @@ while True:
     # 捕捉报错信息
     except:
         exception_msg = traceback.format_exc()
+        exception_log(exception_msg)
         proceed_condition, proceed_return = CONDITION_FAIL, "Exception"
-        exception = True
+    
     # 执行指令后
     cmd_donetime = YYYY_MM_DD_HH_MM_SS()
     log_dir = join(working_dir, f"log")
-    log_filename = f"log_{cmd_proceed_date}.txt"
     proceed_info_list = [method_list[method_index], proceed_condition, proceed_return]
-    if proceed_condition == CONDITION_SUCCESS:
-        normal_log([cmd_proceed_time, cmd_donetime], main_cmd_list, proceed_info_list, log_dir, log_filename) # 写入日志文件
-    elif proceed_condition == CONDITION_FAIL:
-        error_msg(proceed_return)
-        normal_log([cmd_proceed_time, cmd_donetime], main_cmd_list, proceed_info_list, log_dir, log_filename) # 写入日志文件
-    else:
-        error_msg("请检查程序是否有返回状态值")
-    # 程序报错判断
-    if exception == True:
-        error_msg("运行出现错误，展示错误信息")
-        body_msg(exception_msg.split("\n"))
-        error_log_filename = f"exception_{YYYY_MM_DD_HH_MM_SS()}.txt"
-        error_log(exception_msg, error_log_dir, error_log_filename) # 写入错误日志
-        system_msg(f"错误信息保存至{join(error_log_dir, error_log_filename)}")
-    # 自动保存pkl文件
-    if settings_dict["AUTO_SAVE"] == True:
-        save_pkl(main_tasker_list, main_pkl_dir)
-        tips_msg("--------已保存pkl文件--------")
-    # 自动备份pkl文件
-    if settings_dict["AUTO_BACKUP"] == True:
-        main_tasker_list.sort(key=attrgetter("tasker_label"))
-        backup_pkl(main_tasker_list, f"{join(working_dir, "backup_pkl")}", system_pkg(), interval = settings_dict["BACKUP_INTERVAL"], backup_total = settings_dict["BACKUP_TOTAL"])
-    # 输出空行
-    normal_msg("")
+    write_log(proceed_condition, [cmd_proceed_date, cmd_proceed_time, cmd_donetime], main_cmd_list, proceed_info_list, log_dir)
+    auto_save_pkl()
+    normal_msg("") # 输出空行
 
 # 主程序--------+--------+--------+--------+--------+--------+--------+--------+ End
