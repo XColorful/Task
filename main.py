@@ -161,7 +161,9 @@ def welcome() -> None:
     body_msg([f"By {", ".join(contributor_list)}"])
 
 def get_cmd_list() -> list:
-    """获取用户输入的指令，参数"""
+    """获取用户输入的指令，参数
+    
+    输入设置中EXIT则退出程序"""
     while True:
         main_cmd_list = command_input("main") # 用" "分隔 -> [cmd:str, cmd_parameter:str]
         if main_cmd_list[0] == system_pkg()["EXIT"]: exit()
@@ -169,6 +171,39 @@ def get_cmd_list() -> list:
             if main_cmd_list[1] != "": system_msg("请先输入指令，或尝试去除最先输入的空格重新输入")
             continue
         else: return main_cmd_list
+
+def search_method(main_cmd_list) -> None:
+    global try_df_method, df_cmd_list, df_exec_method_index, method_list, cmd_analyse_list, exec_index_list, df_analyze_result, fail_index_list
+    try_df_method = True if (main_cmd_list[1] == "" and settings_dict["DEFAULT_METHOD"] != "") else False
+    if try_df_method == True:
+        df_cmd_list = [settings_dict["DEFAULT_METHOD"], main_cmd_list[0]] # 用" "分隔 -> [cmd:str, cmd_parameter:str] （格式与main_cmd_list相同）
+    df_exec_method_index = None
+    for method_index in range(0, len(method_list)):
+        # 对cmd进行一般搜索
+        analyze_result = method_list[method_index].analyze(main_cmd_list, main_tasker_list, system_pkg())
+        # 优先级：一般搜索结果 > 默认method
+        # 搜索成功
+        if analyze_result[0] == CONDITION_SUCCESS:
+            cmd_analyse_list.append(analyze_result[1])
+            exec_index_list.append(method_index)
+            continue
+        # 搜索失败
+        elif analyze_result[0] == CONDITION_FAIL:
+            # 尝试搜索默认method
+            if try_df_method == True:
+                df_analyze_result = method_list[method_index].analyze(df_cmd_list, main_tasker_list, system_pkg())
+                # 搜索成功
+                if df_analyze_result[0] == CONDITION_SUCCESS:
+                    cmd_analyse_list.append(df_analyze_result[1])
+                    exec_index_list.append(method_index)
+                    df_exec_method_index = method_index
+                    continue
+                # 搜索失败
+                elif df_analyze_result[0] == CONDITION_FAIL: pass
+            # 添加cmd一般搜索结果
+            cmd_analyse_list.append(analyze_result[1])
+            fail_index_list.append(method_index)
+            continue
 
 def write_log(proceed_condition, proceed_time:list, main_cmd_list, proceed_info_list, log_dir) -> None:
     log_filename = f"log_{proceed_time[0]}.txt"
@@ -181,6 +216,7 @@ def write_log(proceed_condition, proceed_time:list, main_cmd_list, proceed_info_
         error_msg("请检查程序是否有返回状态值")
 
 def exception_log(exception_msg) -> None:
+    """写入错误日志"""
     error_msg("运行出现错误，展示错误信息")
     body_msg(exception_msg.split("\n"))
     error_log_filename = f"exception_{YYYY_MM_DD_HH_MM_SS()}.txt"
@@ -188,14 +224,13 @@ def exception_log(exception_msg) -> None:
     system_msg(f"错误信息保存至{join(error_log_dir, error_log_filename)}")
 
 def auto_save_pkl() -> None:
-    # 自动保存pkl文件
-    if settings_dict["AUTO_SAVE"] == True:
+    """自动保存pkl文件，自动备份pkl文件"""
+    if settings_dict["AUTO_SAVE"] == True: # 自动保存pkl文件
         save_pkl(main_tasker_list,
                  main_pkl_dir)
         tips_msg("--------已保存pkl文件--------")
-    # 自动备份pkl文件
-    if settings_dict["AUTO_BACKUP"] == True:
-        main_tasker_list.sort(key=attrgetter("tasker_label"))
+    if settings_dict["AUTO_BACKUP"] == True: # 自动备份pkl文件
+        # main_tasker_list.sort(key=attrgetter("tasker_label"))
         backup_pkl(main_tasker_list,
                    f"{join(working_dir, "backup_pkl")}",
                    system_pkg(),
@@ -256,6 +291,7 @@ while True:
     exec_index_list = []
     fail_index_list = []
     proceed_condition = None
+    # search_method(main_cmd_list)
     # 遍历可执行的method
     try_df_method = True if (main_cmd_list[1] == "" and settings_dict["DEFAULT_METHOD"] != "") else False
     if try_df_method == True:
