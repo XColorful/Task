@@ -94,66 +94,106 @@ def no_tips(msg_str): # 用于settings_dict中"SHOW_TIPS"=False
 # main_func--------+--------+--------+--------+--------+--------+--------+--------+ End
 
 
-# 预处理--------+--------+--------+--------+--------+--------+--------+--------+ Begin
-# 初始化变量
-from const import *
-from val import *
-from repo_info import *
-system_msg = print
-error_log_dir = join(working_dir, "error_log")
-
-
-# settings管理器，设置初始化
-# settings_dict初始化于./val.py
-try:
-    with open(f".\\settings.txt", "r", encoding = "utf-8") as f:
-        settings_list = f.readlines()
-        for setting in settings_list:
-            setting = setting.rstrip("\n")
-            try: set_key, set_value = setting.split("|", 1)
-            except: continue
-            adjust_settings(settings_dict, set_key, set_value)
-except FileNotFoundError: pass
-
-
-# 模块管理器
-# 读取默认模块
-load_condition = package_loader("default_pkg", show = False)
-if load_condition == False:
-    system_msg("模块\"default_pkg\"缺少package_dict")
-    system_msg("按任意键退出")
-    exit()
-elif load_condition == None:
-    system_msg("缺少必要模块\"default_pkg\"")
-    system_msg("按任意键退出")
-    exit()
-# 读取package下模块
-try:
-    with open(f".\\load_package.txt", "r", encoding = "utf-8") as f:
-        package_list = f.readlines()
-        for package_name in package_list:
-            package_name = package_name.rstrip("\n")
-            load_condition = package_loader(package_name, show = False)
-            if load_condition == True: continue
-            elif load_condition == None: system_msg(f"模块\"{package_name}\"不存在")
-            elif load_condition == False: system_msg(f"读取模块\"{package_name}\"失败")
-except FileNotFoundError: pass
-
-
-# 设定默认值
-# io_list
-command_input, normal_input, strict_input, block_input = io_list[0]["command_input"], io_list[0]["normal_input"], io_list[0]["strict_input"], io_list[0]["block_input"]
-# message
-system_msg, error_msg, tips_msg, table_msg, head_msg, body_msg, normal_msg = message_list[0]["system_msg"], message_list[0]["error_msg"], message_list[0]["tips_msg"], message_list[0]["table_msg"], message_list[0]["head_msg"], message_list[0]["body_msg"], message_list[0]["normal_msg"]
-if settings_dict["SHOW_TIPS"] == False:
-    tips_msg = no_tips # 将tips_msg改为无内容的空函数（仍接收参数）
-    """
-    这个以后再改得完善一点，避免直接去除了
-    """
-
-# 预处理--------+--------+--------+--------+--------+--------+--------+--------+ End
-
 # 封装函数--------+--------+--------+--------+--------+--------+--------+--------+ Start
+def set_io():
+    """返回默认使用的系统io样式"""
+    command_input = io_list[0]["command_input"]
+    normal_input = io_list[0]["normal_input"]
+    strict_input = io_list[0]["strict_input"]
+    block_input = io_list[0]["block_input"]
+    return command_input, normal_input, strict_input, block_input
+
+def set_message():
+    """返回默认使用的系统message样式"""
+    system_msg = message_list[0]["system_msg"]
+    error_msg = message_list[0]["error_msg"]
+    tips_msg = message_list[0]["tips_msg"]
+    table_msg = message_list[0]["table_msg"]
+    head_msg = message_list[0]["head_msg"]
+    body_msg = message_list[0]["body_msg"]
+    normal_msg = message_list[0]["normal_msg"]
+    return system_msg, error_msg, tips_msg, table_msg, head_msg, body_msg, normal_msg
+    
+def read_settings():
+    """读取用户设定的settings"""
+    global settings_dict # settings_dict初始化于./val.py
+    try:
+        with open(f".\\settings.txt", "r", encoding = "utf-8") as f:
+            settings_list = f.readlines()
+            for setting in settings_list:
+                setting = setting.rstrip("\n")
+                try: set_key, set_value = setting.split("|", 1)
+                except: continue
+                adjust_settings(settings_dict, set_key, set_value)
+    except FileNotFoundError: pass
+
+def read_df_packages():
+    """读取默认模块"""
+    load_condition = package_loader("default_pkg", show = False)
+    if load_condition == False:
+        system_msg("模块\"default_pkg\"缺少package_dict")
+        system_msg("按任意键退出")
+        exit()
+    elif load_condition == None:
+        system_msg("缺少必要模块\"default_pkg\"")
+        system_msg("按任意键退出")
+        exit()
+
+def read_ex_packages():
+    """读取package下模块"""
+    try:
+        with open(f".\\load_package.txt", "r", encoding = "utf-8") as f:
+            package_list = f.readlines()
+            for package_name in package_list:
+                package_name = package_name.rstrip("\n")
+                load_condition = package_loader(package_name, show = False)
+                if load_condition == True: continue
+                elif load_condition == None: system_msg(f"模块\"{package_name}\"不存在")
+                elif load_condition == False: system_msg(f"读取模块\"{package_name}\"失败")
+    except FileNotFoundError: pass
+
+def get_pkl_dir() -> str:
+    try:
+        with open(f".\\pkl_dir.txt", "r", encoding = "utf-8") as f:
+            main_pkl_dir = f.readline()
+            if not exists(main_pkl_dir): raise
+    except: main_pkl_dir = join(working_dir, "Tasker_list.pkl") # 工作目录
+    return main_pkl_dir
+
+def read_pkl() -> list:
+    from pickle import UnpicklingError
+    try:
+        main_tasker_list = read_from_pkl(main_pkl_dir)
+    except FileNotFoundError:
+        system_msg(f"没有可用的pkl数据文件\"{main_pkl_dir}\"")
+        save_pkl(main_tasker_list, main_pkl_dir)
+    except ModuleNotFoundError as e:
+        system_msg(f"缺少模块\"{str(e).split("'")[1]}\"，请检查目录\"./package/\"或尝试运行\"./安装.cmd\"安装所需依赖")
+        normal_input("按任意键退出")
+        exit()
+    except AttributeError as e:
+        exception_msg = traceback.format_exc()
+        system_msg(f"读取模块\"{str(e).split("'")[1]}\"异常，缺少必要属性")
+        system_msg("展示错误信息")
+        body_msg(exception_msg.split("\n"))
+        error_log_filename = f"exception_{YYYY_MM_DD_HH_MM_SS()}.txt"
+        error_log(exception_msg, error_log_dir, error_log_filename)
+        system_msg(f"错误信息保存至{join(error_log_dir, error_log_filename)}")
+        normal_input("按任意键退出")
+        exit()
+    except UnpicklingError:
+        exception_msg = traceback.format_exc()
+        system_msg("读取文件\"main_pkl_dir\"异常，可能已损坏")
+        system_msg("展示错误信息")
+        body_msg(exception_msg.split("\n"))
+        error_log_filename = f"exception_{YYYY_MM_DD_HH_MM_SS()}.txt"
+        error_log(exception_msg, error_log_dir, error_log_filename)
+        system_msg(f"错误信息保存至{join(error_log_dir, error_log_filename)}")
+        normal_input("按任意键退出")
+        exit()
+    if main_tasker_list == []: normal_msg("注：Tasker列表为空")
+    return main_tasker_list
+
 def main_welcome() -> None:
     """进入程序提示"""
     normal_msg(f"<{github}>")
@@ -279,45 +319,28 @@ def auto_save_pkl() -> None:
 # 封装函数--------+--------+--------+--------+--------+--------+--------+--------+ End
 
 
-# 读取pkl存储路径
-try:
-    with open(f".\\pkl_dir.txt", "r", encoding = "utf-8") as f:
-        main_pkl_dir = f.readline()
-        if not exists(main_pkl_dir): raise
-except: main_pkl_dir = join(working_dir, "Tasker_list.pkl") # 工作目录
-# 读取Taskerpkl文件
-from pickle import UnpicklingError
-try:
-    main_tasker_list = read_from_pkl(main_pkl_dir)
-except FileNotFoundError:
-    system_msg(f"没有可用的pkl数据文件\"{main_pkl_dir}\"")
-    save_pkl(main_tasker_list, main_pkl_dir)
-except ModuleNotFoundError as e:
-    system_msg(f"缺少模块\"{str(e).split("'")[1]}\"，请检查目录\"./package/\"或尝试运行\"./安装.cmd\"安装所需依赖")
-    normal_input("按任意键退出")
-    exit()
-except AttributeError as e:
-    exception_msg = traceback.format_exc()
-    system_msg(f"读取模块\"{str(e).split("'")[1]}\"异常，缺少必要属性")
-    system_msg("展示错误信息")
-    body_msg(exception_msg.split("\n"))
-    error_log_filename = f"exception_{YYYY_MM_DD_HH_MM_SS()}.txt"
-    error_log(exception_msg, error_log_dir, error_log_filename)
-    system_msg(f"错误信息保存至{join(error_log_dir, error_log_filename)}")
-    normal_input("按任意键退出")
-    exit()
-except UnpicklingError:
-    exception_msg = traceback.format_exc()
-    system_msg("读取文件\"main_pkl_dir\"异常，可能已损坏")
-    system_msg("展示错误信息")
-    body_msg(exception_msg.split("\n"))
-    error_log_filename = f"exception_{YYYY_MM_DD_HH_MM_SS()}.txt"
-    error_log(exception_msg, error_log_dir, error_log_filename)
-    system_msg(f"错误信息保存至{join(error_log_dir, error_log_filename)}")
-    normal_input("按任意键退出")
-    exit()
-if main_tasker_list == []: normal_msg("注：Tasker列表为空")
+# 预处理--------+--------+--------+--------+--------+--------+--------+--------+ Begin
+# 初始化变量
+from const import *
+from val import *
+from repo_info import *
+system_msg = print
+error_log_dir = join(working_dir, "error_log")
 
+# settings管理器，设置初始化
+read_settings()
+
+# 模块管理器
+read_df_packages()
+read_ex_packages()
+
+command_input, normal_input, strict_input, block_input = set_io()
+system_msg, error_msg, tips_msg, table_msg, head_msg, body_msg, normal_msg = set_message()
+if settings_dict["SHOW_TIPS"] == False: tips_msg = no_tips # 将tips_msg改为无内容的空函数（仍接收参数）
+
+main_pkl_dir = get_pkl_dir() # 读取pkl存储路径
+main_tasker_list = read_pkl() # 读取Taskerpkl文件
+# 预处理--------+--------+--------+--------+--------+--------+--------+--------+ End
 
 
 # 主程序--------+--------+--------+--------+--------+--------+--------+--------+ Start
