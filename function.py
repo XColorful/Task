@@ -100,6 +100,21 @@ def YYYY_MM_DD_HH_MM_SS(adjust = "0"):
     formatted_date_time = now.strftime("%Y_%m_%d - %H-%M-%S")
     return formatted_date_time
 
+def table_class_func(function_list:list, system_pkg:dict):
+    """["功能类", "版本", "适用类型", "指令集"]
+    
+    在输出列表前添加索引，从0开始
+    """
+    table_list = []
+    heading = ["索引", "功能类", "版本", "适用类型", "指令集"]
+    table_list.append(heading)
+    index = 0
+    for class_func in function_list:
+        table_list.append([str(index), str(class_func.label), str(class_func.version), str(class_func.type), str(class_func.function_list)])
+        index += 1
+    system_pkg["table_msg"](table_list, heading = True)
+    return None
+
 def error_log(exception_message:str, folder_dir:str, filename:str):
     if not exists(folder_dir): mkdir(folder_dir) # 创建目录
     file_dir = join(folder_dir, filename)
