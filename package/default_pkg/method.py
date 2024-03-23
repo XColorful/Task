@@ -1,8 +1,82 @@
 from default_method import default_method_template
-from .function import convert_to_int, convert_to_float, table_tasker_list, table_tasker_template, YYYY_MM_DD_HH_MM_SS, table_backup_file
+from .function import convert_to_int, convert_to_float, table_tasker_template, YYYY_MM_DD_HH_MM_SS
 from os import mkdir, getcwd
 from os.path import exists, join, dirname, abspath
 from glob import glob
+
+# 封装函数--------+--------+--------+--------+--------+--------+--------+--------+ Begin
+def table_tasker_list(iterator, tasker_list:list, system_pkg:dict):
+    """["索引", "创建日期", "标签", "版本", "Tasker类型"]
+    
+    """
+    table_list = []
+    heading = ["索引", "创建日期", "标签", "版本", "Tasker类型"]
+    table_list.append(heading)
+    for i in iterator:
+        table_list.append([str(i), 
+                        tasker_list[i].create_date, 
+                        tasker_list[i].tasker_label, 
+                        tasker_list[i].version, 
+                        tasker_list[i].type])
+    system_pkg["table_msg"](table_list, heading = True)
+    return None
+
+def select_tasker(cmd_parameter, tasker_list, system_pkg) -> tuple | int:
+    """选择tasker
+    
+    返回tuple为退出
+    
+    返回int为tasker索引"""
+    # 有参数则跳过首次获取user_input
+    if (user_input := cmd_parameter) == "":
+        table_tasker_list(range(0, len(tasker_list)), tasker_list, system_pkg) # 展示tasker_list
+    
+    tasker_index = ""
+    while tasker_index == "":
+        # 获取user_input
+        if user_input == "":
+            system_pkg["tips_msg"]("匹配首个符合的标签，输入\"exit\"退出")
+            user_input = system_pkg["normal_input"]("输入索引或标签")
+        
+        if user_input == system_pkg["EXIT"]:
+            return (system_pkg["CONDITION_SUCCESS"], "exit")
+        elif user_input != "": # 用户输入不为空字符串
+            # 索引判断
+            convert_result = convert_to_int(user_input)
+            if convert_result != None:
+                if 0 <= convert_result < len(tasker_list):
+                    tasker_index = convert_result
+                    break
+            # 标签判断
+            index_list = []
+            for tasker_index in range(0, len(tasker_list)): # 对于每一个tasker
+                tasker_label = tasker_list[tasker_index].tasker_label
+                if user_input in tasker_label:
+                    index_list.append(tasker_index)
+                    if user_input == tasker_label:
+                        index_list = [tasker_index]
+                        break # 完全匹配则退出
+
+            if len(index_list) == 1: # 用户输入有一项匹配，自动获取索引
+                tasker_index = index_list[0]
+                break
+            elif len(index_list) == 0: # 用户输入非空字符串，但没有匹配
+                system_pkg["system_msg"](f"没有找到\"{user_input}\"")
+            else: # 用户输入有多项匹配，仅显示筛选的tasker
+                table_tasker_list(index_list, tasker_list, system_pkg)
+        # 重置user_input
+        user_input = ""
+    return tasker_index
+
+def table_backup_file(backup_list:list, system_pkg:dict):
+    table_list = []
+    heading = ["索引", "路径"]
+    table_list.append(heading)
+    for index, file_path in enumerate(backup_list):
+        table_list.append([str(index), file_path])
+    system_pkg["table_msg"](table_list, heading = True)
+# 封装函数--------+--------+--------+--------+--------+--------+--------+--------+ End
+
 
 class default_method(default_method_template):
     def __init__(self):
@@ -21,51 +95,17 @@ class default_method(default_method_template):
         return super().proceed(cmd_list, tasker_list, system_pkg)
     
     def get(self, cmd_parameter:str, tasker_list:list, system_pkg:dict): # 获取tasker列表，进入tasker.interface()
-        # 检测空tasker_list
-        MAX_INDEX = len(tasker_list) - 1
-        if MAX_INDEX == -1:
+        """参数用于选定tasker，用于索引或字符串搜索"""
+        if len(tasker_list) == 0:
             system_pkg["system_msg"]("tasker_list为空，请先用指令\"add\"创建一个tasker")
             return (system_pkg["CONDITION_SUCCESS"], "tasker_list为空")
-        # 有参数则跳过首次获取user_input
-        if (user_input := cmd_parameter) == "": # 展示tasker_list
-            table_tasker_list(range(0, MAX_INDEX +1), tasker_list, system_pkg)
-        # 获取tasker_list索引值
-        get_index = "" # 用于get的索引
-        while get_index == "":
-            # 获取user_input
-            if user_input == "":
-                system_pkg["tips_msg"]("匹配首个符合的标签，输入\"exit\"退出")
-                user_input = system_pkg["normal_input"]("输入索引或标签")
-            if user_input == system_pkg["EXIT"]: return (system_pkg["CONDITION_SUCCESS"], "exit")
-            
-            if user_input != "": # 用户输入不为空字符串
-                # 索引判断
-                convert_result = convert_to_int(user_input)
-                if convert_result != None:
-                    if 0 <= convert_result <= MAX_INDEX:
-                        get_index = convert_result
-                        break
-                # 标签判断
-                index_list = []
-                for tasker_index in range(0, MAX_INDEX + 1): # 对于每一个tasker
-                    tasker_label = tasker_list[tasker_index].tasker_label
-                    if user_input in tasker_label:
-                        index_list.append(tasker_index)
-                        if user_input == tasker_label:
-                            index_list = [tasker_index]
-                            break # 完全匹配则退出
 
-                if len(index_list) == 1: # 用户输入有一项匹配，自动获取索引
-                    get_index = index_list[0]
-                    break
-                elif len(index_list) == 0: # 用户输入非空字符串，但没有匹配
-                    system_pkg["system_msg"](f"没有找到\"{user_input}\"")
-                else: # 用户输入有多项匹配，仅显示筛选的tasker
-                    table_tasker_list(index_list, tasker_list, system_pkg)
-            # 重置user_input
-            user_input = ""
+        select_result = select_tasker(cmd_parameter, tasker_list, system_pkg)
+        if type(select_result) == tuple:
+            return select_result
+        tasker_index = select_result
         # 进入tasker.instance()界面
-        return_tuple = tasker_list[get_index].interface(system_pkg) # 进入tasker.interface()并提供system_pkg
+        return_tuple = tasker_list[tasker_index].interface(system_pkg) # 进入tasker.interface()并提供system_pkg
         return return_tuple
     
     def add(self, cmd_parameter:str, tasker_list:list, system_pkg:dict): # 添加tasker
@@ -109,56 +149,26 @@ class default_method(default_method_template):
         if user_input != "y": return (system_pkg["CONDITION_SUCCESS"], "不补充Tasker信息")
         tasker_list[-1].update_info(system_pkg); return (system_pkg["CONDITION_SUCCESS"], "立即补充Tasker信息")
     
-    def delete(self, cmd_parameter:str, tasker_list:list, system_pkg:dict): # 删除tasker，尝试创建备份文件
-        get_index = "" # 用于get的索引
-        MAX_INDEX = len(tasker_list) - 1
-        if MAX_INDEX == -1:
+    def delete(self, cmd_parameter:str, tasker_list:list, system_pkg:dict): # 删除tasker
+        """参数用于选定tasker，用于索引或字符串搜索"""
+        if len(tasker_list) == 0:
             system_pkg["system_msg"]("tasker_list为空，请先用指令\"add\"创建一个tasker")
             return (system_pkg["CONDITION_SUCCESS"], "tasker_list为空")
-        # 展示tasker_list
-        table_tasker_list(range(0, MAX_INDEX +1), tasker_list, system_pkg)
-        # 获取tasker_list索引值
-        while get_index == "":
-            # 获取user_input
-            if cmd_parameter != "": # 有参数则跳过首次获取user_input
-                user_input = cmd_parameter
-            else:
-                system_pkg["tips_msg"]("匹配首个符合的标签，输入\"exit\"退出")
-                user_input = system_pkg["normal_input"]("输入索引或标签")
-            if user_input == "exit": return (system_pkg["CONDITION_SUCCESS"], "exit")
-            
-            if user_input != "": # 用户输入不为空字符串
-                # 索引判断
-                convert_result = convert_to_int(user_input)
-                if convert_result != None:
-                    if 0 <= convert_result <= MAX_INDEX:
-                        get_index = convert_result
-                        break
-                # 标签判断
-                index_list = []
-                for tasker_index in range(0, MAX_INDEX + 1): # 对于每一个tasker
-                    tasker_label = tasker_list[tasker_index].tasker_label
-                    if user_input in tasker_label:
-                        index_list.append(tasker_index)
-                        if user_input == tasker_label:
-                            index_list = [tasker_index]
-                            break # 完全匹配则退出
 
-                if len(index_list) == 1: # 用户输入有一项匹配，自动获取索引
-                    get_index = index_list[0]
-                    break
-                elif len(index_list) == 0: # 用户输入非空字符串，但没有匹配
-                    system_pkg["system_msg"](f"没有找到\"{user_input}\"")
-                else: # 用户输入有多项匹配，仅显示筛选的tasker
-                    table_tasker_list(index_list, tasker_list, system_pkg)
-        # 进入tasker.instance()界面
-        select_tasker_label = tasker_list[get_index].tasker_label
-        table_tasker_list([get_index], tasker_list, system_pkg)
-        user_input = system_pkg["normal_input"](f"确认删除{select_tasker_label}(y/n)")
-        if user_input == "y": 
-            del tasker_list[get_index]
-            system_pkg["system_msg"](f"已删除\"{select_tasker_label}\"")
-        return (system_pkg["CONDITION_SUCCESS"], f"删除tasker{select_tasker_label}")
+        select_result = select_tasker(cmd_parameter, tasker_list, system_pkg)
+        if type(select_result) == tuple:
+            return select_result
+        tasker_index = select_result
+
+        tasker_label = tasker_list[tasker_index].tasker_label
+        table_tasker_list([tasker_index], tasker_list, system_pkg)
+        user_input = system_pkg["normal_input"](f"确认删除{tasker_label}(y/n)")
+        if user_input != "y":
+            return (system_pkg["CONDITION_SUCCESS"], f"取消删除tasker{tasker_label}")
+        else:
+            del tasker_list[tasker_index]
+            system_pkg["system_msg"](f"已删除\"{tasker_label}\"")
+            return (system_pkg["CONDITION_SUCCESS"], f"删除tasker{tasker_label}")
     
     def edit(self, cmd_parameter:str, tasker_list:list, system_pkg:dict): # 编辑tasker信息，单独编辑，使用tasker内置函数
         # 更改tasker_label, description, create_date

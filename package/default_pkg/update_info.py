@@ -1,4 +1,40 @@
-from .function import convert_to_float, YYYY_MM_DD, table_task_template_instance, select_valid_index
+from .function import convert_to_float, YYYY_MM_DD
+
+# 封装函数--------+--------+--------+--------+--------+--------+--------+--------+ Begin
+def table_task_template_instance(task_instance_list:list, system_pkg:dict):
+    table_list = []
+    heading = ["索引", "版本", "task类型"]
+    table_list.append(heading)
+    index = 0
+    for instance in task_instance_list:
+        table_list.append([str(index), str(instance.version), str(instance.type)])
+        index += 1
+    system_pkg["table_msg"](table_list, heading = True)
+    return None
+
+def create_index_list(input_list:list, adjust = 0):
+    index_list = [i+adjust for i in range(len(input_list))]
+    return index_list
+
+def select_valid_index(user_input:str, select_list:list):
+    """用空格分隔输入，给出所有符合条件的索引，输入空字符串则创建索引列表
+    
+    依赖该文件下函数create_index_list"""
+    # 空字符串输入
+    if user_input == "": return create_index_list(select_list)
+    # 非空字符串输入
+    user_input_list = user_input.split(" ")
+    select_index_list = []
+    for index in user_input_list:
+        try:
+            index = int(index)
+            select_list[index]
+            select_index_list.append(index)
+        except ValueError:
+            continue
+    return select_index_list
+# 封装函数--------+--------+--------+--------+--------+--------+--------+--------+ End
+
 
 def default_update_info(self, system_pkg):
     block_list = system_pkg["BLOCK_LIST"]

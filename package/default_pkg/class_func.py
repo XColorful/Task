@@ -1,9 +1,133 @@
 from default_class_func import default_tasker_func_template
-from .function import convert_to_int, convert_to_float, YYYY_MM_DD, YYYY_MM_DD_HH_MM_SS, table_task_template_instance, table_compare_task_list
+from .function import convert_to_int, convert_to_float, YYYY_MM_DD, YYYY_MM_DD_HH_MM_SS
 from os import mkdir
 from os.path import exists, join
 from glob import glob
 from pyperclip import copy as py_cp
+
+# 封装函数--------+--------+--------+--------+--------+--------+--------+--------+ Begin
+def table_task_template(task_template_list:list, index_list, system_pkg:dict):
+    table_list = []
+    heading = ["索引", "版本", "task类型"]
+    table_list.append(heading)
+    index = 0
+    for template_index in index_list:
+        template = task_template_list[template_index]
+        table_list.append([str(index), str(template.version), str(template.type)])
+        index += 1
+    system_pkg["table_msg"](table_list, heading = True)
+    return None
+
+def select_task_template(tasker, system_pkg) -> None | object:
+    """选择tasker的task模板
+    
+    返回None为未选择成功
+    
+    返回object为task实例"""
+    df_template_index_list = []
+    ex_template_index_list = []
+    for index, task_template in enumerate(tasker.task_template):
+        if task_template.type == system_pkg["TYPE_DEFAULT_TASKER"]:
+            df_template_index_list.append(index)
+        else:
+            ex_template_index_list.append(index)
+    template_index = 0
+    df_template_count = len(df_template_index_list)
+    ex_template_count = len(ex_template_index_list)
+    if ex_template_count != 0:
+        system_pkg["system_pkg"](f"忽略{ex_template_count}项非\"{system_pkg["TYPE_DEFAULT_TASKER"]}\"类型task模板")
+    if df_template_count == 0: # 无默认类型task模板
+        system_pkg["system_msg"]("无可用的默认task模板")
+        return None
+    elif df_template_count == 1: # 有1个默认类型task模板
+        temeplate_index = df_template_index_list[0]
+        return tasker.task_template[temeplate_index]()
+    elif df_template_count != 1: # 有多个默认类型task模板
+        table_task_template(tasker.task_template, df_template_index_list, system_pkg)
+        # 选定task模板索引
+        user_input = system_pkg["normal_input"]("输入索引")
+        if user_input == system_pkg["EXIT"]: return None
+        if user_input != "":
+            temeplate_index = convert_to_int(user_input)
+            if not temeplate_index in df_template_index_list:
+                system_pkg["normal_msg"](f"索引\"{template_index}\"不存在")
+                system_pkg["tips_msg"]("输入<Enter>默认选中索引0")
+                return None
+            else:
+                return tasker.task_template[temeplate_index]()
+
+def add_empty_task(tasker, temp_task, system_pkg):
+    """为tasker添加空task"""
+    current_date = YYYY_MM_DD()
+    info_dict = {"create_date":current_date, "date":current_date, "attribute":"", "content":"", "comment":""}
+    temp_task.update(info_dict, system_pkg)
+    tasker.task_list.append(temp_task)
+    system_pkg["system_msg"]("已创建空Task")
+
+def input_task_info(system_pkg) -> dict | None:
+    """输入task信息
+    
+    返回None为取消补充
+    
+    返回dict用于task.update(info_dict, system_pkg)"""
+    current_date = YYYY_MM_DD()
+    return_tuple = system_pkg["block_input"](f"日期(默认{current_date})", system_pkg["BLOCK_LIST"], system_pkg, block_number = False)
+    if return_tuple[0] == False: return None
+    if return_tuple[0] == None: date_input = current_date # 默认为当前日期
+    else: date_input = return_tuple[1]
+    
+    return_tuple = system_pkg["block_input"](f"属性(可选)", system_pkg["BLOCK_LIST"], system_pkg, block_number = False)
+    if return_tuple[0] == False: return None
+    if return_tuple[0] == None: attribute_input = "N/A" # 默认为"N/A"
+    else: attribute_input = return_tuple[1]
+    
+    return_tuple = system_pkg["strict_input"](f"内容", system_pkg["BLOCK_LIST"], system_pkg, block_number = False)
+    if return_tuple[0] == False: return None
+    else: content_input = return_tuple[1]
+    
+    return_tuple = system_pkg["block_input"](f"注释(可选)", system_pkg["BLOCK_LIST"], system_pkg, block_number = False)
+    if return_tuple[0] == False: return None
+    if return_tuple[0] == None: comment_input = ""
+    else: comment_input = return_tuple[1]
+    
+    return {"create_date":current_date, "date":date_input, "attribute":attribute_input, "content":content_input, "comment":comment_input}
+
+def table_compare_task_list(old_task_list:list, new_task_list:list, system_pkg:dict, display = 8):
+    """给出两个默认类型的task_list，进行1.0版本比较
+    
+    display -> int，显示task_list末尾的若干项task"""
+    old_task_list_length = len(old_task_list)
+    new_task_list_length = len(new_task_list)
+    # 获取需显示的项
+    old_list = old_task_list[-display:]
+    new_list = new_task_list[-display:]
+    old_len = len(old_list)
+    new_len = len(new_list)
+    if old_len > new_len: MAX_LEN = old_len
+    else: MAX_LEN = new_len
+    old_list = old_task_list[-MAX_LEN:]
+    new_list = new_task_list[-MAX_LEN:]
+    table_list = []
+    for index in range(-1, -MAX_LEN-1, -1):
+        try:
+            task = old_list[index]
+            display_content = task.content[:8]
+            old_column = [str(old_task_list_length + index), f"{task.date}|{task.attribute}|{display_content}"]
+        except IndexError:
+            old_column = ["", ""]
+        try:
+            task = new_list[index]
+            display_content = task.content[:8]
+            new_column = [str(new_task_list_length + index), f"{task.date}|{task.attribute}|{display_content}"]
+        except IndexError:
+            new_column = ["", ""]
+        table_list.append(old_column + new_column)
+    heading = ["索引", "老版本", "索引", "新版本"]
+    table_list.append(heading)
+    table_list.reverse()
+    system_pkg["table_msg"](table_list, heading = True)
+# 封装函数--------+--------+--------+--------+--------+--------+--------+--------+ End
+
 
 class default_tasker_func(default_tasker_func_template):
     def __init__(self):
@@ -70,37 +194,8 @@ class default_tasker_func(default_tasker_func_template):
         """用空格分隔参数，参数1为索引则选取task模板列表，参数2为"n"开头则创建空模板
         
         """
-        task_template_count = 0
-        extra_template_count = 0
-        for task_template in tasker.task_template:
-            task = task_template()
-            if task.type == system_pkg["TYPE_DEFAULT_TASKER"]: task_template_count += 1
-            else: extra_template_count += 1
-        select_task_template_index = 0
-        
-        if extra_template_count != 0: system_pkg["system_pkg"](f"忽略{extra_template_count}项非\"{system_pkg["TYPE_DEFAULT_TASKER"]}\"类型task模板")
-        if task_template_count == 0: # 无默认类型task模板
-            system_pkg["system_msg"]("无可用的默认task模板")
-            return None
-        elif task_template_count == 1: task_template = tasker.task_template # 有1个默认类型task模板
-        elif task_template_count != 1: # 有多个默认类型task模板
-            task_instance_list = []
-            for task_template in tasker.task_template:
-                task_instance = task_template()
-                task_instance_list.append(task_instance)
-            table_task_template_instance(task_instance_list, system_pkg)
-            # 选定task模板索引
-            user_input = system_pkg["normal_input"]("输入索引")
-            if user_input == system_pkg["EXIT"]: return None
-            if user_input != "":
-                task_template_index = convert_to_int(user_input)
-                try:
-                    task_template[task_template_index]
-                    select_task_template_index = task_template_index
-                except IndexError:
-                    system_pkg["normal_msg"](f"索引\"{user_input}\"不存在")
-                    system_pkg["tips_msg"]("输入<Enter>默认选中索引0")
-                    return None
+        temp_task = select_task_template(tasker, system_pkg)
+        if temp_task == None: return None
         # 创建空task检查
         empty_check = parameter.split(" ")
         create_empty_task = False
@@ -109,36 +204,13 @@ class default_tasker_func(default_tasker_func_template):
                 if i[0] == "n": create_empty_task = True
                 break
             except IndexError: continue
-        temp_task = task_template[select_task_template_index]()
+        
         if create_empty_task == True:
-            current_date = YYYY_MM_DD()
-            info_dict = {"create_date":current_date, "date":current_date, "attribute":"", "content":"", "comment":""}
-            temp_task.update(info_dict, system_pkg)
-            tasker.task_list.append(temp_task)
-            system_pkg["system_msg"]("已创建空Task")
+            add_empty_task(tasker, temp_task, system_pkg)
             return None # 判断是否选择创建空task
         
-        current_date = YYYY_MM_DD()
-        return_tuple = system_pkg["block_input"](f"日期(默认{current_date})", system_pkg["BLOCK_LIST"], system_pkg, block_number = False)
-        if return_tuple[0] == False: return None
-        if return_tuple[0] == None: date_input = current_date # 默认为当前日期
-        else: date_input = return_tuple[1]
-        
-        return_tuple = system_pkg["block_input"](f"属性(可选)", system_pkg["BLOCK_LIST"], system_pkg, block_number = False)
-        if return_tuple[0] == False: return None
-        if return_tuple[0] == None: attribute_input = "N/A" # 默认为"N/A"
-        else: attribute_input = return_tuple[1]
-        
-        return_tuple = system_pkg["strict_input"](f"内容", system_pkg["BLOCK_LIST"], system_pkg, block_number = False)
-        if return_tuple[0] == False: return None
-        else: content_input = return_tuple[1]
-        
-        return_tuple = system_pkg["block_input"](f"注释(可选)", system_pkg["BLOCK_LIST"], system_pkg, block_number = False)
-        if return_tuple[0] == False: return None
-        if return_tuple[0] == None: comment_input = ""
-        else: comment_input = return_tuple[1]
-        
-        info_dict = {"create_date":current_date, "date":date_input, "attribute":attribute_input, "content":content_input, "comment":comment_input}
+        info_dict = input_task_info(system_pkg) # 输入task信息
+        if info_dict == None: return None
         temp_task.update(info_dict, system_pkg)
         tasker.task_list.append(temp_task)
         system_pkg["normal_msg"]("已创建task")
@@ -174,7 +246,6 @@ class default_tasker_func(default_tasker_func_template):
         if user_input != "y": return None
         del tasker.task_list[index]
         system_pkg["system_msg"]("已删除task")
-        
     
     def backup(self, parameter, tasker, system_pkg):
         """备份单个tasker，删除空项

@@ -1,9 +1,27 @@
 from default_class_func import default_tasker_func_template
-from .function import YYYY_MM_DD, table_categorize_task_result
+from .function import YYYY_MM_DD
 import matplotlib.pyplot as plt
 import numpy as np
 from pylab import mpl
 mpl.rcParams["font.sans-serif"] = ["Microsoft YaHei"]
+
+# 封装函数--------+--------+--------+--------+--------+--------+--------+--------+ Begin
+def table_categorize_task_result(labels:list, y:list, system_pkg:dict):
+    """labels -> 第1列, y -> 第二列
+    
+    """
+    length = len(labels)
+    if length != len(y):
+        system_pkg["error_msg"]("传入table_categorize_task_result的两个列表长度不一致")
+        return None
+    table_list = []
+    heading = ["标签（x轴）", "数量（y轴）"]
+    table_list.append(heading)
+    for i in range(0, length):
+        table_list.append([labels[i], str(y[i])])
+    system_pkg["table_msg"](table_list, heading = True)
+# 封装函数--------+--------+--------+--------+--------+--------+--------+--------+ End
+
 
 class categorize_task(default_tasker_func_template):
     def __init__(self):

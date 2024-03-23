@@ -1,6 +1,5 @@
 from default_class import default_tasker_template
 from .class_func import default_tasker_func
-from .interface import default_interface
 from .update_info import default_update_info
 
 class default_tasker(default_tasker_template):
@@ -16,8 +15,8 @@ class default_tasker(default_tasker_template):
             if self.create_date == "": return return_tuple # 如果未补充完信息
         
         system_pkg["head_msg"](self.tasker_label)
-        
-        return_tuple = default_interface(self, system_pkg)
+        # 使用默认interface
+        return_tuple = super().interface(system_pkg)
         return return_tuple
     
     def update_info(self, system_pkg): # 仅有一种，不可修改
