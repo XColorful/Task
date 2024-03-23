@@ -217,7 +217,7 @@ class default_tasker_func(default_tasker_func_template):
         system_pkg["body_msg"]([f"{temp_task.create_date}|{temp_task.date}|{temp_task.attribute}|{temp_task.content}|{temp_task.comment}"])
         return None
 
-    def delete(self, parameter, tasker, system_pkg):
+    def delete(self, parameter, tasker, system_pkg) -> None:
         """参数非空时指定搜索对象，为索引或搜索，选取最后一个搜索到的（task_list末端）
         
         """
