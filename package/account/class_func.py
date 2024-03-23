@@ -9,6 +9,23 @@ def show_acc_info_guide(system_pkg):
     system_pkg["tips_msg"]("\t[2]|标签（可选）：用于搜索该账号，默认与\"账号类型\"相同")
     system_pkg["tips_msg"]("\t[3]|补充信息（可选）：账号描述，登录名称等")
 
+def input_acc_info(task, block_list, system_pkg) -> None | bool:
+    """输入task信息
+    
+    返回None为取消
+    
+    返回True为成功添加"""
+    # 输入账号类型
+    return_tuple = system_pkg["strict_input"]("账号类型", block_list, system_pkg, block_number = False)
+    if return_tuple[0] == False: return None
+    else: task.account_type = return_tuple[1]
+    # 输入账号标签
+    return_tuple = system_pkg["block_input"]("标签（可选）", block_list, system_pkg, block_number = False)
+    if return_tuple[0] == False: return None
+    if return_tuple[0] == None: task.label = task.account_type
+    else: task.label = return_tuple[1]
+    return True
+
 def show_acc_additional_guide(system_pkg):
     system_pkg["normal_msg"]("补充信息类型")
     system_pkg["body_msg"](["description：账号描述", "login_name：登录使用的名称/数据", "verified_phone：绑定手机号", "verified_email：绑定邮箱", "linked_account：绑定的其他账号", "secure_question：安全问题", "other_info：其他类型的补充信息", "password_history（不推荐）：历史密码"])
@@ -70,15 +87,9 @@ class account_tasker_func(extra_tasker_func_template):
             return None
         # 显示account信息参考
         show_acc_info_guide(system_pkg)
-        # 输入账号类型
-        return_tuple = system_pkg["strict_input"]("账号类型", block_list, system_pkg, block_number = False)
-        if return_tuple[0] == False: return None
-        else: task.account_type = return_tuple[1]
-        # 输入账号标签
-        return_tuple = system_pkg["block_input"]("标签（可选）", block_list, system_pkg, block_number = False)
-        if return_tuple[0] == False: return None
-        if return_tuple[0] == None: task.label = task.account_type
-        else: task.label = return_tuple[1]
+        # 输入账号信息
+        input_result = input_acc_info(task, block_list, system_pkg)
+        if input_result == None: return None
         # task.dict
         # 展示补充格式
         show_acc_additional_guide(system_pkg)
