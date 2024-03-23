@@ -1,6 +1,5 @@
 from default_class import default_tasker_template
 from .class_func import default_tasker_func
-from .update_info import default_update_info
 
 class default_tasker(default_tasker_template):
     version = "1.0" # 2024_02_15
@@ -20,7 +19,7 @@ class default_tasker(default_tasker_template):
         return return_tuple
     
     def update_info(self, system_pkg): # 仅有一种，不可修改
-        return_tuple = default_update_info(self, system_pkg)
+        return_tuple = super().update_info(system_pkg)
         return return_tuple
     
     def backup_list(self):

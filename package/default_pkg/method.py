@@ -1,10 +1,28 @@
 from default_method import default_method_template
-from .function import convert_to_int, convert_to_float, table_tasker_template, YYYY_MM_DD_HH_MM_SS
+from .function import convert_to_int, convert_to_float, YYYY_MM_DD_HH_MM_SS
 from os import mkdir, getcwd
 from os.path import exists, join, dirname, abspath
 from glob import glob
+from pyperclip import copy as py_cp
+from operator import attrgetter
 
 # 封装函数--------+--------+--------+--------+--------+--------+--------+--------+ Begin
+def table_tasker_template(tasker_template_list, system_pkg:dict) -> None:
+    """["索引", "版本", "Tasker类型", "介绍"]
+    
+    返回tasker_version_list Tasker模板标签列表"""
+    table_list = []
+    heading = ["索引", "版本", "Tasker类型", "介绍"]
+    table_list.append(heading)
+    # 获取展示列表，创建标签列表
+    for index, tasker_template in enumerate(tasker_template_list):
+        table_list.append([str(index),
+                           tasker_template.version,
+                           tasker_template.type,
+                           tasker_template.introduction])
+    system_pkg["table_msg"](table_list, heading = True)
+    return None
+
 def table_tasker_list(iterator, tasker_list:list, system_pkg:dict):
     """["索引", "创建日期", "标签", "版本", "Tasker类型"]
     
@@ -32,7 +50,8 @@ def select_tasker(cmd_parameter, tasker_list, system_pkg) -> tuple | int:
         table_tasker_list(range(0, len(tasker_list)), tasker_list, system_pkg) # 展示tasker_list
     
     tasker_index = ""
-    while tasker_index == "":
+    index_list = []
+    while len(index_list) == 0:
         # 获取user_input
         if user_input == "":
             system_pkg["tips_msg"]("匹配首个符合的标签，输入\"exit\"退出")
@@ -68,6 +87,43 @@ def select_tasker(cmd_parameter, tasker_list, system_pkg) -> tuple | int:
         user_input = ""
     return tasker_index
 
+def input_tasker_info(tasker, system_pkg) -> tuple | dict:
+    """输入修改的tasker标签，描述
+    
+    返回tuple为取消补充
+    
+    返回dict用于更新编辑信息"""
+    block_list = system_pkg["BLOCK_LIST"]
+    
+    py_cp(tasker.tasker_label)
+    system_pkg["normal_msg"]("tasker.label copied to clipboard")
+    return_tuple = system_pkg["block_input"]("输入Tasker标签", block_list, system_pkg)
+    if return_tuple[0] == False: return (system_pkg["CONDITION_SUCCESS"], "取消编辑Tasker标签")
+    if return_tuple[0] == None: tasker_label_input = ""
+    else: tasker_label_input = return_tuple[1]
+    
+    py_cp(tasker.description)
+    system_pkg["normal_msg"]("tasker.description copied to clipboard")
+    return_tuple = system_pkg["block_input"]("输入Tasker描述", block_list, system_pkg)
+    if return_tuple[0] == False: return (system_pkg["CONDITION_SUCCESS"], "取消编辑Tasker描述")
+    if return_tuple[0] == None: tasker_description_input = ""
+    else: tasker_description_input = return_tuple[1]
+
+    return {"tasker_label":tasker_label_input, "description":tasker_description_input}
+
+def edit_tasker_info(tasker, info_dict, system_pkg):
+    tasker_label = info_dict["tasker_label"]
+    description = info_dict["description"]
+    
+    if tasker_label != "":
+        system_pkg["normal_msg"](f"tasker.tasker_label：{tasker.tasker_label}")
+        system_pkg["body_msg"]([f"更改为：{tasker_label}"])
+        tasker.tasker_label = tasker_label
+    if description != "":
+        system_pkg["normal_msg"](f"tasker.description：{tasker.description}")
+        system_pkg["body_msg"]([f"更改为：{description}"])
+        tasker.description = description
+
 def table_backup_file(backup_list:list, system_pkg:dict):
     table_list = []
     heading = ["索引", "路径"]
@@ -75,6 +131,45 @@ def table_backup_file(backup_list:list, system_pkg:dict):
     for index, file_path in enumerate(backup_list):
         table_list.append([str(index), file_path])
     system_pkg["table_msg"](table_list, heading = True)
+
+def get_sort_method(cmd_parameter, sort_options, system_pkg) -> tuple | int:
+    """选择排列方式
+    
+    返回tuple为取消选择
+    
+    返回int为选项索引"""
+    user_input = cmd_parameter
+    if user_input == "":
+        system_pkg["normal_msg"]("任选一种排列方式：")
+        system_pkg["body_msg"](sort_options)
+        user_input = system_pkg["normal_input"]("输入排列方式")
+    if user_input == system_pkg["EXIT"]: return (system_pkg["CONDITION_SUCCESS"], "取消选择tasker_list排列方式")
+    for index, option in enumerate(sort_options):
+        if user_input in option:
+            return index
+    system_pkg["system_msg"](f"选项\"{user_input}\"不存在")
+    return (system_pkg["CONDITION_SUCCESS"], f"排列方式\"{user_input}\"不存在")
+
+def get_valid_index(tasker_list, system_pkg) -> tuple | int:
+    """选取索引，进行排列
+    
+    返回tuple为取消或失败
+    
+    返回int为valid索引"""
+    list_len = len(tasker_list)
+    system_pkg["tips_msg"](f"索引范围：(0 - {list_len-1})")
+    index = system_pkg["normal_input"]("输入索引")
+    if index == system_pkg["EXIT"]: return (system_pkg["CONDITION_SUCCESS"], f"取消排列tasker_list")
+    convert_result = convert_to_int(index)
+    if convert_result == None:
+        system_pkg["system_msg"](f"索引{index}不匹配")
+        return (system_pkg["CONDITION_SUCCESS"], f"排列索引{index}不匹配")
+    try: # 尝试使用该索引
+        tasker_list[convert_result]
+    except IndexError:
+        system_pkg["system_msg"](f"索引{index}不存在")
+        return (system_pkg["CONDITION_SUCCESS"], f"排列索引{index}不存在")
+    return convert_result
 # 封装函数--------+--------+--------+--------+--------+--------+--------+--------+ End
 
 
@@ -104,8 +199,9 @@ class default_method(default_method_template):
         if type(select_result) == tuple:
             return select_result
         tasker_index = select_result
+        tasker = tasker_list[tasker_index]
         # 进入tasker.instance()界面
-        return_tuple = tasker_list[tasker_index].interface(system_pkg) # 进入tasker.interface()并提供system_pkg
+        return_tuple = tasker.interface(system_pkg) # 进入tasker.interface()并提供system_pkg
         return return_tuple
     
     def add(self, cmd_parameter:str, tasker_list:list, system_pkg:dict): # 添加tasker
@@ -171,8 +267,23 @@ class default_method(default_method_template):
             return (system_pkg["CONDITION_SUCCESS"], f"删除tasker{tasker_label}")
     
     def edit(self, cmd_parameter:str, tasker_list:list, system_pkg:dict): # 编辑tasker信息，单独编辑，使用tasker内置函数
-        # 更改tasker_label, description, create_date
-        return (system_pkg["CONDITION_SUCCESS"], None)
+        """参数用于选定tasker，用于索引或字符串搜索"""
+        if len(tasker_list) == 0:
+            system_pkg["system_msg"]("tasker_list为空，请先用指令\"add\"创建一个tasker")
+            return (system_pkg["CONDITION_SUCCESS"], "tasker_list为空")
+
+        select_result = select_tasker(cmd_parameter, tasker_list, system_pkg)
+        if type(select_result) == tuple:
+            return select_result
+        tasker_index = select_result
+        tasker = tasker_list[tasker_index]
+        # 修改tasker信息
+        info_dict = input_tasker_info(tasker, system_pkg)
+        tasker_label = info_dict["tasker_label"]
+        edit_tasker_info(tasker, info_dict, system_pkg)
+        
+        return (system_pkg["CONDITION_SUCCESS"], f"编辑{tasker_label}信息")
+        
 
 
 class default_txt_operation(default_method_template):
@@ -557,3 +668,86 @@ class default_sys_method(default_method_template):
         except KeyError:
             system_pkg["system_msg"](f"system_pkg中不包含\"{user_input}\"")
             return (system_pkg["CONDITION_SUCCESS"], f"system_pkg\"{user_input}\"查询结果不存在")
+
+class default_tasker_sort(default_method_template):
+    def __init__(self):
+        super().__init__() # 继承父类
+        self.label = "default_tasker_sort"
+        self.version = "1.0"
+        self.method_list = ["sort", "top", "insert"]
+    
+    def method_info(self):
+        return super().method_info()
+    
+    def analyze(self, cmd_list:list, tasker_list:list, system_pkg:dict): # 分析是否存在可用指令，返回(bool，[标签，版本，类型])
+        return super().analyze(cmd_list, tasker_list, system_pkg)
+
+    def proceed(self, cmd_list:list, tasker_list:list, system_pkg:dict):
+        return super().proceed(cmd_list, tasker_list, system_pkg)
+    
+    def sort(self, cmd_parameter:str, tasker_list:list, system_pkg:dict):
+        """按指定tasker属性排列tasker_list
+        
+        参数用于提前选定排列方式"""
+        sort_options = ["create_date", "tasker_label", "type", "version"]
+        select_result = get_sort_method(cmd_parameter, sort_options, system_pkg)
+        if type(select_result) == tuple:
+            return select_result
+        else:
+            sort_method = sort_options[select_result]
+        
+        tasker_list.sort(key=attrgetter(sort_method))
+        
+        system_pkg["system_msg"](f"已按\"{sort_method}\"排序")
+        return (system_pkg["CONDITION_SUCCESS"], f"排列tasker_list（按{sort_method}）")
+    
+    def top(self, cmd_parameter:str, tasker_list:list, system_pkg:dict):
+        """置顶一个tasker（放在第1位）
+        
+        参数用于选定tasker，用于索引或字符串搜索"""
+        if len(tasker_list) == 0:
+            system_pkg["system_msg"]("tasker_list为空，请先用指令\"add\"创建一个tasker")
+            return (system_pkg["CONDITION_SUCCESS"], "tasker_list为空")
+
+        elif len(tasker_list) == 1:
+            system_pkg["system_msg"]("tasker_list无需排列")
+            return (system_pkg["CONDITION_SUCCESS"], "取消tasker置顶（数量为1）")
+        
+        select_result = select_tasker(cmd_parameter, tasker_list, system_pkg)
+        if type(select_result) == tuple:
+            return select_result
+        tasker_index = select_result
+        
+        tasker_list[tasker_index], tasker_list[0] = tasker_list[0], tasker_list[tasker_index]
+        
+        tasker_label = tasker_list[0].tasker_label
+        system_pkg["system_msg"](f"已将\"{tasker_label}\"置顶")
+        return (system_pkg["CONDITION_SUCCESS"], f"排列tasker_list（置顶{tasker_label}）")
+    
+    def insert(self, cmd_parameter:str, tasker_list:list, system_pkg:dict):
+        """排列一个tasker到指定索引
+        
+        参数用于选定tasker，用于索引或字符串搜索"""
+        if len(tasker_list) == 0:
+            system_pkg["system_msg"]("tasker_list为空，请先用指令\"add\"创建一个tasker")
+            return (system_pkg["CONDITION_SUCCESS"], "tasker_list为空")
+
+        if len(tasker_list) == 1:
+            system_pkg["system_msg"]("tasker_list无需排列")
+            return (system_pkg["CONDITION_SUCCESS"], "取消tasker排列（数量为1）")
+        
+        select_result = select_tasker(cmd_parameter, tasker_list, system_pkg)
+        if type(select_result) == tuple:
+            return select_result
+        tasker_index = select_result
+        
+        select_result = get_valid_index(tasker_list, system_pkg)
+        if type(select_result) == tuple:
+            return select_result
+        insert_index = select_result
+        
+        tasker_list[tasker_index], tasker_list[insert_index] = tasker_list[insert_index], tasker_list[tasker_index]
+        
+        tasker_label = tasker_list[insert_index].tasker_label
+        system_pkg["system_msg"](f"已将{tasker_label}排至索引{insert_index}位")
+        return (system_pkg["CONDITION_SUCCESS"], f"排列tasker_list（{tasker_label}到索引{insert_index}）")

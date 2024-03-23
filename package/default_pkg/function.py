@@ -19,22 +19,6 @@ def convert_to_float(s:str):
     except ValueError:
         return None
 
-def table_tasker_template(tasker_template_list, system_pkg:dict) -> None:
-    """["索引", "版本", "Tasker类型", "介绍"]
-    
-    返回tasker_version_list Tasker模板标签列表"""
-    table_list = []
-    heading = ["索引", "版本", "Tasker类型", "介绍"]
-    table_list.append(heading)
-    # 获取展示列表，创建标签列表
-    for index, tasker_template in enumerate(tasker_template_list):
-        table_list.append([str(index),
-                           tasker_template.version,
-                           tasker_template.type,
-                           tasker_template.introduction])
-    system_pkg["table_msg"](table_list, heading = True)
-    return None
-
 def get_list_width(input_list:list):
     global chinese_word
     width_list = []
