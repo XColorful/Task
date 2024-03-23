@@ -1,5 +1,5 @@
 from default_class_func import default_tasker_func_template
-from .function import convert_to_int, convert_to_float, YYYY_MM_DD, YYYY_MM_DD_HH_MM_SS, table_task_template_instance, table_compare_task_list
+from .function import convert_to_int, convert_to_float, YYYY_MM_DD, YYYY_MM_DD_HH_MM_SS
 from os import mkdir
 from os.path import exists, join
 from glob import glob
@@ -91,6 +91,41 @@ def input_task_info(system_pkg) -> dict | None:
     else: comment_input = return_tuple[1]
     
     return {"create_date":current_date, "date":date_input, "attribute":attribute_input, "content":content_input, "comment":comment_input}
+
+def table_compare_task_list(old_task_list:list, new_task_list:list, system_pkg:dict, display = 8):
+    """给出两个默认类型的task_list，进行1.0版本比较
+    
+    display -> int，显示task_list末尾的若干项task"""
+    old_task_list_length = len(old_task_list)
+    new_task_list_length = len(new_task_list)
+    # 获取需显示的项
+    old_list = old_task_list[-display:]
+    new_list = new_task_list[-display:]
+    old_len = len(old_list)
+    new_len = len(new_list)
+    if old_len > new_len: MAX_LEN = old_len
+    else: MAX_LEN = new_len
+    old_list = old_task_list[-MAX_LEN:]
+    new_list = new_task_list[-MAX_LEN:]
+    table_list = []
+    for index in range(-1, -MAX_LEN-1, -1):
+        try:
+            task = old_list[index]
+            display_content = task.content[:8]
+            old_column = [str(old_task_list_length + index), f"{task.date}|{task.attribute}|{display_content}"]
+        except IndexError:
+            old_column = ["", ""]
+        try:
+            task = new_list[index]
+            display_content = task.content[:8]
+            new_column = [str(new_task_list_length + index), f"{task.date}|{task.attribute}|{display_content}"]
+        except IndexError:
+            new_column = ["", ""]
+        table_list.append(old_column + new_column)
+    heading = ["索引", "老版本", "索引", "新版本"]
+    table_list.append(heading)
+    table_list.reverse()
+    system_pkg["table_msg"](table_list, heading = True)
 # 封装函数--------+--------+--------+--------+--------+--------+--------+--------+ End
 
 

@@ -1,5 +1,5 @@
 from default_method import default_method_template
-from .function import convert_to_int, convert_to_float, table_tasker_template, YYYY_MM_DD_HH_MM_SS, table_backup_file
+from .function import convert_to_int, convert_to_float, table_tasker_template, YYYY_MM_DD_HH_MM_SS
 from os import mkdir, getcwd
 from os.path import exists, join, dirname, abspath
 from glob import glob
@@ -67,7 +67,14 @@ def select_tasker(cmd_parameter, tasker_list, system_pkg) -> tuple | int:
         # 重置user_input
         user_input = ""
     return tasker_index
-    
+
+def table_backup_file(backup_list:list, system_pkg:dict):
+    table_list = []
+    heading = ["索引", "路径"]
+    table_list.append(heading)
+    for index, file_path in enumerate(backup_list):
+        table_list.append([str(index), file_path])
+    system_pkg["table_msg"](table_list, heading = True)
 # 封装函数--------+--------+--------+--------+--------+--------+--------+--------+ End
 
 
