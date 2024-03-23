@@ -71,21 +71,22 @@ def input_task_info(system_pkg) -> dict | None:
     
     返回dict用于task.update(info_dict, system_pkg)"""
     current_date = YYYY_MM_DD()
-    return_tuple = system_pkg["block_input"](f"日期(默认{current_date})", system_pkg["BLOCK_LIST"], system_pkg, block_number = False)
+    block_list = system_pkg["BLOCK_LIST"]
+    return_tuple = system_pkg["block_input"](f"日期(默认{current_date})", block_list, system_pkg, block_number = False)
     if return_tuple[0] == False: return None
     if return_tuple[0] == None: date_input = current_date # 默认为当前日期
     else: date_input = return_tuple[1]
     
-    return_tuple = system_pkg["block_input"](f"属性(可选)", system_pkg["BLOCK_LIST"], system_pkg, block_number = False)
+    return_tuple = system_pkg["block_input"](f"属性(可选)", block_list, system_pkg, block_number = False)
     if return_tuple[0] == False: return None
     if return_tuple[0] == None: attribute_input = "N/A" # 默认为"N/A"
     else: attribute_input = return_tuple[1]
     
-    return_tuple = system_pkg["strict_input"](f"内容", system_pkg["BLOCK_LIST"], system_pkg, block_number = False)
+    return_tuple = system_pkg["strict_input"](f"内容", block_list, system_pkg, block_number = False)
     if return_tuple[0] == False: return None
     else: content_input = return_tuple[1]
     
-    return_tuple = system_pkg["block_input"](f"注释(可选)", system_pkg["BLOCK_LIST"], system_pkg, block_number = False)
+    return_tuple = system_pkg["block_input"](f"注释(可选)", block_list, system_pkg, block_number = False)
     if return_tuple[0] == False: return None
     if return_tuple[0] == None: comment_input = ""
     else: comment_input = return_tuple[1]
