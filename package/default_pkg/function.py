@@ -19,22 +19,6 @@ def convert_to_float(s:str):
     except ValueError:
         return None
 
-def table_tasker_list(iterator, tasker_list:list, system_pkg:dict):
-    """["索引", "创建日期", "标签", "版本", "Tasker类型"]
-    
-    """
-    table_list = []
-    heading = ["索引", "创建日期", "标签", "版本", "Tasker类型"]
-    table_list.append(heading)
-    for i in iterator:
-        table_list.append([str(i), 
-                        tasker_list[i].create_date, 
-                        tasker_list[i].tasker_label, 
-                        tasker_list[i].version, 
-                        tasker_list[i].type])
-    system_pkg["table_msg"](table_list, heading = True)
-    return None
-
 def table_tasker_template(tasker_template_list, system_pkg:dict) -> None:
     """["索引", "版本", "Tasker类型", "介绍"]
     
