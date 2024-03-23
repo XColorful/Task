@@ -2,6 +2,40 @@ from default_class_func import extra_tasker_func_template
 from .function import YYYY_MM_DD, convert_to_int
 from pyperclip import copy as py_cp
 
+# 封装函数--------+--------+--------+--------+--------+--------+--------+--------+ Begin
+def show_acc_info_guide(system_pkg):
+    system_pkg["tips_msg"]("account信息参考")
+    system_pkg["tips_msg"]("\t[1]|账号类型：所属平台")
+    system_pkg["tips_msg"]("\t[2]|标签（可选）：用于搜索该账号，默认与\"账号类型\"相同")
+    system_pkg["tips_msg"]("\t[3]|补充信息（可选）：账号描述，登录名称等")
+
+def show_acc_additional_guide(system_pkg):
+    system_pkg["normal_msg"]("补充信息类型")
+    system_pkg["body_msg"](["description：账号描述", "login_name：登录使用的名称/数据", "verified_phone：绑定手机号", "verified_email：绑定邮箱", "linked_account：绑定的其他账号", "secure_question：安全问题", "other_info：其他类型的补充信息", "password_history（不推荐）：历史密码"])
+    system_pkg["tips_msg"]("格式示例：\"类型|||内容1|||内容2（数量不限）\"")
+    system_pkg["tips_msg"]("仅输入\"类型\"可显示更多描述")
+
+def show_detail(key, system_pkg):
+    """显示详细信息"""
+    if key == "description":
+        system_pkg["normal_msg"]("description"); system_pkg["body_msg"](["描述：账号描述", "格式示例：\"description|||描述1|||描述2（数量不限）\""])
+    elif key == "login_name":
+        system_pkg["normal_msg"]("login_name"); system_pkg["body_msg"](["描述：登录使用的名称/数据", "注：若该项非空则使用\"get\"获取该账号时将自动复制第一项到剪贴板", "格式示例：\"login_name|||账号名称1（复制到剪贴板）|||账号名称2（不复制，数量不限）\""])
+    elif key == "verified_phone":
+        system_pkg["normal_msg"]("verified_phone"); system_pkg["body_msg"](["描述：绑定手机号", "格式示例：\"verified_phone|||手机号1|||手机号2（数量不限）\""])
+    elif key == "verified_email":
+        system_pkg["normal_msg"]("verified_email"); system_pkg["body_msg"](["描述：绑定邮箱", "格式示例：\"verified_email|||邮箱1|||邮箱2（数量不限）\""])
+    elif key == "linked_account":
+        system_pkg["normal_msg"]("linked_account"); system_pkg["body_msg"](["描述：绑定的其他账号", "注：使用\"get\"获取账号时会同时搜索linked_account", "注：当格式为\"账号类型：标签\"（中文标点）时，\"get\"将进行标签匹配", "格式示例：\"linked_account|||账号类型1：标签|||账号类型2（数量不限）\""])
+    elif key == "secure_question":
+        system_pkg["normal_msg"]("secure_question"); system_pkg["body_msg"](["描述：安全问题", "注：使用\"：\"（中文标点）分隔将在\"search\"时分行显示", "格式示例：\"secure_question|||问题1：答案|||问题2：答案（数量不限）\""])
+    elif key == "other_info":
+        system_pkg["normal_msg"]("other_info"); system_pkg["body_msg"](["描述：其他类型的补充信息", "格式示例：\"other_info|||任意信息|||任意信息（数量不限）\""])
+    elif key == "password_history":
+        system_pkg["normal_msg"]("password_history"); system_pkg["body_msg"](["描述：历史密码", "注：该项内容可由指令\"update\"自动迁移旧密码", "格式示例：\"password_history|||(YYYY_MM_DD)password1|||(2024_01_01)password2（数量不限）\""])
+# 封装函数--------+--------+--------+--------+--------+--------+--------+--------+ End
+
+
 class account_tasker_func(extra_tasker_func_template):
     def __init__(self):
         super().__init__() # 继承父类
@@ -35,11 +69,7 @@ class account_tasker_func(extra_tasker_func_template):
             system_pkg["system_msg"](f"缺少类型（{tasker.version}）匹配的task模板")
             return None
         # 显示account信息参考
-        current_date = YYYY_MM_DD()
-        system_pkg["tips_msg"]("account信息参考")
-        system_pkg["tips_msg"]("\t[1]|账号类型：所属平台")
-        system_pkg["tips_msg"]("\t[2]|标签（可选）：用于搜索该账号，默认与\"账号类型\"相同")
-        system_pkg["tips_msg"]("\t[3]|补充信息（可选）：账号描述，登录名称等")
+        show_acc_info_guide(system_pkg)
         # 输入账号类型
         return_tuple = system_pkg["strict_input"]("账号类型", block_list, system_pkg, block_number = False)
         if return_tuple[0] == False: return None
@@ -51,10 +81,7 @@ class account_tasker_func(extra_tasker_func_template):
         else: task.label = return_tuple[1]
         # task.dict
         # 展示补充格式
-        system_pkg["normal_msg"]("补充信息类型")
-        system_pkg["body_msg"](["description：账号描述", "login_name：登录使用的名称/数据", "verified_phone：绑定手机号", "verified_email：绑定邮箱", "linked_account：绑定的其他账号", "secure_question：安全问题", "other_info：其他类型的补充信息", "password_history（不推荐）：历史密码"])
-        system_pkg["tips_msg"]("格式示例：\"类型|||内容1|||内容2（数量不限）\"")
-        system_pkg["tips_msg"]("仅输入\"类型\"可显示更多描述")
+        show_acc_additional_guide(system_pkg)
         return_tuple = system_pkg["block_input"]("添加补充信息（可选）", block_list, system_pkg, block_number = False)
         if return_tuple[0] == False: return None
         
@@ -71,29 +98,13 @@ class account_tasker_func(extra_tasker_func_template):
                 if return_tuple == False: return None
                 continue
             
-            # 显示补充信息--------+--------+--------+--------+--------+--------+--------+ Begin
             # 输入的类型存在，值未填
             if (key in task.dict) and (value == []):
-                if key == "description":
-                    system_pkg["normal_msg"]("description"); system_pkg["body_msg"](["描述：账号描述", "格式示例：\"description|||描述1|||描述2（数量不限）\""])
-                elif key == "login_name":
-                    system_pkg["normal_msg"]("login_name"); system_pkg["body_msg"](["描述：登录使用的名称/数据", "注：若该项非空则使用\"get\"获取该账号时将自动复制第一项到剪贴板", "格式示例：\"login_name|||账号名称1（复制到剪贴板）|||账号名称2（不复制，数量不限）\""])
-                elif key == "verified_phone":
-                    system_pkg["normal_msg"]("verified_phone"); system_pkg["body_msg"](["描述：绑定手机号", "格式示例：\"verified_phone|||手机号1|||手机号2（数量不限）\""])
-                elif key == "verified_email":
-                    system_pkg["normal_msg"]("verified_email"); system_pkg["body_msg"](["描述：绑定邮箱", "格式示例：\"verified_email|||邮箱1|||邮箱2（数量不限）\""])
-                elif key == "linked_account":
-                    system_pkg["normal_msg"]("linked_account"); system_pkg["body_msg"](["描述：绑定的其他账号", "注：使用\"get\"获取账号时会同时搜索linked_account", "注：当格式为\"账号类型：标签\"（中文标点）时，\"get\"将进行标签匹配", "格式示例：\"linked_account|||账号类型1：标签|||账号类型2（数量不限）\""])
-                elif key == "secure_question":
-                    system_pkg["normal_msg"]("secure_question"); system_pkg["body_msg"](["描述：安全问题", "注：使用\"：\"（中文标点）分隔将在\"search\"时分行显示", "格式示例：\"secure_question|||问题1：答案|||问题2：答案（数量不限）\""])
-                elif key == "other_info":
-                    system_pkg["normal_msg"]("other_info"); system_pkg["body_msg"](["描述：其他类型的补充信息", "格式示例：\"other_info|||任意信息|||任意信息（数量不限）\""])
-                elif key == "password_history":
-                    system_pkg["normal_msg"]("password_history"); system_pkg["body_msg"](["描述：历史密码", "注：该项内容可由指令\"update\"自动迁移旧密码", "格式示例：\"password_history|||(YYYY_MM_DD)password1|||(2024_01_01)password2（数量不限）\""])
+                # 显示类型的详细信息
+                show_detail(key, system_pkg)
                 return_tuple = system_pkg["block_input"]("添加补充信息", block_list, system_pkg, block_number = False)
                 if return_tuple[0] == False: return None
                 continue
-            # 显示补充信息--------+--------+--------+--------+--------+--------+--------+ End
 
             # 输入的类型存在，值已填
             value_list = value[0].split("|||")
@@ -103,7 +114,7 @@ class account_tasker_func(extra_tasker_func_template):
             continue
         
         # 更新创建日期
-        task.create_date = current_date
+        task.create_date = YYYY_MM_DD()
         tasker.task_list.append(task)
         # 显示创建成功
         show_alias = f"（{task.label}）" if task.label != task.account_type else ""
