@@ -6,7 +6,7 @@ class default_tasker(default_tasker_template):
     introduction = "默认类型Tasker"
     def __init__(self):
         super().__init__() # 继承父类
-        self.function_list.append(default_tasker_func()) # Default_Template版本仅有一种，不可修改
+        self.function_list.append(default_tasker_func()) # Default版本仅有一种，不可修改
     
     def interface(self, system_pkg): # 仅有一种，不可修改
         if self.create_date == "": # 如果create_date为空（未补充过Tasker信息）

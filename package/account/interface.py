@@ -3,7 +3,7 @@ from .function import convert_to_int, table_class_func
 def interface_info(system_pkg, show_msg = True):
     interface_label = "account_interface"
     interface_version = "account"
-    interface_type = "Extra_Template"
+    interface_type = "Extra"
     info_list = [interface_label, interface_version, interface_type]
     if show_msg == True:
         table_list = []

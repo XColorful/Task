@@ -55,7 +55,7 @@ def select_valid_index(user_input:str, select_list:list):
 def interface_info(system_pkg, show_msg = True):
     interface_label = "default_interface"
     interface_version = "1.0"
-    interface_type = "Default_Template"
+    interface_type = "Default"
     info_list = [interface_label, interface_version, interface_type]
     if show_msg == True:
         table_list=[]
@@ -210,7 +210,7 @@ def default_update_info(self, system_pkg):
 
 class default_tasker_template():
     version = "0" # 用数字表示
-    type = "Default_Template"
+    type = "Default"
     def __init__(self):
         self.tasker_label = ""
         self.description = ""
@@ -267,7 +267,7 @@ class default_tasker_template():
 
 class default_task_template():
     version = "0"
-    type = "Default_Template"
+    type = "Default"
     def __init__(self):
         self.create_date = ""
         self.date = ""
@@ -304,7 +304,7 @@ class default_task_template():
 
 class extra_tasker_template(default_tasker_template):
     version = "0" # 用字符串表示
-    type = "Extra_Template"
+    type = "Extra"
     def __init__(self):
         super().__init__() #继承父类
         self.description = ""
@@ -323,7 +323,7 @@ class extra_tasker_template(default_tasker_template):
 
 class extra_task_template(default_task_template):
     version = "" # 用字符串表示，不能为数字（应不能被float()转换）
-    type = "Extra_Template"
+    type = "Extra"
     def __init__(self):
         super().__init__() #继承父类
     

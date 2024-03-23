@@ -3,7 +3,7 @@ class default_tasker_func_template():
         # 确定必要信息
         self.label = ""
         self.version = "0"
-        self.type = "Default_Template"
+        self.type = "Default"
         self.function_list = []
     
     def __str__(self):
@@ -25,7 +25,7 @@ class extra_tasker_func_template(default_tasker_func_template):
         super().__init__() # 继承父类
         self.label = ""
         self.version = ""
-        self.type = "Extra_Template"
+        self.type = "Extra"
         self.function_list = []
         
     def __str__(self):

@@ -1,6 +1,6 @@
 class default_method_template():
     version = "0" # 用数字表示
-    type = "Default_Template"
+    type = "Default"
     def __init__(self):
         self.label = ""
         self.method_list = []
