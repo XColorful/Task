@@ -392,7 +392,7 @@ class default_tasker_func(default_tasker_func_template):
         if edit_result == None:
             return None
         edit_dict = edit_result
-        update_edit_info(task, edit_dict)
+        update_edit_info(task, edit_dict, system_pkg)
         
         if (user_input == "") and (edit_dict["content"] != ""): # 为空task更新创建日期
             task.create_date = YYYY_MM_DD()
