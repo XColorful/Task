@@ -32,7 +32,8 @@ def select_tasker(cmd_parameter, tasker_list, system_pkg) -> tuple | int:
         table_tasker_list(range(0, len(tasker_list)), tasker_list, system_pkg) # 展示tasker_list
     
     tasker_index = ""
-    while tasker_index == "":
+    index_list = []
+    while len(index_list) == 0:
         # 获取user_input
         if user_input == "":
             system_pkg["tips_msg"]("匹配首个符合的标签，输入\"exit\"退出")
