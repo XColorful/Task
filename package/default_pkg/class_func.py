@@ -59,7 +59,7 @@ def select_task_template(tasker, system_pkg) -> None | object:
 def add_empty_task(tasker, temp_task, system_pkg):
     """为tasker添加空task"""
     current_date = YYYY_MM_DD()
-    info_dict = {"create_date":current_date, "date":current_date, "attribute":"", "content":"", "comment":""}
+    info_dict = {"create_date":current_date, "date":current_date, "attribute":"N/A", "content":"", "comment":""}
     temp_task.update(info_dict, system_pkg)
     tasker.task_list.append(temp_task)
     system_pkg["system_msg"]("已创建空Task")
@@ -127,6 +127,66 @@ def table_compare_task_list(old_task_list:list, new_task_list:list, system_pkg:d
     table_list.append(heading)
     table_list.reverse()
     system_pkg["table_msg"](table_list, heading = True)
+
+def input_edit_info(task, system_pkg) -> None | dict:
+    """输入task信息
+    
+    返回None为取消
+    
+    返回dict为edit_dict"""
+    py_cp(task.date)
+    system_pkg["normal_msg"](f"task.date copied to clipboard")
+    return_tuple = system_pkg["block_input"](f"{task.date}", system_pkg["BLOCK_LIST"], system_pkg, block_number = False)
+    if return_tuple[0] == False: return None
+    if return_tuple[0] == None: date_input = ""
+    else: date_input = return_tuple[1]
+    
+    py_cp(task.attribute)
+    system_pkg["normal_msg"](f"task.attribute copied to clipboard")
+    return_tuple = system_pkg["block_input"](f"{task.attribute}", system_pkg["BLOCK_LIST"], system_pkg, block_number = False)
+    if return_tuple[0] == False: return None
+    if return_tuple[0] == None: attribute_input = ""
+    else: attribute_input = return_tuple[1]
+    
+    py_cp(task.content)
+    system_pkg["normal_msg"](f"task.content copied to clipboard")
+    return_tuple = system_pkg["block_input"](f"{task.content}", system_pkg["BLOCK_LIST"], system_pkg, block_number = False)
+    if return_tuple[0] == False: return None
+    if return_tuple[0] == None: content_input = ""
+    else: content_input = return_tuple[1]
+    
+    py_cp(task.comment)
+    system_pkg["normal_msg"](f"task.comment copied to clipboard")
+    return_tuple = system_pkg["block_input"](f"{task.comment}", system_pkg["BLOCK_LIST"], system_pkg, block_number = False)
+    if return_tuple[0] == False: return None
+    if return_tuple[0] == None: comment_input = ""
+    else: comment_input = return_tuple[1]
+    
+    return {"date":date_input, "attribute":attribute_input, "content":content_input, "comment":comment_input}
+
+def update_edit_info(task, edit_dict, system_pkg) -> None:
+    """修改task信息"""
+    date_input = edit_dict["date"]
+    attribute_input = edit_dict["attribute"]
+    content_input = edit_dict["content"]
+    comment_input = edit_dict["comment"]
+    
+    if date_input != "":
+        system_pkg["normal_msg"](f"task.date：{task.date}")
+        system_pkg["body_msg"]([f"更改为：{date_input}"])
+        task.date = date_input
+    if attribute_input != "":
+        system_pkg["normal_msg"](f"task.attribute：{task.attribute}")
+        system_pkg["body_msg"]([f"更改为：{attribute_input}"])
+        task.attribute = attribute_input
+    if content_input != "":
+        system_pkg["normal_msg"](f"task.content：{task.content}")
+        system_pkg["body_msg"]([f"更改为：{content_input}"])
+        task.content = content_input
+    if comment_input != "":
+        system_pkg["normal_msg"](f"task.comment：{task.comment}")
+        system_pkg["body_msg"]([f"更改为：{comment_input}"])
+        task.comment = comment_input
 # 封装函数--------+--------+--------+--------+--------+--------+--------+--------+ End
 
 
@@ -148,11 +208,11 @@ class default_tasker_func(default_tasker_func_template):
     def proceed(self, command_list:list, tasker, system_pkg:dict):
         return super().proceed(command_list, tasker, system_pkg)
     
-    def search(self, parameter, tasker, system_pkg, show_msg = True):
+    def search(self, parameter, tasker, system_pkg, show_msg = True) -> list[int]:
         index_search_result = []
         string_search_result = []
-        index_search_index = []
-        string_search_index = []
+        index_search_index : list[int] = []
+        string_search_index : list[int] = []
         index_error = False
         task_list_length = len(tasker.task_list)
         convert_result = convert_to_int(parameter)
@@ -306,7 +366,7 @@ class default_tasker_func(default_tasker_func_template):
         """参数非空时指定搜索对象，为索引或搜索，选取最后一个搜索到的（task_list末端）
         
         """
-        index = [] # 存储索引列表
+        index_list = [] # 存储索引列表
         user_input = parameter # 用于后续判断是否为空输入，操作空task
         if user_input == "":
             system_pkg["tips_msg"]("参数为索引或搜索，选取最后一个搜索到的task（位于列表末端）")
@@ -314,67 +374,28 @@ class default_tasker_func(default_tasker_func_template):
             if user_input == system_pkg["EXIT"]: return None
             if user_input == "": # 搜索空task
                 for i in range( len(tasker.task_list) - 1, -1, -1):
-                    if tasker.task_list[i].create_date == "":
-                        index.append(i)
+                    if tasker.task_list[i].content == "":
+                        index_list.append(i)
                         break
-            else: index = self.search(user_input, tasker, system_pkg, show_msg = False) # 搜索非空task，返回列表
-        else: index = self.search(user_input, tasker, system_pkg, show_msg = False) # 搜索非空task，返回列表
+            else: index_list = self.search(user_input, tasker, system_pkg, show_msg = False) # 搜索非空task，返回列表
+        else: index_list = self.search(user_input, tasker, system_pkg, show_msg = False) # 搜索非空task，返回列表
         # 搜索结果
-        if index == []:
+        if index_list == []:
             system_pkg["system_msg"]("无指定对象")
             return None
-        else: index = index[-1] # 搜索结果选取最后添加的task
+        else: tasker_index = index_list[-1] # 搜索结果选取最后添加的task
         # 输入task编辑内容
-        task = tasker.task_list[int(index)] # 重新取为int
-        system_pkg["normal_msg"](f"{index}|{task.date}|{task.attribute}|{task.content}|{task.comment}")
+        task = tasker.task_list[int(tasker_index)] # 重新取为int
+        system_pkg["normal_msg"](f"{tasker_index}|{task.date}|{task.attribute}|{task.content}|{task.comment}")
         
-        py_cp(task.date)
-        system_pkg["normal_msg"](f"task.date copied to clipboard")
-        return_tuple = system_pkg["block_input"](f"{task.date}", system_pkg["BLOCK_LIST"], system_pkg, block_number = False)
-        if return_tuple[0] == False: return None
-        if return_tuple[0] == None: date_input = ""
-        else: date_input = return_tuple[1]
+        edit_result = input_edit_info(task, system_pkg)
+        if edit_result == None:
+            return None
+        edit_dict = edit_result
+        update_edit_info(task, edit_dict)
         
-        py_cp(task.attribute)
-        system_pkg["normal_msg"](f"task.attribute copied to clipboard")
-        return_tuple = system_pkg["block_input"](f"{task.attribute}", system_pkg["BLOCK_LIST"], system_pkg, block_number = False)
-        if return_tuple[0] == False: return None
-        if return_tuple[0] == None: attribute_input = ""
-        else: attribute_input = return_tuple[1]
-        
-        py_cp(task.content)
-        system_pkg["normal_msg"](f"task.content copied to clipboard")
-        return_tuple = system_pkg["block_input"](f"{task.content}", system_pkg["BLOCK_LIST"], system_pkg, block_number = False)
-        if return_tuple[0] == False: return None
-        if return_tuple[0] == None: content_input = ""
-        else: content_input = return_tuple[1]
-        
-        py_cp(task.comment)
-        system_pkg["normal_msg"](f"task.comment copied to clipboard")
-        return_tuple = system_pkg["block_input"](f"{task.comment}", system_pkg["BLOCK_LIST"], system_pkg, block_number = False)
-        if return_tuple[0] == False: return None
-        if return_tuple[0] == None: comment_input = ""
-        else: comment_input = return_tuple[1]
-        
-        # 编辑task
-        if date_input != "":
-            system_pkg["normal_msg"](f"task.date：{task.date}")
-            system_pkg["body_msg"]([f"更改为：{date_input}"])
-            task.date = date_input
-        if attribute_input != "":
-            system_pkg["normal_msg"](f"task.attribute：{task.attribute}")
-            system_pkg["body_msg"]([f"更改为：{attribute_input}"])
-            task.attribute = attribute_input
-        if content_input != "":
-            system_pkg["normal_msg"](f"task.content：{task.content}")
-            system_pkg["body_msg"]([f"更改为：{content_input}"])
-            task.content = content_input
-        if comment_input != "":
-            system_pkg["normal_msg"](f"task.comment：{task.comment}")
-            system_pkg["body_msg"]([f"更改为：{comment_input}"])
-            task.comment = comment_input
-        if user_input == "": # 为空task更新创建日期
-            if date_input and attribute_input and content_input: task.create_date = YYYY_MM_DD()
+        if (user_input == "") and (edit_dict["content"] != ""): # 为空task更新创建日期
+            task.create_date = YYYY_MM_DD()
         return None
     
     def reload(self, parameter, tasker, system_pkg):
