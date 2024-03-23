@@ -110,12 +110,10 @@ def normal_log(time_list:list, cmd_list:list, proceed_info_list:list, folder_dir
     if not exists(folder_dir): mkdir(folder_dir) # 创建目录
     file_dir = join(folder_dir, filename)
     with open(file_dir, "a", encoding = "utf-8") as f:
-        f.write(f"({time_list[0]}, {time_list[1]})\n") # (起始时间, 结束时间)
         method_info = proceed_info_list[0].method_info()
         method_list = proceed_info_list[0].method_list
-        f.write(f"\tlabel:{method_info[0]}; version:{method_info[1]}; type:{method_info[2]}; method_list:{str(method_list)}\n")
-        f.write(f"\tcommand_list:{str(cmd_list)}\n")
-        f.write(f"\tproceed_condition:{proceed_info_list[1]}; proceed_return:{proceed_info_list[2]}\n")
+        f.write(f"{time_list[0]}, {time_list[1]}; {method_info[0]}; {method_info[1]}; {method_info[2]}\n") # (起始时间, 结束时间)
+        f.write(f"\t{str(cmd_list)}; {proceed_info_list[1]}; {proceed_info_list[2]}\n")
     return None
 
 def file_size_str(file_path):
