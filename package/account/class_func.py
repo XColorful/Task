@@ -50,6 +50,41 @@ def show_detail(key, system_pkg):
         system_pkg["normal_msg"]("other_info"); system_pkg["body_msg"](["描述：其他类型的补充信息", "格式示例：\"other_info|||任意信息|||任意信息（数量不限）\""])
     elif key == "password_history":
         system_pkg["normal_msg"]("password_history"); system_pkg["body_msg"](["描述：历史密码", "注：该项内容可由指令\"update\"自动迁移旧密码", "格式示例：\"password_history|||(YYYY_MM_DD)password1|||(2024_01_01)password2（数量不限）\""])
+
+def show_search_result(task, index, system_pkg, linked_acccout = False):
+    """显示搜索结果"""
+    index = f"[{index}]" if index != None else ""
+    show_alias = f"（{task.label}）" if task.account_type != task.label else ""
+    result_head = f"{index}|{task.account_type}{show_alias}"
+    system_pkg["normal_msg"](result_head)
+    body_list = []
+    if linked_acccout == False:
+        if task.create_date != "": body_list.append(f"create_date：{task.create_date}")
+        if task.last_date != "": body_list.append(f"last_date：{task.last_date}")
+        if task.dict["login_name"] != []:
+            body_list.append("login_name：")
+            for login_name in task.dict["login_name"]:
+                body_list.append(f"\t{login_name}")
+        if task.dict["description"] != []:
+            body_list.append("description：")
+            for description in task.dict["description"]:
+                body_list.append(f"\t{description}")
+    elif linked_acccout == True:
+        body_list.append(f"linked_account：")
+        for linked_account in task.dict["linked_account"]:
+            body_list.append(f"\t{linked_account}") 
+    system_pkg["body_msg"](body_list)
+
+def get_password(tasker, index, system_pkg):
+    """获取密码到剪贴板"""
+    task = tasker.task_list[index]
+    password = task.password
+    show_alias = f"（{task.label}）" if task.label != task.account_type else ""
+    if password != "":
+        py_cp(password)
+        system_pkg["system_msg"](f"{task.account_type}{show_alias}.password已复制到剪贴板")
+        return True
+    system_pkg["system_msg"](f"{task.account_type}{show_alias}.password为空")
 # 封装函数--------+--------+--------+--------+--------+--------+--------+--------+ End
 
 
@@ -147,29 +182,6 @@ class account_tasker_func(extra_tasker_func_template):
             account_type -> list,
                 
             linked_account -> list]"""
-        def show_search_result(task, index, system_pkg, linked_acccout = False):
-            index = f"[{index}]" if index != None else ""
-            show_alias = f"（{task.label}）" if task.account_type != task.label else ""
-            result_head = f"{index}|{task.account_type}{show_alias}"
-            system_pkg["normal_msg"](result_head)
-            body_list = []
-            if linked_acccout == False:
-                if task.create_date != "": body_list.append(f"create_date：{task.create_date}")
-                if task.last_date != "": body_list.append(f"last_date：{task.last_date}")
-                if task.dict["login_name"] != []:
-                    body_list.append("login_name：")
-                    for login_name in task.dict["login_name"]:
-                        body_list.append(f"\t{login_name}")
-                if task.dict["description"] != []:
-                    body_list.append("description：")
-                    for description in task.dict["description"]:
-                        body_list.append(f"\t{description}")
-            elif linked_acccout == True:
-                body_list.append(f"linked_account：")
-                for linked_account in task.dict["linked_account"]:
-                    body_list.append(f"\t{linked_account}") 
-            system_pkg["body_msg"](body_list)
-        
         if parameter != "": user_input = parameter
         else: user_input = system_pkg["normal_input"]("输入标签或账号类型")
         if user_input == system_pkg["EXIT"]: return None
@@ -245,17 +257,6 @@ class account_tasker_func(extra_tasker_func_template):
                     for index in linked_account_index: show_search_result(tasker.task_list[index], show_index, system_pkg, linked_acccout = True)
                     show_index += 1
         # 显示搜索结果--------+--------+--------+--------+--------+--------+--------+ End
-        
-        # 获取密码到剪贴板
-        def get_password(tasker, index, system_pkg):
-            task = tasker.task_list[index]
-            password = task.password
-            show_alias = f"（{task.label}）" if task.label != task.account_type else ""
-            if password != "":
-                py_cp(password)
-                system_pkg["system_msg"](f"{task.account_type}{show_alias}.password已复制到剪贴板")
-                return True
-            system_pkg["system_msg"](f"{task.account_type}{show_alias}.password为空")
         
         # 获取password（索引搜索结果）
         if task_index != None:
