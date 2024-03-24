@@ -306,7 +306,7 @@ class default_txt_operation(default_method_template):
         backup_dir = ".\\backup_all\\"
         if not exists(backup_dir): mkdir(backup_dir)
         file_path = join(f"{backup_dir}", f"backup_{YYYY_MM_DD_HH_MM_SS()}.txt")
-        working_dir = dirname(abspath(__file__))
+        working_dir = getcwd()
         tasker_count = 0
         task_count = 0
         f = open(file_path, "w", encoding = "utf-8")
