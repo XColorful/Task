@@ -746,7 +746,7 @@ class default_tasker_sort(default_method_template):
             return select_result
         insert_index = select_result
         
-        tasker_list[tasker_index], tasker_list[insert_index] = tasker_list[insert_index], tasker_list[tasker_index]
+        tasker_list.insert(insert_index, tasker_list.pop(tasker_index))
         
         tasker_label = tasker_list[insert_index].tasker_label
         system_pkg["system_msg"](f"已将{tasker_label}排至索引{insert_index}位")
