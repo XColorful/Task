@@ -1,7 +1,7 @@
 import subprocess
 import time
 
-from os import listdir, chdir, mkdir
+from os import listdir, chdir
 from os.path import dirname, abspath, join, basename, exists
 from unittest.mock import patch
 
@@ -52,25 +52,22 @@ def select_test_input(test_input_list) -> str:
     input(f"Press any button to exit")
     exit()
 
-def make_pkl(pkl_dir):
-    main_tasker_list = []
-    if not exists(dirname(pkl_dir)):
-        mkdir(dirname(pkl_dir))
-    import pickle
-    pkl_file = open(pkl_dir, "wb")
-    pickle.dump(main_tasker_list, pkl_file, 5)
-    pkl_file.close()
-
-def temp_main_pkl_dir() -> str:
-    from function import YYYY_MM_DD_HH_MM_SS
-    return f".\\test_input\\temp_pkl\\{YYYY_MM_DD_HH_MM_SS()}.pkl"
-
-def try_check_result(basename, test_inputs):
+def run_test_py(basename, run_mode):
     check_py = f".\\test_input\\test_py\\{basename}.py"
     if not exists(check_py):
         return None
-    subprocess.run(["python", check_py, test_inputs])
+    
+    # test.py本身已经和main.py同工作目录
+    result = subprocess.run(["python", check_py, run_mode])
+    if result.returncode == 1: # cwd=dirname(abspath(__file__))
+        exit()
     return None
+
+def prepare_environment(basename):
+    run_test_py(basename, "prepare")
+
+def clear_environment(basename):
+    run_test_py(basename, "clear")
 
 def show_used_time(elapsed_time):
     seconds = round(elapsed_time, 1)
@@ -87,12 +84,14 @@ def run_test():
     with open(file_dir, 'r') as test_input:
         test_inputs = test_input.read().splitlines()
 
-    main_pkl_dir = temp_main_pkl_dir()
-    make_pkl(main_pkl_dir)
     
     with patch('builtins.input', side_effect=test_inputs):
         try:
-            parameter_list = [f"main_pkl_dir {main_pkl_dir}"]
+            # 配置环境
+            test_basename = basename(file_dir).rstrip(".txt")
+            prepare_environment(test_basename)
+            
+            # 开始测试
             start_time = time.time()
             import main
             # subprocess.run(["python", "main.py"] + parameter_list) # 不太行，新开进程就没mock了
@@ -101,20 +100,12 @@ def run_test():
             print("--------Test End--------")
             show_used_time(elapsed_time)
             print(f"Run Time:{elapsed_time}")
+            
+            # 清除环境
+            clear_environment(test_basename)
         except StopIteration:
             pass  # 当所有的输入都被使用完时，会抛出StopIteration异常
-    
-    test_basename = basename(file_dir)
-    try_check_result(test_basename, test_inputs)
-    print(f"Test pkl file:\"{main_pkl_dir}\"")
-    if input("Save temporary used Tasker_list.pkl(y/n)") == "y":
-        exit()
-    from os import remove
-    try:
-        remove(main_pkl_dir)
-    except FileNotFoundError:
-        pass
-    exit()
+
 
 if __name__ == '__main__':
     run_test()
