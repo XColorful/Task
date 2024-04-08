@@ -3,6 +3,7 @@ import traceback
 from operator import attrgetter
 from os import chdir
 from os.path import dirname, abspath, exists, join
+from sys import argv
 
 from function import convert_to_int, convert_to_float, read_from_pkl, save_pkl, error_log, YYYY_MM_DD_HH_MM_SS, backup_pkl, normal_log, table_analyze_result
 
@@ -158,6 +159,15 @@ def get_pkl_dir() -> str:
             main_pkl_dir = f.readline()
             if not exists(main_pkl_dir): raise
     except: main_pkl_dir = join(working_dir, "Tasker_list.pkl") # 工作目录
+    # 命令行传入pkl路径（优先）
+    for arg in argv:
+        arg_pair = arg.split(" ", 1)
+        if arg_pair[0] == "main_pkl_dir":
+            try:
+                if exists(arg_pair[1]):
+                    if arg_pair[1].endswith(".pkl"):
+                        return arg_pair[1]
+            except IndexError: pass
     return main_pkl_dir
 
 def read_pkl() -> list:
