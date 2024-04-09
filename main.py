@@ -176,6 +176,7 @@ def read_pkl() -> list:
         main_tasker_list = read_from_pkl(main_pkl_dir)
     except FileNotFoundError:
         system_msg(f"没有可用的pkl数据文件\"{main_pkl_dir}\"")
+        main_tasker_list = []
         save_pkl(main_tasker_list, main_pkl_dir)
     except ModuleNotFoundError as e:
         system_msg(f"缺少模块\"{str(e).split("'")[1]}\"，请检查目录\"./package/\"或尝试运行\"./安装.cmd\"安装所需依赖")

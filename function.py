@@ -63,7 +63,10 @@ def create_str_index_list(input_list:list, start_index = 0, heading = False):
     return str_index_list
 
 def read_from_pkl(dir:str):
-    pkl_file = open(dir, "rb")
+    try:
+        pkl_file = open(dir, "rb")
+    except FileNotFoundError: # 将raise的异常返回给调用（main.py）
+        raise FileNotFoundError
     return_object = pickle.load(pkl_file)
     pkl_file.close()
     return return_object
