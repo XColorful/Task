@@ -146,6 +146,7 @@ def backup_pkl(data, dir:str, system_pkg:dict, interval : int = 3, backup_total 
         file_basename = basename(pkl_file_list[-1])
         last_backup_time = datetime.strptime(file_basename[7:28], "%Y_%m_%d - %H-%M-%S")
         # 如果没超过
+        backup_count = len(pkl_file_list) + 1
         if (current_date - last_backup_time).days < date_interval: pass
         else:
             display_last_backup_time = f"（上次备份：{last_backup_time.strftime("%Y_%m_%d - %H-%M-%S")}）"
@@ -155,7 +156,6 @@ def backup_pkl(data, dir:str, system_pkg:dict, interval : int = 3, backup_total 
             system_pkg["system_msg"](f"自动备份pkl文件至\"{backup_dir}\"")
             system_pkg["body_msg"]([f"文件大小：{file_size_str(backup_dir)}", f"备份间隔：{date_interval}天{display_last_backup_time}", f"备份总数：{backup_count}/{backup_total}"])
     # pkl数量超过backup_total，则删除最老的一个
-    backup_count = len(pkl_file_list) + 1
     if backup_count > backup_total:
         remove(pkl_file_list[0])
         backup_count -= 1
