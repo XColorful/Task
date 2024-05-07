@@ -1,5 +1,5 @@
 def command_input(msg_str = "") -> list:
-    return []
+    return [""]
 
 def normal_input(msg_str = "") -> str:
     return ""
