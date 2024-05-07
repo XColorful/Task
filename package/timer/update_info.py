@@ -1,6 +1,6 @@
 from .function import YYYY_MM_DD
 
-def account_update_info(self, system_pkg):
+def timer_update_info(self, system_pkg) -> tuple:
     block_list = system_pkg["BLOCK_LIST"] + [" "]
     
     if self.tasker_label == "": # 添加Tasker标签
@@ -18,10 +18,10 @@ def account_update_info(self, system_pkg):
         for task_template in system_pkg["ex_task_template_list"]:
             if task_template.version != self.version: continue
             self.task_template.append(task_template)
-        # 确认是否含有account模板
+        # 确认是否含有timer模板
         if self.task_template == []: # 无可用task模板类型
-            system_pkg["system_msg"]("没有可用的task模板类型（account）")
-            return (system_pkg["CONDITION_SUCCESS"], "无可用task模板类型（account）")
+            system_pkg["system_msg"](f"没有可用的task模板类型（{self.type}）")
+            return (system_pkg["CONDITION_SUCCESS"], f"无可用task模板类型（{self.type}）")
     
     if self.create_date == "": # 更新创建日期
         self.create_date = YYYY_MM_DD()
