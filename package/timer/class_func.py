@@ -4,15 +4,15 @@ from .function import convert_to_int, YYYY_MM_DD, YYYY_MM_DD_HH_MM, get_not_end_
 
 def check_tasker(tasker, system_pkg) -> None:
     for task_template in tasker.task_template:
-        if task_template.type == "timer":
-            return None
+        if task_template.version == "timer":
+            return True
     system_pkg["system_msg"](f"Tasker（{tasker.tasker_label}）缺少timer类task")
-    return None
-def make_timer_template(tasker):
+    return False
+def make_timer_template(tasker) -> object | None:
     """此函数默认tasker.task_template含有timer类task"""
     for task_template in tasker.task_template:
-        if task_template.type == "timer":
-            return 
+        if task_template.version == "timer":
+            return task_template()
 def create_timer_template(tasker, system_pkg) -> object | None:
     if not check_tasker(tasker, system_pkg):
         return None
@@ -34,10 +34,10 @@ def check_YYYY_MM_DD_HH_SS_format(date_str) -> bool:
         return True
     except ValueError:
         return False
-def get_YYYY_MM_DD_HH_SS_input(system_pkg, allow_empty = False) -> str | bool:
+def get_YYYY_MM_DD_HH_SS_input(adjuct_str, system_pkg, allow_empty = False) -> str | bool:
     while True:
         current_YYYY_MM_DD_HH_SS = YYYY_MM_DD_HH_MM()
-        input_conditon, user_input = system_pkg["block_input"](f"日期({current_YYYY_MM_DD_HH_SS})")
+        input_conditon, user_input = system_pkg["block_input"](f"{adjuct_str}日期({current_YYYY_MM_DD_HH_SS})")
         # 检查输入
         if input_conditon == False: return False # EXIT
         elif input_conditon == None:
@@ -52,7 +52,7 @@ def get_YYYY_MM_DD_HH_SS_input(system_pkg, allow_empty = False) -> str | bool:
             system_pkg["tips_msg"]("格式：YYYY_MM_DD-HH:SS")
             continue
 def get_start_time_input(system_pkg):
-    return get_YYYY_MM_DD_HH_SS_input(system_pkg)
+    return get_YYYY_MM_DD_HH_SS_input("start", system_pkg)
 def get_attribute_input(system_pkg) -> str | bool:
     input_condition, user_input = system_pkg["block_input"]("属性(可选)")
     if input_condition == False: return False # EXIT
@@ -69,7 +69,7 @@ def get_comment_input(system_pkg) -> str | bool:
     elif input_condition == None: return "" # ""
     return user_input
 def get_end_time_input(system_pkg):
-    return get_YYYY_MM_DD_HH_SS_input(system_pkg, allow_empty=True)
+    return get_YYYY_MM_DD_HH_SS_input("end", system_pkg, allow_empty=True)
 def input_timer_task_info(tasker_config, system_pkg) -> list[str] | bool:
     input_list = []
     for input_func in [get_start_time_input, # start_time
@@ -82,7 +82,7 @@ def input_timer_task_info(tasker_config, system_pkg) -> list[str] | bool:
         input_list.append(user_input)
     current_date = YYYY_MM_DD()
     input_list.append(current_date) # create_date
-    build_list = [system_pkg["TYPE_EXTRA_TASKER"], "timer"]
+    build_list = [system_pkg["TYPE_EXTRA_TASKER"], "timer"] + [""] * 6
     build_list[2] = current_date # create_date
     build_list[3] = input_list[0] # start_time
     build_list[4] = input_list[4] # end_time
@@ -113,7 +113,7 @@ def get_unfinished_timer_index(parameter, tasker, system_pkg) -> int | bool:
         # 显示未完成的timer类task
         not_end_timer_index = get_not_end_timer_index(tasker)
         if not_end_timer_index == []:
-            system_pkg["无未完成的timer类task"]
+            system_pkg["system_msg"]("无未完成的timer类task")
             return None
         else:
             show_unfinished_timer(not_end_timer_index, tasker, system_pkg)
@@ -182,6 +182,8 @@ class timer_tasker_func(extra_tasker_func_template):
     def end(self, parameter, tasker, system_pkg) -> None:
         """输入参数为指示索引（第几个未完成的timer类task）"""
         unfinished_timer_index = get_unfinished_timer_index(parameter, tasker, system_pkg)
+        if unfinished_timer_index == None:
+            return None
         current_YYYY_MM_DD_HH_MM = YYYY_MM_DD_HH_MM()
         tasker.task_list[unfinished_timer_index].end_time = current_YYYY_MM_DD_HH_MM
         return None

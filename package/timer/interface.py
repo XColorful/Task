@@ -2,6 +2,8 @@ from .function import convert_to_int, YYYY_MM_DD, get_not_end_timer_index, show_
 from datetime import datetime, timedelta
 
 def interface_pre_show(info_dict, tasker, system_pkg):
+    if tasker.function_list == []:
+        system_pkg["system_msg"]("无可用的class_func")
     # 显示未完成的timer
     if info_dict["show_not_end_timer"] == True:
         show_unfinished_timer(info_dict["not_end_timer_index"], tasker, system_pkg)
@@ -24,7 +26,7 @@ def analyze_input(str_input) -> dict:
     return {"cmd":str_input[0], "parameter":parameter}
 def get_interface_input(system_pkg) -> dict | bool:
     while True:
-        interface_input = system_pkg["normal_input"]
+        interface_input = system_pkg["normal_input"]()
         input_dict = analyze_input(interface_input)
         if input_dict["cmd"] == "": continue
         elif input_dict["cmd"] == system_pkg["EXIT"]: return False
@@ -88,7 +90,8 @@ def timer_interface(tasker, system_pkg):
         interface_input_dict = get_interface_input(system_pkg)
         if interface_input_dict == False: return (system_pkg["CONDITION_SUCCESS"], f"{tasker.tasker_label}.interface界面")
         #获取指令索引
-        cmd, parameter = interface_input_dict["cmd", "parameter"]
+        cmd = interface_input_dict["cmd"]
+        parameter = interface_input_dict["parameter"]
         cmd_index_list = get_cmd_index_list(cmd, tasker)
         func_index = choose_cmd(cmd_index_list, tasker, system_pkg)
         if func_index == None: continue

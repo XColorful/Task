@@ -40,28 +40,32 @@ def get_not_end_timer_index(tasker) -> list[int]:
     for index, task in enumerate(tasker.task_list):
         try:
             if task.end_time == "":
-                return_index_list += index
+                return_index_list.append(index)
         except AttributeError: pass
     return return_index_list
 
 def show_unfinished_timer(not_end_timer_index, tasker, system_pkg):
+    system_pkg["normal_msg"](f"--------{tasker.tasker_label}中未完成的timer--------")
     table_list = []
     heading = ["指示索引", "索引", "start_time", "end_time", "属性", "内容", "注释"]
     table_list.append(heading)
     instruct_index = 0 - len(not_end_timer_index)
-    for index in not_end_timer_index:
-        task = tasker.task_list[index]
-        start_time = task.start_time
-        end_time = "未完成" if task.end_time == "" else task.end_time
-        attribute = task.attribute
-        content = task
-        comment = task.comment
-        table_list.append([str(instruct_index),
-                           str(index),
-                           start_time,
-                           end_time,
-                           attribute,
-                           content,
-                           comment])
-        instruct_index += 1
-    system_pkg["table_msg"](table_list)
+    if not_end_timer_index == []:
+        table_list.append([""] * len(table_list[0]))
+    else:
+        for index in not_end_timer_index:
+            task = tasker.task_list[index]
+            start_time = task.start_time
+            end_time = "未完成" if task.end_time == "" else task.end_time
+            attribute = task.attribute
+            content = task
+            comment = task.comment
+            table_list.append([str(instruct_index),
+                            str(index),
+                            str(start_time),
+                            str(end_time),
+                            str(attribute),
+                            str(content),
+                            str(comment)])
+            instruct_index += 1
+    system_pkg["table_msg"](table_list, heading = True)
