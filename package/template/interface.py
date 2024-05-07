@@ -1,0 +1,9 @@
+def df_interface_template(tasker, system_pkg):
+    system_pkg["normal_msg"]("test:df_interface_template")
+    system_pkg["body_msg"]([f"tasker.tasker_name:{tasker.tasker_name}"])
+    return None
+
+def ex_interface_template(tasker, system_pkg):
+    system_pkg["normal_msg"]("test:ex_interface_template")
+    system_pkg["body_msg"]([f"tasker.tasker_name:{tasker.tasker_name}"])
+    return None
