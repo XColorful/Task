@@ -58,7 +58,7 @@ def show_unfinished_timer(not_end_timer_index, tasker, system_pkg):
             start_time = task.start_time
             end_time = "未完成" if task.end_time == "" else task.end_time
             attribute = task.attribute
-            content = task
+            content = task.content
             comment = task.comment
             table_list.append([str(instruct_index),
                             str(index),
