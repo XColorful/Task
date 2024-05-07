@@ -16,7 +16,7 @@ def account_update_info(self, system_pkg):
     if self.task_template == []:
         # 筛选符合版本的task模板类型
         for task_template in system_pkg["ex_task_template_list"]:
-            if task_template.type != self.type: continue
+            if task_template.version != self.version: continue
             self.task_template.append(task_template)
         # 确认是否含有account模板
         if self.task_template == []: # 无可用task模板类型
