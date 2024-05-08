@@ -88,7 +88,7 @@ def input_timer_task_info(tasker_config, system_pkg) -> list[str] | bool:
     build_list[4] = input_list[4] # end_time
     # attribute
     timer_task_df_attribute = tasker_config["timer_task_df_attribute"]
-    build_list[5] = input_list[1] if (input_list[1] != "N/A" or input_list[1] != "") else timer_task_df_attribute
+    build_list[5] = input_list[1] if (input_list[1] != "N/A") else timer_task_df_attribute
     # content
     timer_task_prefix = tasker_config["timer_task_prefix"]
     timer_task_df_content = tasker_config["timer_task_df_content"]
@@ -97,7 +97,7 @@ def input_timer_task_info(tasker_config, system_pkg) -> list[str] | bool:
             build_list[6] = timer_task_df_content
         else:
             system_pkg["system_msg"]("Tasker未配置默认timer类task内容(保留原输入)")
-    build_list[6] = timer_task_prefix + input_list[2]
+    build_list[6] = timer_task_prefix + build_list[6]
     build_list[7] = input_list[3] # comment
     return build_list
 
