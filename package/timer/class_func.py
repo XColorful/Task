@@ -132,8 +132,52 @@ def get_unfinished_timer_index(parameter, tasker, system_pkg) -> int | bool:
     except IndexError:
         system_pkg["system_msg"](f"指示索引\"{select_index}\"不符合")
         return False
+
+
+def show_set_config_guide(system_pkg):
+    system_pkg["tips_msg"]("输入<Enter>跳过设置")
+    system_pkg["tips_msg"]("输入\"n\"清除原先预设")
+def set_timer_task_df_attribute(tasker, system_pkg) -> bool | None:
+    system_pkg["normal_msg"](f"原timer默认属性：{tasker.timer_task_df_attribute}")
+    input_condition, user_input = system_pkg["block_input"]("设置timer默认属性")
+
+    if input_condition == False: return False
+    elif user_input == "n":
+        tasker.timer_task_df_attribute = ""
+        system_pkg["system_msg"]("已清除默认timer默认属性")
+    elif input_condition == None: return None
+    else:
+        tasker.timer_task_df_attribute = user_input
+        system_pkg["system_msg"](f"默认timer属性更改为{tasker.timer_task_df_attribute}")
+    return None
+def set_timer_task_prefix(tasker, system_pkg):
+    system_pkg["normal_msg"](f"原timer默认内容前缀：{tasker.timer_task_prefix}")
+    input_condition, user_input = system_pkg["block_input"]("设置timer默认内容前缀")
     
+    if input_condition == False: return False
+    elif user_input == "n":
+        tasker.timer_task_prefix = ""
+        system_pkg["system_msg"]("已清除timer默认内容前缀")
+    elif input_condition == None: return None
+    else:
+        tasker.timer_task_prefix = user_input
+        system_pkg["system_msg"](f"默认timer默认内容前缀更改为{tasker.timer_task_prefix}")
+    return None
+def set_timer_task_df_content(tasker, system_pkg):
+    system_pkg["normal_msg"](f"原timer默认内容：{tasker.timer_task_df_content}")
+    input_condition, user_input = system_pkg["block_input"]("设置timer默认内容")
     
+    if input_condition == False: return False
+    elif user_input == "n":
+        tasker.timer_task_df_content = ""
+        system_pkg["system_msg"]("已清除timer默认内容")
+    elif input_condition == None: return None
+    else:
+        tasker.timer_task_df_content = user_input
+        system_pkg["system_msg"](f"默认timer默认内容更改为{tasker.timer_task_df_content}")
+    return None
+
+
 class timer_tasker_func(extra_tasker_func_template):
     def __init__(self):
         super().__init__()
@@ -171,7 +215,11 @@ class timer_tasker_func(extra_tasker_func_template):
         pass
 
     def config(self, parameter, tasker, system_pkg) -> None:
-        pass
+        show_set_config_guide(system_pkg)
+        for func in [set_timer_task_df_attribute,
+                     set_timer_task_prefix,
+                     set_timer_task_df_content]:
+            if func(tasker, system_pkg) == False: return None
 
     def delete(self, parameter, tasker, system_pkg) -> None:
         pass
