@@ -1,12 +1,33 @@
 from .function import convert_to_int, YYYY_MM_DD, get_not_end_timer_index, show_unfinished_timer
 from datetime import datetime, timedelta
 
+def show_recent_timer_task(tasker, system_pkg) -> None:
+    recent_task_list = tasker.task_list[-9:]
+    if recent_task_list == []: return None
+    
+    table_list = []
+    heading = ["索引", "start_time", "end_time", "属性", "内容", "注释"]
+    table_list.append(heading)
+    
+    start_index = len(tasker.task_list) - len(recent_task_list)
+    for timer_task in recent_task_list:
+        table_list.append([str(start_index),
+                           str(timer_task.start_time),
+                           str(timer_task.end_time),
+                           str(timer_task.attribute),
+                           str(timer_task.content),
+                           str(timer_task.comment)])
+        start_index += 1
+    
+    system_pkg["table_msg"](table_list, heading = True)
 def interface_pre_show(info_dict, tasker, system_pkg):
     if tasker.function_list == []:
         system_pkg["system_msg"]("无可用的class_func")
     # 显示未完成的timer
     if info_dict["show_not_end_timer"] == True:
         show_unfinished_timer(info_dict["not_end_timer_index"], tasker, system_pkg)
+    # 显示最近几项timer类task
+    show_recent_timer_task(tasker, system_pkg)
 def analyze_input(str_input) -> dict:
     """返回dict{"cmd":str, "parameter":str}"""
     if str_input == "":
