@@ -108,15 +108,15 @@ def show_task_info(timer_task, task_index, system_pkg):
                             f"comment:{timer_task.comment}"])
 
 def get_unfinished_timer_index(parameter, tasker, system_pkg) -> int | bool:
+    not_end_timer_index = get_not_end_timer_index(tasker)
+    if not_end_timer_index == []:
+        system_pkg["system_msg"]("无未完成的timer类task")
+        return None
+    
     user_input = parameter
     if user_input == "":
         # 显示未完成的timer类task
-        not_end_timer_index = get_not_end_timer_index(tasker)
-        if not_end_timer_index == []:
-            system_pkg["system_msg"]("无未完成的timer类task")
-            return None
-        else:
-            show_unfinished_timer(not_end_timer_index, tasker, system_pkg)
+        show_unfinished_timer(not_end_timer_index, tasker, system_pkg)
         user_input = system_pkg["normal_input"](f"输入指示索引")
     # EXIT
     if user_input == system_pkg["EXIT"]: return False
