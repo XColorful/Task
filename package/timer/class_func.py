@@ -230,7 +230,7 @@ class timer_tasker_func(extra_tasker_func_template):
     def end(self, parameter, tasker, system_pkg) -> None:
         """输入参数为指示索引（第几个未完成的timer类task）"""
         unfinished_timer_index = get_unfinished_timer_index(parameter, tasker, system_pkg)
-        if unfinished_timer_index == None:
+        if unfinished_timer_index == None or unfinished_timer_index == False:
             return None
         current_YYYY_MM_DD_HH_MM = YYYY_MM_DD_HH_MM()
         tasker.task_list[unfinished_timer_index].end_time = current_YYYY_MM_DD_HH_MM
