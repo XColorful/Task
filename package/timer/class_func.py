@@ -3,6 +3,7 @@ from default_class_func import extra_tasker_func_template
 from .function import convert_to_int, YYYY_MM_DD, YYYY_MM_DD_HH_MM, get_not_end_timer_index, show_unfinished_timer, find_timer_in_all
 
 def check_tasker(tasker, system_pkg) -> None:
+    """检查是否有模板"""
     for task_template in tasker.task_template:
         if task_template.version == "timer":
             return True
@@ -387,8 +388,8 @@ class timer_tasker_func(extra_tasker_func_template):
         # 补充task信息
         tasker_config = get_tasker_config(tasker)
         build_list = input_timer_task_info(tasker_config, system_pkg)
-        if build_list != False:
-            timer_task.build(build_list)
+        if build_list == False: return None
+        timer_task.build(build_list)
         # 显示创建的task
         show_task_info(timer_task, len(tasker.task_list), system_pkg)
         tasker.task_list.append(timer_task)
