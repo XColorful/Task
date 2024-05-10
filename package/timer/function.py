@@ -69,3 +69,76 @@ def show_unfinished_timer(not_end_timer_index, tasker, system_pkg):
                             str(comment)])
             instruct_index += 1
     system_pkg["table_msg"](table_list, heading = True)
+
+def is_time_in_duration(input_str, timer_task) -> bool:
+    # 将字符串转换为datetime对象
+    try:
+        input_time = datetime.strptime(input_str, "%Y_%m_%d-%H:%M")
+        start_time = datetime.strptime(timer_task.start_time, "%Y_%m_%d-%H:%M")
+        end_time = datetime.strptime(timer_task.end_time, "%Y_%m_%d-%H:%M")
+    except ValueError: # 格式不符
+        return False
+
+    # 如果end_time比start_time早，那么仅判断input_str是否和start_time或end_time相同
+    if end_time < start_time:
+        return input_time == start_time or input_time == end_time
+
+    # 判断input_str的时间是否在start_time和end_time之间，包括两端点
+    return start_time <= input_time <= end_time
+
+def is_str_eq_attribute(input_str, timer_task) -> bool:
+    return input_str == timer_task.attribute
+
+def is_str_in_content(input_str, timer_task) -> bool:
+    return input_str in timer_task.content
+
+def is_str_in_comment(input_str, timer_task) -> bool:
+    return input_str in timer_task.comment
+
+def is_str_in_index(input_str, tasker) -> int | None:
+    index = convert_to_int(input_str)
+    if index == None: return None
+    try:
+        tasker.task_list[index]
+        return index
+    except IndexError:
+        return None
+
+def find_timer_in_all(input_str, tasker) -> dict[list]:
+    """返回字典{
+            "time" -> list[int],
+            
+            "attribute" -> list[int],
+            
+            "content" -> intlist[int],
+            
+            "comment" -> list[int],
+            
+            "index" -> int | None}"""
+    task_list = tasker.task_list
+    time_index = []
+    attr_index = []
+    content_index = []
+    comment_index = []
+    
+    for index, timer_task in enumerate(task_list):
+        if is_time_in_duration(input_str, timer_task): time_index.append(index)
+        if is_str_eq_attribute(input_str, timer_task): attr_index.append(index)
+        if is_str_in_content(input_str, timer_task): content_index.append(index)
+        if is_str_in_comment(input_str, timer_task): comment_index.append(index)
+    
+    timer_index = is_str_in_index(input_str, tasker)
+    
+    return {"time":time_index,
+            "attribute":attr_index,
+            "content":content_index,
+            "comment":comment_index,
+            "index":timer_index}
+
+def find_timer_in_time(input_str, tasker) -> list[int]:
+    time_index = []
+    
+    for index, timer_task in enumerate(tasker.task_list):
+        if is_time_in_duration(input_str, timer_task): time_index.append(index)
+    
+    return time_index

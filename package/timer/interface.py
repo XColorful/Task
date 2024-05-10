@@ -32,22 +32,25 @@ def analyze_input(str_input) -> dict:
     """返回dict{"cmd":str, "parameter":str}"""
     if str_input == "":
         return {"cmd":"", "parameter":""}
-    if str_input[0] == "+":
-        return {"cmd":"search", "parameter":str_input}
+    elif str_input[0] == "+":
+        try:
+            str_input = str_input[1:]
+            return {"cmd":"search", "parameter":str_input}
+        except IndexError: return {"cmd":"search", "parameter":""}
     elif str_input[0] == "/":
         try:
             str_input = str_input[1:]
         except IndexError: return {"cmd":"", "parameter":""}
-    
+    # 一般输入
     str_input = str_input.split(" ", 1)
     try:
         parameter = str_input[1]
     except IndexError: parameter = ""
     
     return {"cmd":str_input[0], "parameter":parameter}
-def get_interface_input(system_pkg) -> dict | bool:
+def get_interface_input(name, system_pkg) -> dict | bool:
     while True:
-        interface_input = system_pkg["normal_input"]()
+        interface_input = system_pkg["normal_input"](f"{name}")
         input_dict = analyze_input(interface_input)
         if input_dict["cmd"] == "": continue
         elif input_dict["cmd"] == system_pkg["EXIT"]: return False
@@ -108,7 +111,7 @@ def timer_interface(tasker, system_pkg):
         # interface预显示内容
         interface_pre_show(show_info_dict, tasker, system_pkg)
         # 获取输入
-        interface_input_dict = get_interface_input(system_pkg)
+        interface_input_dict = get_interface_input(tasker.tasker_label, system_pkg)
         if interface_input_dict == False: return (system_pkg["CONDITION_SUCCESS"], f"{tasker.tasker_label}.interface界面")
         #获取指令索引
         cmd = interface_input_dict["cmd"]
@@ -121,3 +124,5 @@ def timer_interface(tasker, system_pkg):
         # 刷新未完成的timer列表（索引）
         show_info_dict["not_end_timer_index"] = optimized_get_not_end_timer_index(show_info_dict["not_end_timer_index"], tasker)
         show_info_dict["show_not_end_timer"] = True
+        # 空行
+        system_pkg["normal_msg"]("")

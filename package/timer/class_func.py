@@ -1,6 +1,6 @@
 from datetime import datetime
 from default_class_func import extra_tasker_func_template
-from .function import convert_to_int, YYYY_MM_DD, YYYY_MM_DD_HH_MM, get_not_end_timer_index, show_unfinished_timer
+from .function import convert_to_int, YYYY_MM_DD, YYYY_MM_DD_HH_MM, get_not_end_timer_index, show_unfinished_timer, find_timer_in_all
 
 def check_tasker(tasker, system_pkg) -> None:
     for task_template in tasker.task_template:
@@ -28,19 +28,25 @@ def get_tasker_config(tasker) -> dict:
         config_dict["timer_task_df_content"] = tasker.timer_task_df_content
     except AttributeError: pass
     return config_dict
+
+def get_time_input(date_type:str, current_YYYY_MM_DD_HH_SS, system_pkg) -> str | None | bool:
+    user_input = system_pkg["normal_input"](f"{date_type}日期({current_YYYY_MM_DD_HH_SS})")
+    if user_input == system_pkg["EXIT"]: return False
+    elif user_input == "": return None
+    else: return user_input
 def check_YYYY_MM_DD_HH_SS_format(date_str) -> bool:
     try:
         datetime.strptime(date_str, '%Y_%m_%d-%H:%M')
         return True
     except ValueError:
         return False
-def get_YYYY_MM_DD_HH_SS_input(adjuct_str, system_pkg, allow_empty = False) -> str | bool:
+def get_YYYY_MM_DD_HH_SS_input(date_type, system_pkg, allow_empty = False) -> str | bool:
     while True:
         current_YYYY_MM_DD_HH_SS = YYYY_MM_DD_HH_MM()
-        input_conditon, user_input = system_pkg["block_input"](f"{adjuct_str}日期({current_YYYY_MM_DD_HH_SS})")
+        user_input = get_time_input(date_type, current_YYYY_MM_DD_HH_SS, system_pkg)
         # 检查输入
-        if input_conditon == False: return False # EXIT
-        elif input_conditon == None:
+        if user_input == False: return False # EXIT
+        elif user_input == None:
             if allow_empty == False:
                 return current_YYYY_MM_DD_HH_SS # ""
             else: return ""
@@ -48,7 +54,7 @@ def get_YYYY_MM_DD_HH_SS_input(adjuct_str, system_pkg, allow_empty = False) -> s
         if check_YYYY_MM_DD_HH_SS_format(user_input):
             return user_input
         else:
-            system_pkg["normal_msg"](f"日期格式\"{user_input[1]}\"错误")
+            system_pkg["normal_msg"](f"日期格式\"{user_input}\"错误")
             system_pkg["tips_msg"]("格式：YYYY_MM_DD-HH:SS")
             continue
 def get_start_time_input(system_pkg):
@@ -102,6 +108,7 @@ def input_timer_task_info(tasker_config, system_pkg) -> list[str] | bool:
     return build_list
 
 def show_task_info(timer_task, task_index, system_pkg):
+    """显示timer_task信息，索引为参数值"""
     system_pkg["normal_msg"](f"[{task_index}]|<{timer_task.attribute}>|{timer_task.content}")
     system_pkg["body_msg"]([f"start_time:{timer_task.start_time}",
                             f"end_time:{timer_task.end_time}",
@@ -177,6 +184,181 @@ def set_timer_task_df_content(tasker, system_pkg):
         system_pkg["system_msg"](f"默认timer默认内容更改为{tasker.timer_task_df_content}")
     return None
 
+def show_tips_for_select_timer_task(system_pkg) -> None:
+    system_pkg["tips_msg"]("输入timer类task的{索引，时间，属性，内容，注释}之一")
+    system_pkg["tips_msg"]("输入时间应在其持续时间内，格式形如\"YYYY_MM_DD-HH:SS\"")
+
+def get_the_search_result(search_result_dict) -> list[tuple]:
+    """输入字典包含"time", "attribute", "content", "comment", "index"键，数据由find_timer_in_all()返回"""
+    options = []
+    for key in ["time", "attribute", "content", "comment", "index"]:
+        if search_result_dict[key] != []:
+            options.append( (search_result_dict[key], key) )
+    return options
+
+def show_search_result(task_list, index, category, system_pkg) -> None:
+    system_pkg["head_msg"](f"搜索类别：{category}")
+    show_task_info(task_list[index], index, system_pkg)
+    return None
+
+def show_timer_task_with_increase_index(index_list, start_index, task_list, system_pkg) -> None:
+    instruct_index = start_index
+    table_list = []
+    heading = ["指示索引", "索引", "start_time", "end_time", "属性", "内容", "comment"]
+    table_list.append(heading)
+    for index in index_list:
+        timer_task = task_list[index]
+        table_list.append([str(instruct_index),
+                           str(index),
+                           str(timer_task.start_time),
+                           str(timer_task.end_time),
+                           str(timer_task.attribute),
+                           str(timer_task.content),
+                           str(timer_task.comment)])
+        instruct_index += 1
+    system_pkg["table_msg"](table_list, heading = True)
+    return None
+
+def show_many_search_result(options, task_list, system_pkg) -> list:
+    combine_index_list = []
+    display_index = 0
+    for (index_list, category) in options:
+        if (index_list == None) or (index_list == []): continue
+
+        system_pkg["head_msg"](f"搜索类别：{category}")
+        show_timer_task_with_increase_index(index_list, display_index, task_list, system_pkg)
+        
+        display_index += len(index_list)
+        combine_index_list += index_list
+    return combine_index_list
+
+def choose_from_all_index_list(combine_index_list, system_pkg) -> int | None:
+    user_input = system_pkg["normal_input"]("输入指示索引")
+    if user_input == system_pkg["EXIT"]:
+        return None
+    convert_result = convert_to_int(user_input)
+    
+    if convert_result == None:
+        system_pkg["system_Msg"](f"指示索引\"{user_input}\"格式错误")
+        return None
+    user_input = convert_result
+    try:
+        combine_index_list[user_input]
+        return combine_index_list[user_input]
+    except IndexError:
+        system_pkg["system_msg"](f"指示索引{user_input}不在列表范围内")
+        return None
+    
+def select_from_search_result_options(options:list[tuple], task_list, system_pkg) -> int | None:
+    combine_index_list = show_many_search_result(options, task_list, system_pkg)
+    choose = choose_from_all_index_list(combine_index_list, system_pkg)
+    if choose == None: return None
+    return choose
+
+def choose_search_result(user_input, search_result_dict:dict, task_list, system_pkg) -> int | None:
+    """输入字典包含"time", "attribute", "content", "comment", "index"键，数据由find_timer_in_all()返回"""
+    time_index:list[int] = search_result_dict["time"]
+    attr_index:list[int] = search_result_dict["attribute"]
+    content_index:list[int] = search_result_dict["content"]
+    comment_index:list[int] = search_result_dict["comment"]
+    timer_index:int | None = search_result_dict["index"]
+    
+    result_count =  len(time_index) + len(attr_index) + len(content_index) + len(comment_index)
+    if timer_index != None: result_count += 1
+
+    if result_count == 0:
+        system_pkg["system_msg"](f"未找到\"{user_input}\"")
+        return None
+    elif result_count == 1:
+        options = get_the_search_result(search_result_dict)
+        index, category = options[0][0], options[0][1]
+        show_search_result(task_list, index, category, system_pkg)
+        return index
+    elif result_count > 1:
+        options = get_the_search_result(search_result_dict)
+        choose = select_from_search_result_options(options, task_list, system_pkg)
+        if choose == None: return None
+        show_task_info(task_list[choose], choose, system_pkg)
+        return choose
+    
+def select_timer_task(user_input, tasker, system_pkg) -> int | None:
+    """int -> 索引
+    None -> system_pkg["EXIT"]"""
+    if user_input == "":
+        show_tips_for_select_timer_task(system_pkg)
+        user_input = system_pkg["normal_input"]("输入内容选定task")
+
+    if user_input == system_pkg["EXIT"]: return None
+    
+    search_result_dict = find_timer_in_all(user_input, tasker)
+    
+    return choose_search_result(user_input, search_result_dict, tasker.task_list, system_pkg)
+
+def edit_timer_task(index, tasker, system_pkg):
+    timer_task = tasker.task_list[index]
+    
+    # task.start_time
+    system_pkg["normal_msg"](f"task.start_time：{timer_task.start_time}")
+    user_input = get_YYYY_MM_DD_HH_SS_input("start", system_pkg, allow_empty=True)
+    if user_input == False: return None
+    elif user_input == "": pass
+    else:
+        system_pkg["system_msg"](f"start_time：{tasker.task_list[index].start_time} -> {user_input}")
+        tasker.task_list[index].start_time = user_input
+    
+    # task.attribute
+    system_pkg["normal_msg"](f"task.attribute：{timer_task.attribute}")
+    user_input = get_attribute_input(system_pkg)
+    if user_input == False: return None
+    elif user_input == "N/A": pass
+    else:
+        system_pkg["system_msg"](f"attribute：{tasker.task_list[index].attribute} -> {user_input}")
+        tasker.task_list[index].attribute = user_input
+    
+    # task.content
+    system_pkg["normal_msg"](f"task.content：{timer_task.content}")
+    user_input = get_content_input(system_pkg)
+    if user_input == False: return None
+    elif user_input == "n":
+        system_pkg["system_msg"](f"content：{tasker.task_list[index].content} -> {tasker.timer_task_df_content}")
+        tasker.task_list[index].content = tasker.timer_task_df_content
+    else:
+        system_pkg["system_msg"](f"content：{tasker.task_list[index].content} -> {user_input}")
+        tasker.task_list[index].content = tasker.timer_task_prefix + user_input
+    
+    # task.comment
+    system_pkg["normal_msg"](f"task.comment：{timer_task.comment}")
+    system_pkg["tips_msg"]("输入\"none\"可清除注释")
+    user_input = get_comment_input(system_pkg)
+    if user_input == False: return None
+    elif user_input == "": pass
+    elif user_input == "none":
+        system_pkg["system_msg"]("已清除注释")
+        tasker.task_list[index].comment = ""
+    else:
+        system_pkg["system_msg"](f"comment：{tasker.task_list[index].comment} -> {user_input}")
+        tasker.task_list[index].comment = user_input
+    
+    # task.end_time
+    system_pkg["normal_msg"](f"task.end_time：{timer_task.end_time}")
+    user_input = get_end_time_input(system_pkg)
+    if user_input == False: return None
+    elif user_input == "": pass
+    else:
+        system_pkg["system_msg"](f"end_time：{tasker.task_list[index].end_time} -> {user_input}")
+        tasker.task_list[index].end_time = user_input
+    
+    return None
+
+def get_delete_confirm(system_pkg) -> bool:
+    user_input = system_pkg["normal_input"]("确认删除该task(y/n)")
+    if user_input != "y": return False
+    return True
+
+def show_select_del_task_info(timer_task, select_index, system_pkg):
+    system_pkg["normal_msg"]("")
+    system_pkg["normal_msg"]("--------选定的timer_tasker信息--------")
+    show_task_info(timer_task, select_index, system_pkg)
 
 class timer_tasker_func(extra_tasker_func_template):
     def __init__(self):
@@ -197,6 +379,7 @@ class timer_tasker_func(extra_tasker_func_template):
     
     def new(self, parameter, tasker, system_pkg) -> None:
         """创建timer类task，暂无可用参数"""
+        system_pkg["normal_msg"]("--------new界面--------")
         # 创建timer类task
         timer_task = create_timer_template(tasker, system_pkg)
         if timer_task == None: return None
@@ -212,9 +395,13 @@ class timer_tasker_func(extra_tasker_func_template):
         return None
 
     def edit(self, parameter, tasker, system_pkg) -> None:
-        pass
+        system_pkg["normal_msg"]("--------edit界面--------")
+        select_index = select_timer_task(parameter, tasker, system_pkg)
+        edit_timer_task(select_index, tasker, system_pkg)
+        return None
 
     def config(self, parameter, tasker, system_pkg) -> None:
+        system_pkg["normal_msg"]("--------config界面--------")
         show_set_config_guide(system_pkg)
         for func in [set_timer_task_df_attribute,
                      set_timer_task_prefix,
@@ -222,13 +409,20 @@ class timer_tasker_func(extra_tasker_func_template):
             if func(tasker, system_pkg) == False: return None
 
     def delete(self, parameter, tasker, system_pkg) -> None:
-        pass
-
-    def search(self, parameter, tasker, system_pkg) -> None:
-        pass
+        select_index = select_timer_task(parameter, tasker, system_pkg)
+        
+        show_select_del_task_info(tasker.task_list[select_index], select_index, system_pkg)
+        
+        if get_delete_confirm(system_pkg):
+            del tasker.task_list[select_index]
+            system_pkg["system_msg"]("已删除task")
+        
+    def search(self, parameter, tasker, system_pkg) -> int:
+        return select_timer_task(parameter, tasker, system_pkg)
 
     def end(self, parameter, tasker, system_pkg) -> None:
         """输入参数为指示索引（第几个未完成的timer类task）"""
+        system_pkg["normal_msg"]("--------end界面--------")
         unfinished_timer_index = get_unfinished_timer_index(parameter, tasker, system_pkg)
         if unfinished_timer_index == None or unfinished_timer_index == False:
             return None
