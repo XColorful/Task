@@ -28,19 +28,25 @@ def get_tasker_config(tasker) -> dict:
         config_dict["timer_task_df_content"] = tasker.timer_task_df_content
     except AttributeError: pass
     return config_dict
+
+def get_time_input(date_type:str, current_YYYY_MM_DD_HH_SS, system_pkg) -> str | None | bool:
+    user_input = system_pkg["normal_input"](f"{date_type}日期({current_YYYY_MM_DD_HH_SS})")
+    if user_input == system_pkg["EXIT"]: return False
+    elif user_input == "": return None
+    else: return user_input
 def check_YYYY_MM_DD_HH_SS_format(date_str) -> bool:
     try:
         datetime.strptime(date_str, '%Y_%m_%d-%H:%M')
         return True
     except ValueError:
         return False
-def get_YYYY_MM_DD_HH_SS_input(adjuct_str, system_pkg, allow_empty = False) -> str | bool:
+def get_YYYY_MM_DD_HH_SS_input(date_type, system_pkg, allow_empty = False) -> str | bool:
     while True:
         current_YYYY_MM_DD_HH_SS = YYYY_MM_DD_HH_MM()
-        input_conditon, user_input = system_pkg["block_input"](f"{adjuct_str}日期({current_YYYY_MM_DD_HH_SS})")
+        user_input = get_time_input(date_type, current_YYYY_MM_DD_HH_SS, system_pkg)
         # 检查输入
-        if input_conditon == False: return False # EXIT
-        elif input_conditon == None:
+        if user_input == False: return False # EXIT
+        elif user_input == None:
             if allow_empty == False:
                 return current_YYYY_MM_DD_HH_SS # ""
             else: return ""
@@ -48,7 +54,7 @@ def get_YYYY_MM_DD_HH_SS_input(adjuct_str, system_pkg, allow_empty = False) -> s
         if check_YYYY_MM_DD_HH_SS_format(user_input):
             return user_input
         else:
-            system_pkg["normal_msg"](f"日期格式\"{user_input[1]}\"错误")
+            system_pkg["normal_msg"](f"日期格式\"{user_input}\"错误")
             system_pkg["tips_msg"]("格式：YYYY_MM_DD-HH:SS")
             continue
 def get_start_time_input(system_pkg):
@@ -339,8 +345,8 @@ def edit_timer_task(index, tasker, system_pkg):
     if user_input == False: return None
     elif user_input == "": pass
     else:
-        system_pkg["system_msg"](f"end_time：{tasker.task_list[index].end_Time} -> {user_input}")
-        tasker.task_list[index].end_Time = user_input
+        system_pkg["system_msg"](f"end_time：{tasker.task_list[index].end_time} -> {user_input}")
+        tasker.task_list[index].end_time = user_input
     
     return None
 
