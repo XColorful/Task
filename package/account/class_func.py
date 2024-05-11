@@ -1,5 +1,5 @@
 from default_class_func import extra_tasker_func_template
-from .function import YYYY_MM_DD, convert_to_int
+from .function import YYYY_MM_DD, convert_to_int, select_account_task, show_account_detail
 from pyperclip import copy as py_cp
 
 # 封装函数--------+--------+--------+--------+--------+--------+--------+--------+ Begin
@@ -87,6 +87,10 @@ def get_password(tasker, index, system_pkg):
     system_pkg["system_msg"](f"{task.account_type}{show_alias}.password为空")
 # 封装函数--------+--------+--------+--------+--------+--------+--------+--------+ End
 
+def get_delete_confirm(system_pkg) -> str | None:
+    user_input = system_pkg["normal_input"]("确认删除(y/n)")
+    if user_input == system_pkg["EXIT"]: return None
+    else: return user_input
 
 class account_tasker_func(extra_tasker_func_template):
     def __init__(self):
@@ -288,8 +292,15 @@ class account_tasker_func(extra_tasker_func_template):
         # 返回get索引
         return [label_index, task_index, account_type_index, linked_account_index]
     
-    def search(self, parameter, tasker, system_pkg): # 详细搜索，显示详细信息
-        pass
+    def search(self, parameter, tasker, system_pkg): # 不进行脱敏显示
+        user_input = select_account_task(parameter, tasker, system_pkg)
+        if user_input == None: return None
+        else:
+            account_index = user_input
+            system_pkg["normal_msg"]("--------搜索结果--------")
+            show_account_detail(tasker.task_list[account_index], system_pkg)
+            system_pkg["normal_msg"]("")
+        return None
     
     def update(self, parameter, tasker, system_pkg): # label, account_type
         # 调用get, linked_account = False，返回None则退出，返回None则提示没搜到
@@ -304,5 +315,14 @@ class account_tasker_func(extra_tasker_func_template):
         pass
     
     def delete(self, parameter, tasker, system_pkg): # label, account_type
-        # 调用get, linked_account = False，返回None则退出，返回None则提示没搜到
-        pass
+        user_input = select_account_task(parameter, tasker, system_pkg)
+        if user_input == None: return None
+        else:
+            account_index = user_input
+            system_pkg["normal_msg"]("--------删除预览--------")
+            show_account_detail(tasker.task_list[account_index], system_pkg)
+            system_pkg["normal_msg"]("")
+            if get_delete_confirm(system_pkg) == "y":
+                del tasker.task_list[account_index]
+                system_pkg["system_msg"]("已删除task")
+        return None
