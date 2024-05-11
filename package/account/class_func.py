@@ -315,5 +315,14 @@ class account_tasker_func(extra_tasker_func_template):
         pass
     
     def delete(self, parameter, tasker, system_pkg): # label, account_type
-        # 调用get, linked_account = False，返回None则退出，返回None则提示没搜到
-        pass
+        user_input = select_account_task(parameter, tasker, system_pkg)
+        if user_input == None: return None
+        else:
+            account_index = user_input
+            system_pkg["normal_msg"]("--------删除预览--------")
+            show_account_detail(tasker.task_list[account_index], system_pkg)
+            system_pkg["normal_msg"]("")
+            if get_delete_confirm(system_pkg) == "y":
+                del tasker.task_list[account_index]
+                system_pkg["system_msg"]("已删除task")
+        return None
