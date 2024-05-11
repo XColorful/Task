@@ -18,10 +18,14 @@ def a_is_later_than_b(time_a:str, time_b:str) -> bool:
 def show_account_tasker_info(tasker, system_pkg):
     total_account = 0
     last_date = ""
-    for task in tasker:
-        if task.version == "account": total_account += 1
-        if task.last_date
-    system_pkg
+    for task in tasker.task_list:
+        if task.version == "account":
+            total_account += 1
+        if a_is_later_than_b(task.last_date, last_date):
+            last_date = task.last_date
+    table_list = [[f"--------{tasker.tasker_label}--------"], [f"task总数：{total_account}"], [f"最新密码日期：{last_date}"]]
+    system_pkg["table_msg"](table_list, heading = False)
+    
 def interface_info(system_pkg, show_msg = True):
     interface_label = "account_interface"
     interface_version = "account"
@@ -47,7 +51,7 @@ def show_interface(tasker, system_pkg):
     """
     system_pkg["tips_msg"]("输入\"/info\"获取更多信息")
     system_pkg["tips_msg"]("注意：未指定指令将默认执行search功能")
-    show_tasker_info(tasker, system_pkg)
+    show_account_tasker_info(tasker, system_pkg)
 
 def account_interface(tasker, system_pkg): # tasker -> tasker
     """
