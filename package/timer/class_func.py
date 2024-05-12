@@ -398,6 +398,7 @@ class timer_tasker_func(extra_tasker_func_template):
     def edit(self, parameter, tasker, system_pkg) -> None:
         system_pkg["normal_msg"]("--------edit界面--------")
         select_index = select_timer_task(parameter, tasker, system_pkg)
+        if select_index == None: return None
         edit_timer_task(select_index, tasker, system_pkg)
         return None
 
@@ -411,6 +412,7 @@ class timer_tasker_func(extra_tasker_func_template):
 
     def delete(self, parameter, tasker, system_pkg) -> None:
         select_index = select_timer_task(parameter, tasker, system_pkg)
+        if select_index == None: return None
         
         show_select_del_task_info(tasker.task_list[select_index], select_index, system_pkg)
         
@@ -418,8 +420,10 @@ class timer_tasker_func(extra_tasker_func_template):
             del tasker.task_list[select_index]
             system_pkg["system_msg"]("已删除task")
         
-    def search(self, parameter, tasker, system_pkg) -> int:
-        return select_timer_task(parameter, tasker, system_pkg)
+    def search(self, parameter, tasker, system_pkg) -> int | None:
+        select_index = select_timer_task(parameter, tasker, system_pkg)
+        if select_index == None: return None
+        else: return select_index
 
     def end(self, parameter, tasker, system_pkg) -> None:
         """输入参数为指示索引（第几个未完成的timer类task）"""
