@@ -168,8 +168,8 @@ def calculate_during_time(start_time, end_time):
     minutes, _ = divmod(remainder, 60)
     
     result = ""
-    result += f"{int(days)}d " if days > 0 else "    "
-    result += f"{int(hours)}h " if hours > 0 else "    "
-    result += f"{int(minutes)}m" if minutes > 0 else "   "
+    result += f"{int(days):>2}d " if days > 0 else "    "
+    result += f"{int(hours):>2}h " if hours > 0 else "    "
+    result += f"{int(minutes):>2}m" if minutes > 0 else "   "
     
     return result + " " * (16 - len(result))
