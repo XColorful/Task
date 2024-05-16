@@ -142,3 +142,34 @@ def find_timer_in_time(input_str, tasker) -> list[int]:
         if is_time_in_duration(input_str, timer_task): time_index.append(index)
     
     return time_index
+
+def calculate_during_time(start_time, end_time):
+    format = "%Y_%m_%d-%H:%M"
+    try:
+        start_time = datetime.strptime(start_time, format)
+    except ValueError:
+        return "Error:start_time     "
+    
+    if end_time == "":
+        return "-----进行中-----"
+    try:
+        end_time = datetime.strptime(end_time, format)
+    except ValueError:
+        return "Error:end_time       "
+    
+    duration = end_time - start_time
+    if duration.total_seconds() < 0:
+        return "Error:start, end    "
+    if duration.total_seconds() >= 8640000:  # 100 days in seconds
+        return "More than 100d      "
+    
+    days, remainder = divmod(duration.total_seconds(), 86400)
+    hours, remainder = divmod(remainder, 3600)
+    minutes, _ = divmod(remainder, 60)
+    
+    result = ""
+    result += f"{int(days)}d " if days > 0 else "    "
+    result += f"{int(hours)}h " if hours > 0 else "    "
+    result += f"{int(minutes)}m" if minutes > 0 else "   "
+    
+    return result + " " * (16 - len(result))
