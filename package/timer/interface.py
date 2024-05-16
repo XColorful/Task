@@ -1,12 +1,11 @@
-from .function import convert_to_int, YYYY_MM_DD, get_not_end_timer_index, show_unfinished_timer
-from datetime import datetime, timedelta
+from .function import get_not_end_timer_index, show_unfinished_timer, calculate_during_time
 
 def show_recent_timer_task(tasker, system_pkg) -> None:
     recent_task_list = tasker.task_list[-9:]
     if recent_task_list == []: return None
     
     table_list = []
-    heading = ["索引", "start_time", "end_time", "属性", "内容", "注释"]
+    heading = ["索引", "start_time", "end_time", "持续时间", "属性", "内容", "注释"]
     table_list.append(heading)
     
     start_index = len(tasker.task_list) - len(recent_task_list)
@@ -14,6 +13,7 @@ def show_recent_timer_task(tasker, system_pkg) -> None:
         table_list.append([str(start_index),
                            str(timer_task.start_time),
                            str(timer_task.end_time),
+                           calculate_during_time(timer_task.start_time, timer_task.end_time),
                            str(timer_task.attribute),
                            str(timer_task.content),
                            str(timer_task.comment)])
