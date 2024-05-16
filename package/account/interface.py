@@ -1,5 +1,31 @@
+from datetime import datetime
 from .function import convert_to_int, table_class_func
 
+def a_is_later_than_b(time_a:str, time_b:str) -> bool:
+    date_format = "%Y_%m_%d"
+    try:
+        if len(time_a) != 10: return False
+        date_a = datetime.strptime(time_a, date_format)
+    except ValueError: return False
+
+    try:
+        if len(time_b) != 10: return True
+        date_b = datetime.strptime(time_b, date_format)
+    except ValueError: return True
+
+    return date_a > date_b
+
+def show_account_tasker_info(tasker, system_pkg):
+    total_account = 0
+    last_date = ""
+    for task in tasker.task_list:
+        if task.version == "account":
+            total_account += 1
+        if a_is_later_than_b(task.last_date, last_date):
+            last_date = task.last_date
+    table_list = [[f"--------{tasker.tasker_label}--------"], [f"task总数：{total_account}"], [f"最新密码日期：{last_date}"]]
+    system_pkg["table_msg"](table_list, heading = False)
+    
 def interface_info(system_pkg, show_msg = True):
     interface_label = "account_interface"
     interface_version = "account"
@@ -23,13 +49,13 @@ def show_interface(tasker, system_pkg):
     """显示account统计简略信息，不显示account类型以外的task
     
     """
-    system_pkg["system_msg"]("test show_interface")
-    pass
+    system_pkg["tips_msg"]("输入\"/info\"获取更多信息")
+    system_pkg["tips_msg"]("注意：未指定指令将默认执行search功能")
+    show_account_tasker_info(tasker, system_pkg)
 
 def account_interface(tasker, system_pkg): # tasker -> tasker
     """
     """
-    system_pkg["tips_msg"]("输入\"/info\"获取更多信息")
     show_account_interface = True
     while True:
         # 显示account_interface
