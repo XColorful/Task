@@ -172,7 +172,7 @@ def show_account_detail(account_task, system_pkg) -> None:
     system_pkg["head_msg"](f"{account_task.account_type}{account_label}")
     system_pkg["body_msg"]([f"create_date：{account_task.create_date}",
                             f"last_date：{account_task.last_date}",
-                            f"password：{account_task.password}"])
+                            f"password：{"*" * len(account_task.password)}"])
 
     # description
     if account_task.dict["description"] != []:
