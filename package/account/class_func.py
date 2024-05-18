@@ -302,12 +302,13 @@ class account_tasker_func(extra_tasker_func_template):
             system_pkg["normal_msg"]("")
         return None
     
-    def update(self, parameter, tasker, system_pkg): # label, account_type
-        # 调用get, linked_account = False，返回None则退出，返回None则提示没搜到
-        # parameter优先识别为索引，其次为label, account_type
-        # 手动输入password或输入生成的
-        # 确定（可以为空密码）
-        # 更新task.last_date
+    def update(self, parameter, tasker, system_pkg):
+        user_input = select_account_task(parameter, tasker, system_pkg)
+        if user_input == None: return None
+        else:
+            account_index = user_input
+            # 检查是否包含字母，数字，符号
+            # 自动生成相应类型密码
         pass
     
     def edit(self, parameter, tasker, system_pkg):
