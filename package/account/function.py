@@ -1,3 +1,5 @@
+from pyperclip import copy as py_cp
+
 def convert_to_int(s:str):
     """返回字符串是否能转换为int，不修改原字符串
     
@@ -148,15 +150,27 @@ def choose_from_index_dict(index_dict, tasker, system_pkg) -> int | None:
     if select_index == None: return None
     else: return select_index
 
-def select_account_task(user_input, tasker, system_pkg) -> int | None:
-    """返回值为索引或None"""
-    if user_input == "":
-        user_input = system_pkg["normal_input"]("输入内容选定task")
-    if user_input == system_pkg["EXIT"]: return None
-    
-    index_dict = get_select_index_dict(user_input, tasker)
+def is_valid_index_in_tasker(index:int, tasker) -> bool:
+    if type(index) != int:
+        return False
+    try:
+        tasker.task_list[index]
+        return True
+    except IndexError:
+        return False
 
-    total_index = count_select_index_dict(index_dict)
+def select_account_task(user_input: str | int, tasker, system_pkg) -> int | None:
+    """返回值为索引或None"""
+    if is_valid_index_in_tasker(user_input, tasker):
+        return user_input
+    else:
+        if user_input == "":
+            user_input = system_pkg["normal_input"]("输入内容选定task")
+        if user_input == system_pkg["EXIT"]: return None
+        
+        index_dict = get_select_index_dict(user_input, tasker)
+
+        total_index = count_select_index_dict(index_dict)
     
     if total_index == 0: return None
     elif total_index == 1:
@@ -311,6 +325,9 @@ def input_account_type(system_pkg) -> str | None:
     else: return user_input
 
 def change_account_type(account_task, system_pkg) -> None:
+    py_cp(account_task.account_type)
+    system_pkg["normal_msg"](f"\"账号类型\"已复制到剪贴板")
+    
     user_input = input_account_type(system_pkg)
     if (user_input == False) or (user_input == None): return None
     else:
@@ -324,6 +341,9 @@ def input_label(system_pkg) -> str | None:
     else: return user_input
 
 def change_label(account_task, system_pkg) -> None:
+    py_cp(account_task.label)
+    system_pkg["normal_msg"](f"\"标签\"已复制到剪贴板")
+    
     user_input = input_label(system_pkg)
     if (user_input == False) or (user_input == None): return None
     else:
@@ -337,6 +357,9 @@ def input_password(system_pkg) -> str | None:
     else: return user_input
 
 def change_password(account_task, system_pkg) -> None:
+    py_cp(account_task.password)
+    system_pkg["normal_msg"](f"\"password\"已复制到剪贴板")
+    
     user_input = input_password(system_pkg)
     if (user_input == False) or (user_input == None): return None
     else:
@@ -349,7 +372,23 @@ def input_description(system_pkg) -> list[str] | None:
     elif user_input == None: return None
     else: return user_input
 
+def copy_item_str(dict_key, account_task, system_pkg):
+    copy_str = ""
+    try:
+        copy_str += account_task.dict[dict_key][0]
+        for item in account_task.dict[dict_key][1:]:
+            copy_str += f"|||{item}"
+    except IndexError: pass
+    except KeyError:
+        system_pkg["error_msg"](f"值{dict_key}错误，请检查代码")
+        return None
+    
+    py_cp(copy_str)
+    system_pkg["normal_msg"](f"\"{dict_key}\"已复制到剪贴板")
+
 def change_description(account_task, system_pkg) -> None:
+    copy_item_str("description", account_task, system_pkg)
+    
     user_input = input_description(system_pkg)
     if (user_input == False) or (user_input == None): return None
     else:
@@ -363,6 +402,8 @@ def input_login_name(system_pkg) -> list[str] | None:
     else: return user_input
 
 def change_login_name(account_task, system_pkg) -> None:
+    copy_item_str("login_name", account_task, system_pkg)
+    
     user_input = input_login_name(system_pkg)
     if (user_input == False) or (user_input == None): return None
     else:
@@ -376,6 +417,8 @@ def input_verified_phone(system_pkg) -> list[str] | None:
     else: return user_input
 
 def change_verified_phone(account_task, system_pkg) -> None:
+    copy_item_str("verified_phone", account_task, system_pkg)
+    
     user_input = input_verified_phone(system_pkg)
     if (user_input == False) or (user_input == None): return None
     else:
@@ -389,6 +432,8 @@ def input_verified_email(system_pkg) -> list[str] | None:
     else: return user_input
 
 def change_verified_email(account_task, system_pkg) -> None:
+    copy_item_str("verified_email", account_task, system_pkg)
+    
     user_input = input_verified_email(system_pkg)
     if (user_input == False) or (user_input == None): return None
     else:
@@ -402,12 +447,13 @@ def input_linked_account(system_pkg) -> list[str] | None:
     else: return user_input
 
 def change_linked_account(account_task, system_pkg) -> None:
+    copy_item_str("linked_account", account_task, system_pkg)
+    
     user_input = input_linked_account(system_pkg)
     if (user_input == False) or (user_input == None): return None
     else:
         account_task.dict["linked_account"] = user_input
         return None
-
 
 def input_secure_question(system_pkg) -> list[str] | None:
     user_input = get_account_dict_input("secure_question", system_pkg)
@@ -416,6 +462,8 @@ def input_secure_question(system_pkg) -> list[str] | None:
     else: return user_input
 
 def change_secure_question(account_task, system_pkg) -> None:
+    copy_item_str("secure_question", account_task, system_pkg)
+    
     user_input = input_secure_question(system_pkg)
     if (user_input == False) or (user_input == None): return None
     else:
@@ -429,6 +477,8 @@ def input_other_info(system_pkg) -> list[str] | None:
     else: return user_input
 
 def change_other_info(account_task, system_pkg) -> None:
+    copy_item_str("other_info", account_task, system_pkg)
+    
     user_input = input_other_info(system_pkg)
     if (user_input == False) or (user_input == None): return None
     else:
@@ -442,6 +492,8 @@ def input_password_history(system_pkg) -> list[str] | None:
     else: return user_input
 
 def change_password_history(account_task, system_pkg) -> None:
+    copy_item_str("password_history", account_task, system_pkg)
+    
     user_input = input_password_history(system_pkg)
     if (user_input == False) or (user_input == None): return None
     else:
