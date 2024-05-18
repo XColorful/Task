@@ -1,5 +1,5 @@
 from default_class_func import extra_tasker_func_template
-from .function import YYYY_MM_DD, convert_to_int, select_account_task, show_account_detail
+from .function import YYYY_MM_DD, convert_to_int, select_account_task, show_account_detail, edit_account_detail
 from pyperclip import copy as py_cp
 
 # 封装函数--------+--------+--------+--------+--------+--------+--------+--------+ Begin
@@ -292,7 +292,7 @@ class account_tasker_func(extra_tasker_func_template):
         # 返回get索引
         return [label_index, task_index, account_type_index, linked_account_index]
     
-    def search(self, parameter, tasker, system_pkg): # 不进行脱敏显示
+    def search(self, parameter, tasker, system_pkg):
         user_input = select_account_task(parameter, tasker, system_pkg)
         if user_input == None: return None
         else:
@@ -310,9 +310,15 @@ class account_tasker_func(extra_tasker_func_template):
         # 更新task.last_date
         pass
     
-    def edit(self, parameter, tasker, system_pkg): # label, account_type
-        # 调用get, 参数均为False，返回None则退出，返回None则提示没搜到
-        pass
+    def edit(self, parameter, tasker, system_pkg):
+        user_input = select_account_task(parameter, tasker, system_pkg)
+        if user_input == None: return None
+        else:
+            account_index = user_input
+            system_pkg["normal_msg"](f"--------{tasker.task_list[account_index].label}信息--------")
+            edit_account_detail(tasker.task_list[account_index], system_pkg)
+            system_pkg["normal_msg"]("")
+        return None
     
     def delete(self, parameter, tasker, system_pkg): # label, account_type
         user_input = select_account_task(parameter, tasker, system_pkg)
