@@ -608,7 +608,7 @@ def get_password_length(old_password, system_pkg):
     else:
         try:
             length = system_pkg["settings_dict"]["ACCOUNT:DEFAULT_PASSWORD_LENGTH"]
-            if length != 0:
+            if (type(length) == int) and (length > 0):
                 return length
         except KeyError: pass
     return default_password_length
@@ -650,7 +650,7 @@ def get_new_password(old_password, system_pkg) -> str | None:
     py_cp(random_password)
     system_pkg["system_msg"](f"新生成随机密码{random_password[:4] + "*" * (len(random_password) - 4)}已复制到剪贴板")
     
-    input_condition, user_input = system_pkg["block_input"]("输入新密码", block_list = system_pkg["BLOCK_LIST"])
+    input_condition, user_input = system_pkg["block_input"]("输入新密码", block_list = system_pkg["BLOCK_LIST"], block_number = False)
     if input_condition == False: return None
     elif input_condition == None: user_input = random_password
     
@@ -664,7 +664,12 @@ def get_new_password(old_password, system_pkg) -> str | None:
 def append_password_history(account_task):
     """将当前密码，日期添加到password_history"""
     old_password = account_task.password
+    if old_password == "": return None
+    
     old_password_date = account_task.last_date
+    if old_password_date == "":
+        old_password_date = YYYY_MM_DD()
+    
     if len(old_password_date) != 10:
         old_password_date[:10] + " " * (10 - len(old_password_date))
     account_task.dict["password_history"].append(f"({old_password_date}){old_password}")
