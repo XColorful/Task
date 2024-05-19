@@ -9,6 +9,8 @@ def convert_to_int(s:str):
         return int(s)
     except ValueError:
         return None
+    except TypeError:
+        return None
 
 def convert_to_float(s:str):
     """返回字符串是否能转换为float，不修改原字符串
@@ -17,6 +19,8 @@ def convert_to_float(s:str):
     try:
         return float(s)
     except ValueError:
+        return None
+    except TypeError:
         return None
 
 def get_list_width(input_list:list):

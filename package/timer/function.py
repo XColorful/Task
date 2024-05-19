@@ -8,6 +8,8 @@ def convert_to_int(s:str):
         return int(s)
     except ValueError:
         return None
+    except TypeError:
+        return None
 
 def YYYY_MM_DD(adjust = "0"):
     """输出格式化日期，正数为添加天数
