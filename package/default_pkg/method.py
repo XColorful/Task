@@ -97,14 +97,14 @@ def input_tasker_info(tasker, system_pkg) -> tuple | dict:
     
     py_cp(tasker.tasker_label)
     system_pkg["normal_msg"]("tasker.label copied to clipboard")
-    return_tuple = system_pkg["block_input"]("输入Tasker标签", block_list, system_pkg)
+    return_tuple = system_pkg["block_input"]("输入Tasker标签", block_list, system_pkg, block_number = False)
     if return_tuple[0] == False: return (system_pkg["CONDITION_SUCCESS"], "取消编辑Tasker标签")
     if return_tuple[0] == None: tasker_label_input = ""
     else: tasker_label_input = return_tuple[1]
     
     py_cp(tasker.description)
     system_pkg["normal_msg"]("tasker.description copied to clipboard")
-    return_tuple = system_pkg["block_input"]("输入Tasker描述", block_list, system_pkg)
+    return_tuple = system_pkg["block_input"]("输入Tasker描述", block_list, system_pkg, block_number = False)
     if return_tuple[0] == False: return (system_pkg["CONDITION_SUCCESS"], "取消编辑Tasker描述")
     if return_tuple[0] == None: tasker_description_input = ""
     else: tasker_description_input = return_tuple[1]
