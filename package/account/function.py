@@ -682,3 +682,8 @@ def update_password(account_task, new_password):
     current_YYYY_MM_DD = YYYY_MM_DD()
     account_task.last_date = current_YYYY_MM_DD
     account_task.password = new_password
+
+def settings_help(system_pkg):
+    system_pkg["normal_msg"]("account可用设置：")
+    system_pkg["normal_msg"]("ACCOUNT:DEFAULT_PASSWORD_LENGTH|<int>")
+    system_pkg["body_msg"](["默认值：12"])
