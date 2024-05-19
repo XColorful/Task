@@ -1,5 +1,5 @@
 from default_class_func import extra_tasker_func_template
-from .function import YYYY_MM_DD, convert_to_int, select_account_task, show_account_detail, edit_account_detail
+from .function import YYYY_MM_DD, convert_to_int, select_account_task, show_account_detail, edit_account_detail, get_new_password, update_password
 from pyperclip import copy as py_cp
 
 # 封装函数--------+--------+--------+--------+--------+--------+--------+--------+ Begin
@@ -89,6 +89,11 @@ def get_password(tasker, index, system_pkg):
 
 def get_delete_confirm(system_pkg) -> str | None:
     user_input = system_pkg["normal_input"]("确认删除(y/n)")
+    if user_input == system_pkg["EXIT"]: return None
+    else: return user_input
+
+def get_update_confirm(system_pkg) -> str | None:
+    user_input = system_pkg["normal_input"]("确认更改(y/n)")
     if user_input == system_pkg["EXIT"]: return None
     else: return user_input
 
@@ -281,8 +286,11 @@ class account_tasker_func(extra_tasker_func_template):
                 if user_input == system_pkg["EXIT"]: return None
                 try:
                     input_convert = convert_to_int(user_input)
-                    if input_convert <= 0: system_pkg["system_msg"]("索引需为正")
-                    else: index = all_index_list[input_convert - 1]
+                    if input_convert <= 0:
+                        system_pkg["system_msg"]("索引需为正")
+                        return None
+                    else:
+                        index = all_index_list[input_convert - 1]
                     get_password(tasker, index, system_pkg)
                 except TypeError:
                     system_pkg["system_msg"](f"索引\"{user_input}\"错误")
@@ -307,9 +315,13 @@ class account_tasker_func(extra_tasker_func_template):
         if user_input == None: return None
         else:
             account_index = user_input
-            # 检查是否包含字母，数字，符号
-            # 自动生成相应类型密码
-        pass
+            old_password = tasker.task_list[account_index].password
+            new_password = get_new_password(old_password, system_pkg)
+            
+            if new_password != None:
+                if get_update_confirm(system_pkg) == "y":
+                    update_password(tasker.task_list[account_index], new_password)
+        return None
     
     def edit(self, parameter, tasker, system_pkg):
         user_input = select_account_task(parameter, tasker, system_pkg)

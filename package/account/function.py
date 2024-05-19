@@ -1,3 +1,4 @@
+from random import choices, sample
 from pyperclip import copy as py_cp
 
 def convert_to_int(s:str):
@@ -186,7 +187,7 @@ def show_account_detail(account_task, system_pkg) -> None:
     system_pkg["head_msg"](f"{account_task.account_type}{account_label}")
     system_pkg["body_msg"]([f"create_date：{account_task.create_date}",
                             f"last_date：{account_task.last_date}",
-                            f"password：{"*" * len(account_task.password)}"])
+                            f"password：{account_task.password[:4] + "*" * (len(account_task.password) - 4)}"])
 
     # description
     if account_task.dict["description"] != []:
@@ -552,3 +553,130 @@ def edit_account_detail(account_task, system_pkg) -> None:
             continue
         else:
             attr_func_tuple[1](account_task, system_pkg)
+
+uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+lowercase = "abcdefghijklmnopqrstuvwxyz"
+symbols = "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
+numbers = "0123456789"
+default_password_length = 12
+full_char_list = [uppercase, lowercase, symbols, numbers]
+
+def detect_char_list(password):
+    char_list = []
+    if password == "": return char_list
+    
+    has_uppercase = False
+    has_lowercase = False
+    has_symbols = False
+    has_numbers = False
+    
+    for char in password:
+        
+        if has_uppercase != True:
+            if char in uppercase:
+                char_list.append(uppercase)
+                has_uppercase = True
+                continue
+        
+        if has_lowercase != True:
+            if char in lowercase:
+                char_list.append(lowercase)
+                has_lowercase = True
+                continue
+        
+        if has_symbols != True:
+            if char in symbols:
+                char_list.append(symbols)
+                has_symbols = True
+                continue
+        
+        if has_numbers != True:
+            if char in numbers:
+                char_list.append(numbers)
+                has_numbers = True
+                continue
+        
+        if has_uppercase and has_lowercase and has_symbols and has_numbers:
+            break
+            
+    return char_list
+
+def get_password_length(old_password, system_pkg):
+    """返回旧密码长度/从设置读取默认密码长度，保证不为0"""
+    if old_password != "":
+        return len(old_password)
+    else:
+        try:
+            length = system_pkg["settings_dict"]["ACCOUNT:DEFAULT_PASSWORD_LENGTH"]
+            if (type(length) == int) and (length > 0):
+                return length
+        except KeyError: pass
+    return default_password_length
+
+
+def generate_with_char_ratio(length, char_list):
+    total_length = sum([len(s) for s in char_list])
+    ratio = [max(1, int(len(s) / total_length * length)) for s in char_list]
+    
+    new_string = ""
+    left_length = length
+    for i, s in enumerate(char_list):
+        num_chars = ratio[i]
+        new_string += "".join(choices(s, k=num_chars))
+        left_length -= num_chars
+    
+    if left_length > 0:
+        all_chars = "".join(char_list)
+        new_string += "".join(choices(all_chars, k=left_length))
+    
+    new_string = "".join(sample(new_string, len(new_string)))
+    
+    return new_string
+
+def generate_password(length = default_password_length, char_list = full_char_list):
+    if char_list == []:
+        char_list = full_char_list
+    
+    new_password = generate_with_char_ratio(length, char_list)
+    return new_password
+
+def get_new_password(old_password, system_pkg) -> str | None:
+    character_list = detect_char_list(old_password)
+    if character_list == []:
+        character_list = full_char_list
+    
+    password_length = get_password_length(old_password, system_pkg)
+    random_password = generate_password(password_length, character_list)
+    py_cp(random_password)
+    system_pkg["system_msg"](f"新生成随机密码{random_password[:4] + "*" * (len(random_password) - 4)}已复制到剪贴板")
+    
+    input_condition, user_input = system_pkg["block_input"]("输入新密码", block_list = system_pkg["BLOCK_LIST"], block_number = False)
+    if input_condition == False: return None
+    elif input_condition == None: user_input = random_password
+    
+    if not is_valied_input(user_input, system_pkg):
+        system_pkg["system_msg"](f"\"{user_input}\"不符合输入，尝试去除\"|\"")
+        return None
+    
+    return user_input
+    
+
+def append_password_history(account_task):
+    """将当前密码，日期添加到password_history"""
+    old_password = account_task.password
+    if old_password == "": return None
+    
+    old_password_date = account_task.last_date
+    if old_password_date == "":
+        old_password_date = YYYY_MM_DD()
+    
+    if len(old_password_date) != 10:
+        old_password_date[:10] + " " * (10 - len(old_password_date))
+    account_task.dict["password_history"].append(f"({old_password_date}){old_password}")
+    
+def update_password(account_task, new_password):
+    append_password_history(account_task)
+    
+    current_YYYY_MM_DD = YYYY_MM_DD()
+    account_task.last_date = current_YYYY_MM_DD
+    account_task.password = new_password

@@ -26,7 +26,7 @@ def adjust_settings(settings_dict:dict, key:str, value:str) -> bool:
         if value_int == value: value = value_int
     try:
         if type(settings_dict[key]) != type(value): return False
-    except KeyError: return None
+    except KeyError: pass
     settings_dict[key] = value
     return True
 
