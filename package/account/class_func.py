@@ -281,8 +281,11 @@ class account_tasker_func(extra_tasker_func_template):
                 if user_input == system_pkg["EXIT"]: return None
                 try:
                     input_convert = convert_to_int(user_input)
-                    if input_convert <= 0: system_pkg["system_msg"]("索引需为正")
-                    else: index = all_index_list[input_convert - 1]
+                    if input_convert <= 0:
+                        system_pkg["system_msg"]("索引需为正")
+                        return None
+                    else:
+                        index = all_index_list[input_convert - 1]
                     get_password(tasker, index, system_pkg)
                 except TypeError:
                     system_pkg["system_msg"](f"索引\"{user_input}\"错误")
