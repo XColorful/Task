@@ -436,7 +436,7 @@ class timer_tasker_func(extra_tasker_func_template):
         return None
 
 
-def get_choice(parameter, system_pkg, msg_func:function) -> str | None:
+def get_choice(parameter, system_pkg, msg_func) -> str | None:
     try: msg_func(system_pkg)
     except: pass
     
