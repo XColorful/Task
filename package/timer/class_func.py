@@ -429,8 +429,169 @@ class timer_tasker_func(extra_tasker_func_template):
         """输入参数为指示索引（第几个未完成的timer类task）"""
         system_pkg["normal_msg"]("--------end界面--------")
         unfinished_timer_index = get_unfinished_timer_index(parameter, tasker, system_pkg)
-        if unfinished_timer_index == None or unfinished_timer_index == False:
+        if unfinished_timer_index == None or (unfinished_timer_index == False and unfinished_timer_index != 0):
             return None
         current_YYYY_MM_DD_HH_MM = YYYY_MM_DD_HH_MM()
         tasker.task_list[unfinished_timer_index].end_time = current_YYYY_MM_DD_HH_MM
         return None
+
+
+def get_choice(parameter, system_pkg, msg_func) -> str | None:
+    try: msg_func(system_pkg)
+    except: pass
+    
+    user_input = parameter
+    if user_input == "":
+        user_input = system_pkg["normal_input"]("选定参数")
+    
+    if user_input == system_pkg["EXIT"]: return None
+    else: return user_input
+
+def show_distribution_parameter(system_pkg):
+    system_pkg["normal_msg"]("distribution可用参数：")
+    system_pkg["body_msg"](["[1]all",
+                            "\t统计所有timer_task的start_time, end_time分布箱型图",
+                            "[2]attr",
+                            "\t统计给定属性下timer_task的start_time, end_time分布箱型图",
+                            "[3]date",
+                            "\t统计各月timer_task的start_time, end_time分布箱型图"])
+
+def show_count_parameter(system_pkg):
+    system_pkg["normal_msg"]("count可用参数：")
+    system_pkg["body_msg"](["[1]attr",
+                            "\t统计给定属性下timer_task总数，柱状图+饼图",
+                            "\t统计给定属性下开始的timer_task总数，柱状图+饼图",
+                            "\t统计给定属性下进行中的timer_task总数，柱状图+饼图",
+                            "\t统计给定属性下结束的timer_task总数，柱状图+饼图",
+                            "[2]date",
+                            "\t统计各月timer_task总数，柱状图+饼图",
+                            "\t统计各月开始的timer_task总数，柱状图+饼图",
+                            "\t统计各月进行中的timer_task总数，柱状图+饼图",
+                            "\t统计各月结束的timer_task总数，柱状图+饼图"])
+
+def show_trend_parameter(system_pkg):
+    system_pkg["normal_msg"]("trend可用参数：")
+    system_pkg["body_msg"](["[1]all",
+                            "\t统计所有timer_task的start_time, end_time分布图（随月份推移）",
+                            "[2]attr",
+                            "\t统计给定属性下timer_task的start_time, end_time分布图（随月份推移）"])
+
+def show_duration_parameter(system_pkg):
+    system_pkg["normal_msg"]("duration可用参数：")
+    system_pkg["body_msg"](["[1]all",
+                            "\t所有timer_task持续时间总和",
+                            "\t单项最长持续时间（可包含多项，来自不同属性）",
+                            "\t总平均持续时间"
+                            "[2]attr",
+                            "\t统计给定属性下timer_task持续时间总和",
+                            "\t单项最长持续时间（可包含多项）"
+                            "\t总平均持续时间"
+                            "[3]date",
+                            "\t统计各月下timer_task持续时间总和",
+                            "\t单项最长持续时间（可包含多项，来自不同属性）",
+                            "\t每月平均持续时间（表格）"])
+
+class timer_analyze_func(extra_tasker_func_template):
+    def __init__(self):
+        super().__init__()
+        self.label = "timer_analyze_func"
+        self.version = "timer"
+        self.function_list = ["distribution", "count", "trend", "duration"]
+        self.create_date = YYYY_MM_DD()
+        
+    def __str__(self):
+        return super().__str__()
+    
+    def get_info(self):
+        return super().get_info()
+    
+    def proceed(self, cmd_list:list, tasker, system_pkg:dict):
+        super().proceed(cmd_list, tasker, system_pkg)
+
+    def distribution(self, parameter, tasker, system_pkg) -> None: # 箱型图
+        """可选参数all, attr, date"""
+        
+        func_dict = {"all":self.distribution_all,
+                     "attr":self.distribution_attr,
+                     "date":self.distribution_date}
+        
+        user_input = get_choice(parameter, system_pkg, show_distribution_parameter)
+        if user_input == None: return None
+        else:
+            try:
+                func_dict[user_input](tasker, system_pkg)
+            except KeyError:
+                system_pkg["system_msg"](f"{user_input}参数错误")
+    
+    def distribution_all(self, tasker, system_pkg) -> None:
+        pass
+    
+    def distribution_attr(self, tasker, system_pkg) -> None:
+        pass
+    
+    def distribution_date(self, tasker, system_pkg) -> None:
+        pass
+    
+    def count(self, parameter, tasker, system_pkg) -> None: # 柱状图+饼图
+        """可选参数attr, date"""
+
+        func_dict = {"attr":self.count_attr,
+                     "date":self.count_date}
+        
+        user_input = get_choice(parameter, system_pkg, show_distribution_parameter)
+        if user_input == None: return None
+        else:
+            try:
+                func_dict[user_input](tasker, system_pkg)
+            except KeyError:
+                system_pkg["system_msg"](f"{user_input}参数错误")
+    
+    def count_attr(self, parameter, tasker, system_pkg) -> None:
+        pass
+    
+    def count_date(self, parameter, tasker, system_pkg) -> None:
+        pass
+    
+    def trend(self, parameter, tasker, system_pkg) -> None: # 点图
+        """可选参数all attr"""
+    
+        func_dict = {"all":self.trend_all,
+                     "attr":self.trend_attr}
+        
+        user_input = get_choice(parameter, system_pkg, show_trend_parameter)
+        if user_input == None: return None
+        else:
+            try:
+                func_dict[user_input](tasker, system_pkg)
+            except KeyError:
+                system_pkg["system_msg"](f"{user_input}参数错误")
+        
+    def trend_all(self, parameter, tasker, system_pkg) -> None:
+        pass
+    
+    def trend_attr(self, parameter, tasker, system_pkg) -> None:
+        pass
+    
+    def duration(self, parameter ,tasker , system_pkg) -> None: # 
+        """可选参数all, attr, date"""
+        
+        func_dict = {"all":self.duration_all,
+                     "attr":self.duration_attr,
+                     "date":self.duration_date}
+        
+        user_input = get_choice(parameter, system_pkg, show_duration_parameter)
+        if user_input == None: return None
+        else:
+            try:
+                func_dict[user_input](tasker, system_pkg)
+            except KeyError:
+                system_pkg["system_msg"](f"{user_input}参数错误")
+        
+    def duration_all(self, parameter, tasker, system_pkg) -> None:
+        pass
+    
+    def duration_attr(self, parameter, tasker, system_pkg) -> None:
+        pass
+    
+    def duration_date(self, parameter, tasker, system_pkg) -> None:
+        pass
