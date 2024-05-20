@@ -41,11 +41,11 @@ class categorize_task(default_tasker_func_template):
     def proceed(self, cmd_list:list, tasker, system_pkg:dict):
         return super().proceed(cmd_list, tasker, system_pkg)
     
-    def categorize(self, command_parameter:str, tasker, system_pkg:dict):
+    def categorize(self, cmd_parameter:str, tasker, system_pkg:dict):
         """可选参数attr, date
         
         """
-        user_input = command_parameter
+        user_input = cmd_parameter
         if user_input == "":
             system_pkg["tips_msg"]("可选参数[\"date\", \"attr\"]")
             user_input = system_pkg["normal_input"]("输入分类")
