@@ -181,10 +181,6 @@ def select_account_task(user_input: str | int, tasker, system_pkg) -> int | None
     else:
         return choose_from_index_dict(index_dict, tasker, system_pkg)
 
-def desensitize_password_history(password_history) -> str:
-    if password_history == "": return ""
-    return password_history[:16] + "*" * (len(password_history) - 16)
-
 def show_account_detail(account_task, system_pkg) -> None:
     # 单项信息
     account_label = f"（{account_task.label}）" if (account_task.label != "" and \
@@ -269,7 +265,7 @@ def show_account_detail(account_task, system_pkg) -> None:
         system_pkg["normal_msg"]("password_history：")
         account_password_history = []
         for password_history in account_task.dict["password_history"]:
-            account_password_history.append(f"[{show_index}]|{desensitize_password_history(password_history)}")
+            account_password_history.append(f"[{show_index}]|{password_history}")
             show_index += 1
         system_pkg["body_msg"](account_password_history)
 
@@ -525,7 +521,6 @@ def select_account_attr(system_pkg) -> tuple | None | bool:
     user_input = system_pkg["normal_input"]("选择属性")
     
     if user_input == system_pkg["EXIT"]: return False
-    elif user_input == "": return None
     
     try:
         index = convert_to_int(user_input)
