@@ -67,8 +67,9 @@ def get_attribute_input(system_pkg) -> str | bool:
     return user_input
 def get_content_input(system_pkg) -> str | bool:
     system_pkg["tips_msg"]("输入\"n\"即可使用默认配置的输入")
-    input_condition, user_input = system_pkg["strict_input"]("内容", block_list = system_pkg["BLOCK_LIST"], block_number = False)
+    input_condition, user_input = system_pkg["block_input"]("内容", block_list = system_pkg["BLOCK_LIST"], block_number = False)
     if input_condition == False: return False
+    elif input_condition == None: return ""
     return user_input
 def get_comment_input(system_pkg) -> str | bool:
     input_condition, user_input = system_pkg["block_input"]("注释(可选)", block_list = system_pkg["BLOCK_LIST"], block_number = False)
@@ -104,6 +105,9 @@ def input_timer_task_info(tasker_config, system_pkg) -> list[str] | bool:
             build_list[6] = timer_task_df_content
         else:
             system_pkg["system_msg"]("Tasker未配置默认timer类task内容(保留原输入)")
+            build_list[6] = input_list[2]
+    else:
+        build_list[6] = input_list[2]
     build_list[6] = timer_task_prefix + build_list[6]
     build_list[7] = input_list[3] # comment
     return build_list
@@ -320,6 +324,7 @@ def edit_timer_task(index, tasker, system_pkg):
     system_pkg["normal_msg"](f"task.content：{timer_task.content}")
     user_input = get_content_input(system_pkg)
     if user_input == False: return None
+    elif user_input == "": pass
     elif user_input == "n":
         system_pkg["system_msg"](f"content：{tasker.task_list[index].content} -> {tasker.timer_task_df_content}")
         tasker.task_list[index].content = tasker.timer_task_df_content
