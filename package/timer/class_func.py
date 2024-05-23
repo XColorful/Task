@@ -65,6 +65,12 @@ def get_attribute_input(system_pkg) -> str | bool:
     if input_condition == False: return False # EXIT
     elif input_condition == None: return "N/A" # ""
     return user_input
+def get_content_strict_input(system_pkg) -> str | bool:
+    system_pkg["tips_msg"]("输入\"n\"即可使用默认配置的输入")
+    input_condition, user_input = system_pkg["strict_input"]("内容", block_list = system_pkg["BLOCK_LIST"], block_number = False)
+    if input_condition == False: return False
+    elif input_condition == None: return ""
+    return user_input
 def get_content_input(system_pkg) -> str | bool:
     system_pkg["tips_msg"]("输入\"n\"即可使用默认配置的输入")
     input_condition, user_input = system_pkg["block_input"]("内容", block_list = system_pkg["BLOCK_LIST"], block_number = False)
@@ -82,7 +88,7 @@ def input_timer_task_info(tasker_config, system_pkg) -> list[str] | bool:
     input_list = []
     for input_func in [get_start_time_input, # start_time
                        get_attribute_input, # attribute
-                       get_content_input, # content
+                       get_content_strict_input, # content
                        get_comment_input, # comment
                        get_end_time_input]: # end_time
         user_input = input_func(system_pkg)
