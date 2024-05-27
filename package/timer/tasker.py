@@ -5,7 +5,7 @@ from .update_info import timer_update_info
 
 class timer_tasker(extra_tasker_template):
     version = "timer"
-    introduction = "extra type tasker template"
+    introduction = "timer类Tasker"
     def __init__(self):
         super().__init__() # 继承父类
         self.function_list.append(timer_tasker_func())
