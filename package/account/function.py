@@ -692,3 +692,23 @@ def settings_help(system_pkg):
     system_pkg["normal_msg"]("account可用设置：")
     system_pkg["normal_msg"]("ACCOUNT:DEFAULT_PASSWORD_LENGTH|<int>")
     system_pkg["body_msg"](["默认值：12"])
+
+def show_acc_info(acc_list, system_pkg):
+    table_list = []
+    heading = ["序号", "类别", "标签", "last_date", "相关联账号数"]
+    table_list.append(heading)
+    index = 1
+    for account_task in acc_list:
+        display_label = "" if account_task.label == account_task.account_type else str(account_task.label)
+        if account_task.dict["linked_account"] == []:
+            display_linked_account = ""
+        else:
+            display_linked_account = f"{len(account_task.dict["linked_account"])}"
+
+        table_list.append([str(index),
+                           str(account_task.account_type),
+                           display_label,
+                           account_task.last_date,
+                           display_linked_account])
+        index += 1
+    system_pkg["table_msg"](table_list, heading = True)
