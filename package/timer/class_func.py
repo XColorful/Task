@@ -61,18 +61,18 @@ def get_YYYY_MM_DD_HH_SS_input(date_type, system_pkg, allow_empty = False) -> st
 def get_start_time_input(system_pkg):
     return get_YYYY_MM_DD_HH_SS_input("start", system_pkg)
 def get_attribute_input(system_pkg) -> str | bool:
-    input_condition, user_input = system_pkg["block_input"]("属性(可选)", block_list = system_pkg["BLOCK_LIST"], block_number = False)
+    input_condition, user_input = system_pkg["block_input"]("属性(可选)", block_list = system_pkg["BLOCK_LIST"], system_pkg = system_pkg, block_number = False)
     if input_condition == False: return False # EXIT
     elif input_condition == None: return "N/A" # ""
     return user_input
 def get_content_input(system_pkg) -> str | bool:
     system_pkg["tips_msg"]("输入\"n\"即可使用默认配置的输入")
-    input_condition, user_input = system_pkg["block_input"]("内容", block_list = system_pkg["BLOCK_LIST"], block_number = False)
+    input_condition, user_input = system_pkg["block_input"]("内容", block_list = system_pkg["BLOCK_LIST"], system_pkg = system_pkg,  block_number = False)
     if input_condition == False: return False
     elif input_condition == None: return ""
     return user_input
 def get_comment_input(system_pkg) -> str | bool:
-    input_condition, user_input = system_pkg["block_input"]("注释(可选)", block_list = system_pkg["BLOCK_LIST"], block_number = False)
+    input_condition, user_input = system_pkg["block_input"]("注释(可选)", block_list = system_pkg["BLOCK_LIST"], system_pkg = system_pkg,  block_number = False)
     if input_condition == False: return False # EXIT
     elif input_condition == None: return "" # ""
     return user_input
@@ -151,7 +151,7 @@ def show_set_config_guide(system_pkg):
     system_pkg["tips_msg"]("输入\"n\"清除原先预设")
 def set_timer_task_df_attribute(tasker, system_pkg) -> bool | None:
     system_pkg["normal_msg"](f"原timer默认属性：{tasker.timer_task_df_attribute}")
-    input_condition, user_input = system_pkg["block_input"]("设置timer默认属性", block_list = system_pkg["BLOCK_LIST"], block_number = False)
+    input_condition, user_input = system_pkg["block_input"]("设置timer默认属性", block_list = system_pkg["BLOCK_LIST"], system_pkg = system_pkg,  block_number = False)
 
     if input_condition == False: return False
     elif user_input == "n":
@@ -164,7 +164,7 @@ def set_timer_task_df_attribute(tasker, system_pkg) -> bool | None:
     return None
 def set_timer_task_prefix(tasker, system_pkg):
     system_pkg["normal_msg"](f"原timer默认内容前缀：{tasker.timer_task_prefix}")
-    input_condition, user_input = system_pkg["block_input"]("设置timer默认内容前缀", block_list = system_pkg["BLOCK_LIST"], block_number = False)
+    input_condition, user_input = system_pkg["block_input"]("设置timer默认内容前缀", block_list = system_pkg["BLOCK_LIST"], system_pkg = system_pkg,  block_number = False)
     
     if input_condition == False: return False
     elif user_input == "n":
@@ -177,7 +177,7 @@ def set_timer_task_prefix(tasker, system_pkg):
     return None
 def set_timer_task_df_content(tasker, system_pkg):
     system_pkg["normal_msg"](f"原timer默认内容：{tasker.timer_task_df_content}")
-    input_condition, user_input = system_pkg["block_input"]("设置timer默认内容", block_list = system_pkg["BLOCK_LIST"], block_number = False)
+    input_condition, user_input = system_pkg["block_input"]("设置timer默认内容", block_list = system_pkg["BLOCK_LIST"], system_pkg = system_pkg,  block_number = False)
     
     if input_condition == False: return False
     elif user_input == "n":
