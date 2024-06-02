@@ -70,7 +70,7 @@ def get_check_func(user_input:str, system_pkg):
 
 def get_date_parameter(parameter_list:list[str]) -> str:
     try:
-        if parameter_list [0] == "":
+        if parameter_list [0] == "" and parameter_list[1] != "":
             return YYYY_MM_DD()
         return parameter_list[0]
     except IndexError:
