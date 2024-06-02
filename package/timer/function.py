@@ -37,6 +37,39 @@ def YYYY_MM_DD_HH_MM(adjust = "0"):
     formatted_date_time = now.strftime("%Y_%m_%d-%H:%M")
     return formatted_date_time
 
+def input_is_YYYY_MM_DD(input_str) -> bool:
+    if len(input_str) != 10:
+        return False
+    try:
+        datetime.strptime(input_str, '%Y_%m_%d')
+        return True
+    except ValueError:
+        return False
+
+def show_task_info(timer_task, task_index, system_pkg):
+    """显示timer_task信息，task_index为显示参数值"""
+    system_pkg["normal_msg"](f"[{task_index}]|<{timer_task.attribute}>|{timer_task.content}")
+    system_pkg["body_msg"]([f"start_time:{timer_task.start_time}",
+                            f"end_time:{timer_task.end_time}",
+                            f"comment:{timer_task.comment}"])
+
+def check_timer_u(timer_task, time: str) -> bool:
+    start_time = datetime.strptime(timer_task.start_time, "%Y_%m_%d-%H:%M")
+    time = datetime.strptime(time, "%Y_%m_%d")
+    return timer_task.end_time == "" and start_time.date() <= time.date()
+
+def check_timer_t(timer_task, time: str) -> bool:
+    start_time = datetime.strptime(timer_task.start_time, "%Y_%m_%d-%H:%M")
+    time = datetime.strptime(time, "%Y_%m_%d")
+    if timer_task.end_time == "":
+        return start_time.date() <= time.date()
+    else:
+        end_time = datetime.strptime(timer_task.end_time, "%Y_%m_%d-%H:%M")
+        return start_time.date() <= time.date() <= end_time.date()
+
+def check_timer_all(timer_task, time: str) -> bool:
+    return check_timer_u(timer_task, time) or check_timer_t(timer_task, time)
+
 def get_not_end_timer_index(tasker) -> list[int]:
     return_index_list = []
     for index, task in enumerate(tasker.task_list):

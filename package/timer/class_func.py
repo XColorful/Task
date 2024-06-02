@@ -1,6 +1,6 @@
 from datetime import datetime
 from default_class_func import extra_tasker_func_template
-from .function import convert_to_int, YYYY_MM_DD, YYYY_MM_DD_HH_MM, get_not_end_timer_index, show_unfinished_timer, find_timer_in_all
+from .function import convert_to_int, YYYY_MM_DD, YYYY_MM_DD_HH_MM, show_task_info, get_not_end_timer_index, show_unfinished_timer, find_timer_in_all
 
 def check_tasker(tasker, system_pkg) -> None:
     """检查是否有模板"""
@@ -111,13 +111,6 @@ def input_timer_task_info(tasker_config, system_pkg) -> list[str] | bool:
     build_list[6] = timer_task_prefix + build_list[6]
     build_list[7] = input_list[3] # comment
     return build_list
-
-def show_task_info(timer_task, task_index, system_pkg):
-    """显示timer_task信息，索引为参数值"""
-    system_pkg["normal_msg"](f"[{task_index}]|<{timer_task.attribute}>|{timer_task.content}")
-    system_pkg["body_msg"]([f"start_time:{timer_task.start_time}",
-                            f"end_time:{timer_task.end_time}",
-                            f"comment:{timer_task.comment}"])
 
 def get_unfinished_timer_index(parameter, tasker, system_pkg) -> int | bool:
     not_end_timer_index = get_not_end_timer_index(tasker)
