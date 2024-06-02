@@ -1,11 +1,11 @@
 def is_valid_input(input_str:str) -> bool:
     """检测首尾是否包含"|"，如有则返回False"""
     try:
-        if input_str[0] == "|" or input_str[0] == "|":
+        if input_str[0] == "|" or input_str[-1] == "|":
             return False
-    except IndexError: pass
+    except IndexError: return True
     except TypeError: return False
-    return False
+    return True
 
 def command_input(msg_str = ""):
     """用空格分割输入的指令
