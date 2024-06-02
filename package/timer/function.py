@@ -46,6 +46,15 @@ def input_is_YYYY_MM_DD(input_str) -> bool:
     except ValueError:
         return False
 
+def input_is_YYYY_MM_DD_HH_SS(input_str) -> bool:
+    if len(input_str) != 16:
+        return False
+    try:
+        datetime.strptime(input_str, '%Y_%m_%d-%H:%M')
+        return True
+    except ValueError:
+        return False
+
 def show_task_info(timer_task, task_index, system_pkg):
     """显示timer_task信息，task_index为显示参数值"""
     system_pkg["normal_msg"](f"[{task_index}]|<{timer_task.attribute}>|{timer_task.content}")
