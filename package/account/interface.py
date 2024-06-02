@@ -1,5 +1,5 @@
 from datetime import datetime
-from .function import convert_to_int, table_class_func
+from .function import convert_to_int, table_class_func, settings_help
 
 def a_is_later_than_b(time_a:str, time_b:str) -> bool:
     date_format = "%Y_%m_%d"
@@ -44,6 +44,7 @@ def interface_help(system_pkg):
     system_pkg["tips_msg"]("以\"+\"开头强制执行指令search，输入作为参数")
     system_pkg["tips_msg"]("用空格分隔指令与内容")
     system_pkg["tips_msg"]("输入\"/info\"执行interface内置info功能")
+    settings_help(system_pkg)
 
 def show_interface(tasker, system_pkg):
     """显示account统计简略信息，不显示account类型以外的task

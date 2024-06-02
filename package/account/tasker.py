@@ -1,5 +1,5 @@
 from default_class import extra_tasker_template
-from .class_func import account_tasker_func
+from .class_func import account_tasker_func, account_manage_func
 from .interface import account_interface
 from .update_info import account_update_info
 
@@ -8,7 +8,8 @@ class account_tasker(extra_tasker_template):
     introduction = "account类Tasker"
     def __init__(self):
         super().__init__() # 继承父类
-        self.function_list.append(account_tasker_func()) # Default版本仅有一种，不可修改
+        self.function_list.append(account_tasker_func())
+        self.function_list.append(account_manage_func())
         self.description = ""
     
     def interface(self, system_pkg): # 仅有一种，不可修改

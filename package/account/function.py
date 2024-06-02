@@ -181,6 +181,10 @@ def select_account_task(user_input: str | int, tasker, system_pkg) -> int | None
     else:
         return choose_from_index_dict(index_dict, tasker, system_pkg)
 
+def desensitize_password_history(password_history) -> str:
+    if password_history == "": return ""
+    return password_history[:16] + "*" * (len(password_history) - 16)
+
 def show_account_detail(account_task, system_pkg) -> None:
     # 单项信息
     account_label = f"（{account_task.label}）" if (account_task.label != "" and \
@@ -265,7 +269,7 @@ def show_account_detail(account_task, system_pkg) -> None:
         system_pkg["normal_msg"]("password_history：")
         account_password_history = []
         for password_history in account_task.dict["password_history"]:
-            account_password_history.append(f"[{show_index}]|{password_history}")
+            account_password_history.append(f"[{show_index}]|{desensitize_password_history(password_history)}")
             show_index += 1
         system_pkg["body_msg"](account_password_history)
 
@@ -521,6 +525,7 @@ def select_account_attr(system_pkg) -> tuple | None | bool:
     user_input = system_pkg["normal_input"]("选择属性")
     
     if user_input == system_pkg["EXIT"]: return False
+    elif user_input == "": return None
     
     try:
         index = convert_to_int(user_input)
@@ -682,3 +687,28 @@ def update_password(account_task, new_password):
     current_YYYY_MM_DD = YYYY_MM_DD()
     account_task.last_date = current_YYYY_MM_DD
     account_task.password = new_password
+
+def settings_help(system_pkg):
+    system_pkg["normal_msg"]("account可用设置：")
+    system_pkg["normal_msg"]("ACCOUNT:DEFAULT_PASSWORD_LENGTH|<int>")
+    system_pkg["body_msg"](["默认值：12"])
+
+def show_acc_info(acc_list, system_pkg):
+    table_list = []
+    heading = ["序号", "类别", "标签", "last_date", "相关联账号数"]
+    table_list.append(heading)
+    index = 1
+    for account_task in acc_list:
+        display_label = "" if account_task.label == account_task.account_type else str(account_task.label)
+        if account_task.dict["linked_account"] == []:
+            display_linked_account = ""
+        else:
+            display_linked_account = f"{len(account_task.dict["linked_account"])}"
+
+        table_list.append([str(index),
+                           str(account_task.account_type),
+                           display_label,
+                           account_task.last_date,
+                           display_linked_account])
+        index += 1
+    system_pkg["table_msg"](table_list, heading = True)

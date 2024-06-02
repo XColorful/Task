@@ -1,5 +1,5 @@
 from default_class_func import extra_tasker_func_template
-from .function import YYYY_MM_DD, convert_to_int, select_account_task, show_account_detail, edit_account_detail, get_new_password, update_password
+from .function import YYYY_MM_DD, convert_to_int, select_account_task, show_account_detail, edit_account_detail, get_new_password, update_password, show_acc_info
 from pyperclip import copy as py_cp
 
 # 封装函数--------+--------+--------+--------+--------+--------+--------+--------+ Begin
@@ -102,7 +102,7 @@ class account_tasker_func(extra_tasker_func_template):
         super().__init__() # 继承父类
         self.label = "account_tasker_func"
         self.version = "account"
-        self.function_list = ["new", "get", "search", "update", "edit", "delete"]
+        self.function_list = ["new", "get", "search", "edit", "delete"]
         self.create_date = YYYY_MM_DD()
     
     def __str__(self):
@@ -309,20 +309,7 @@ class account_tasker_func(extra_tasker_func_template):
             show_account_detail(tasker.task_list[account_index], system_pkg)
             system_pkg["normal_msg"]("")
         return None
-    
-    def update(self, parameter, tasker, system_pkg):
-        user_input = select_account_task(parameter, tasker, system_pkg)
-        if user_input == None: return None
-        else:
-            account_index = user_input
-            old_password = tasker.task_list[account_index].password
-            new_password = get_new_password(old_password, system_pkg)
-            
-            if new_password != None:
-                if get_update_confirm(system_pkg) == "y":
-                    update_password(tasker.task_list[account_index], new_password)
-        return None
-    
+
     def edit(self, parameter, tasker, system_pkg):
         user_input = select_account_task(parameter, tasker, system_pkg)
         if user_input == None: return None
@@ -345,3 +332,27 @@ class account_tasker_func(extra_tasker_func_template):
                 del tasker.task_list[account_index]
                 system_pkg["system_msg"]("已删除task")
         return None
+
+class account_manage_func(extra_tasker_func_template):
+    def __init__(self):
+        super().__init__() # 继承父类
+        self.label = "account_manage_func"
+        self.version = "account"
+        self.function_list = ["update", "list_acc"]
+        self.create_date = YYYY_MM_DD()
+        
+    def update(self, parameter, tasker, system_pkg):
+        user_input = select_account_task(parameter, tasker, system_pkg)
+        if user_input == None: return None
+        else:
+            account_index = user_input
+            old_password = tasker.task_list[account_index].password
+            new_password = get_new_password(old_password, system_pkg)
+            
+            if new_password != None:
+                if get_update_confirm(system_pkg) == "y":
+                    update_password(tasker.task_list[account_index], new_password)
+        return None
+
+    def list_acc(self, parameter, tasker, system_pkg):
+        show_acc_info(tasker.task_list, system_pkg)
