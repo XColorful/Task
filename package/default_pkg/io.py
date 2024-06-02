@@ -1,3 +1,12 @@
+def is_valid_input(input_str:str) -> bool:
+    """检测首尾是否包含"|"，如有则返回False"""
+    try:
+        if input_str[0] == "|" or input_str[0] == "|":
+            return False
+    except IndexError: pass
+    except TypeError: return False
+    return False
+
 def command_input(msg_str = ""):
     """用空格分割输入的指令
     
@@ -37,6 +46,9 @@ def strict_input(msg_str = "", block_list = [], system_pkg = {"tips_msg":print},
                 system_pkg["tips_msg"](f"不能包含\"{block_char}\"")
                 block = True
                 break
+        if not is_valid_input(user_input):
+            system_pkg["tips_msg"](f"尝试去除首尾的\"|\"")
+            block = True
         if block == True: continue
         return (True, user_input)
         
@@ -63,5 +75,8 @@ def block_input(msg_str = "", block_list = [], system_pkg = {"tips_msg":print}, 
                 system_pkg["tips_msg"](f"不能包含\"{block_char}\"")
                 block = True
                 break
+        if not is_valid_input(user_input):
+            system_pkg["tips_msg"](f"尝试去除首尾的\"|\"")
+            block = True
         if block == True: continue
         return (True, user_input)
