@@ -8,7 +8,7 @@ def timer_update_info(self, system_pkg) -> tuple:
         if return_tuple[0] == False: return (system_pkg["CONDITION_SUCCESS"], "取消输入Tasker标签")
         self.tasker_label = return_tuple[1]
     
-    if self.create_date == "": # 添加Tasker描述
+    if self.description == "": # 添加Tasker描述
         return_tuple = system_pkg["strict_input"]("输入Tasker描述", block_list, system_pkg)
         if return_tuple[0] == False: return (system_pkg["CONDITION_SUCCESS"], "取消输入Tasker描述")
         self.description = return_tuple[1]
