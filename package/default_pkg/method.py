@@ -279,10 +279,14 @@ class default_method(default_method_template):
         tasker = tasker_list[tasker_index]
         # 修改tasker信息
         info_dict = input_tasker_info(tasker, system_pkg)
-        tasker_label = info_dict["tasker_label"]
-        edit_tasker_info(tasker, info_dict, system_pkg)
+        if type(info_dict) == tuple:
+            return_info = info_dict
+            return return_info
+        else:
+            edit_tasker_info(tasker, info_dict, system_pkg)
         
-        return (system_pkg["CONDITION_SUCCESS"], f"编辑{tasker_label}信息")
+            tasker_label = info_dict["tasker_label"]
+            return (system_pkg["CONDITION_SUCCESS"], f"编辑{tasker_label}信息")
         
 
 
