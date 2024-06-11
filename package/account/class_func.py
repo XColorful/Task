@@ -102,7 +102,7 @@ class account_tasker_func(extra_tasker_func_template):
         super().__init__() # 继承父类
         self.label = "account_tasker_func"
         self.version = "account"
-        self.function_list = ["new", "get", "search", "edit", "delete"]
+        self.function_list = ["new", "get", "search", "edit", "delete", "update"]
         self.create_date = YYYY_MM_DD()
     
     def __str__(self):
@@ -332,15 +332,7 @@ class account_tasker_func(extra_tasker_func_template):
                 del tasker.task_list[account_index]
                 system_pkg["system_msg"]("已删除task")
         return None
-
-class account_manage_func(extra_tasker_func_template):
-    def __init__(self):
-        super().__init__() # 继承父类
-        self.label = "account_manage_func"
-        self.version = "account"
-        self.function_list = ["update", "list_acc"]
-        self.create_date = YYYY_MM_DD()
-        
+    
     def update(self, parameter, tasker, system_pkg):
         user_input = select_account_task(parameter, tasker, system_pkg)
         if user_input == None: return None
@@ -353,6 +345,14 @@ class account_manage_func(extra_tasker_func_template):
                 if get_update_confirm(system_pkg) == "y":
                     update_password(tasker.task_list[account_index], new_password)
         return None
+
+class account_manage_func(extra_tasker_func_template):
+    def __init__(self):
+        super().__init__() # 继承父类
+        self.label = "account_manage_func"
+        self.version = "account"
+        self.function_list = ["list_acc"]
+        self.create_date = YYYY_MM_DD()
 
     def list_acc(self, parameter, tasker, system_pkg):
         show_acc_info(tasker.task_list, system_pkg)
