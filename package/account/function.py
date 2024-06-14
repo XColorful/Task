@@ -339,6 +339,7 @@ def change_account_type(account_task, system_pkg) -> None:
     if (user_input == False) or (user_input == None): return None
     else:
         account_task.account_type = user_input
+        system_pkg["system_msg"](f"账号类型更改为{account_task.account_type}")
         return None
 
 def input_label(system_pkg) -> str | None:
@@ -355,6 +356,7 @@ def change_label(account_task, system_pkg) -> None:
     if (user_input == False) or (user_input == None): return None
     else:
         account_task.label = user_input
+        system_pkg["system_msg"](f"标签更改为{account_task.label}")
         return None
 
 def input_password(system_pkg) -> str | None:
@@ -370,7 +372,8 @@ def change_password(account_task, system_pkg) -> None:
     user_input = input_password(system_pkg)
     if (user_input == False) or (user_input == None): return None
     else:
-        account_task.password = user_input
+        update_password(account_task, user_input)
+        system_pkg["system_msg"](f"password更改为{account_task.password[:4] + "*" * (len(account_task.password) -4) }")
         return None
 
 def input_description(system_pkg) -> list[str] | None:
@@ -400,6 +403,8 @@ def change_description(account_task, system_pkg) -> None:
     if (user_input == False) or (user_input == None): return None
     else:
         account_task.dict["description"] = user_input
+        system_pkg["system_msg"]("description更改为：")
+        system_pkg["body_msg"](account_task.dict["description"])
         return None
 
 def input_login_name(system_pkg) -> list[str] | None:
@@ -415,6 +420,8 @@ def change_login_name(account_task, system_pkg) -> None:
     if (user_input == False) or (user_input == None): return None
     else:
         account_task.dict["login_name"] = user_input
+        system_pkg["system_msg"]("login_name更改为：")
+        system_pkg["body_msg"](account_task.dict["login_name"])
         return None
 
 def input_verified_phone(system_pkg) -> list[str] | None:
@@ -430,6 +437,8 @@ def change_verified_phone(account_task, system_pkg) -> None:
     if (user_input == False) or (user_input == None): return None
     else:
         account_task.dict["verified_phone"] = user_input
+        system_pkg["system_msg"]("verified_phone更改为：")
+        system_pkg["body_msg"](account_task.dict["verified_phone"])
         return None
 
 def input_verified_email(system_pkg) -> list[str] | None:
@@ -445,6 +454,8 @@ def change_verified_email(account_task, system_pkg) -> None:
     if (user_input == False) or (user_input == None): return None
     else:
         account_task.dict["verified_email"] = user_input
+        system_pkg["system_msg"]("verified_email更改为：")
+        system_pkg["body_msg"](account_task.dict["verified_email"])
         return None
 
 def input_linked_account(system_pkg) -> list[str] | None:
@@ -460,6 +471,8 @@ def change_linked_account(account_task, system_pkg) -> None:
     if (user_input == False) or (user_input == None): return None
     else:
         account_task.dict["linked_account"] = user_input
+        system_pkg["system_msg"]("linked_account更改为：")
+        system_pkg["body_msg"](account_task.dict["linked_account"])
         return None
 
 def input_secure_question(system_pkg) -> list[str] | None:
@@ -475,6 +488,8 @@ def change_secure_question(account_task, system_pkg) -> None:
     if (user_input == False) or (user_input == None): return None
     else:
         account_task.dict["secure_question"] = user_input
+        system_pkg["system_msg"]("secure_question更改为：")
+        system_pkg["body_msg"](account_task.dict["secure_question"])
         return None
 
 def input_other_info(system_pkg) -> list[str] | None:
@@ -490,6 +505,8 @@ def change_other_info(account_task, system_pkg) -> None:
     if (user_input == False) or (user_input == None): return None
     else:
         account_task.dict["other_info"] = user_input
+        system_pkg["system_msg"]("other_info更改为：")
+        system_pkg["body_msg"](account_task.dict["other_info"])
         return None
 
 def input_password_history(system_pkg) -> list[str] | None:
@@ -505,6 +522,7 @@ def change_password_history(account_task, system_pkg) -> None:
     if (user_input == False) or (user_input == None): return None
     else:
         account_task.dict["password_history"] = user_input
+        system_pkg["system_msg"]("已更改password_history")
         return None
 
 attr_func_list = [("账号类型", change_account_type),
@@ -682,6 +700,7 @@ def append_password_history(account_task):
     account_task.dict["password_history"].append(f"({old_password_date}){old_password}")
     
 def update_password(account_task, new_password):
+    """更新password并保留旧内容"""
     append_password_history(account_task)
     
     current_YYYY_MM_DD = YYYY_MM_DD()
