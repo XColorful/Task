@@ -6,6 +6,7 @@ from glob import glob
 from pyperclip import copy as py_cp
 from operator import attrgetter
 from typing import Callable
+from copy import deepcopy
 
 # 封装函数--------+--------+--------+--------+--------+--------+--------+--------+ Begin
 def table_tasker_template(tasker_template_list, system_pkg:dict) -> None:
@@ -310,7 +311,7 @@ def txt_task_info(task) -> list[str]:
     return return_list
 
 def get_sorted_tasker_by_attr(tasker_list, attr):
-    return_list = tasker_list.copy()
+    return_list = deepcopy(tasker_list)
     for tasker in return_list:
         tasker.task_list.sort(key=lambda x: getattr(x, attr))
     return return_list
