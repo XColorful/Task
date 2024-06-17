@@ -5,6 +5,7 @@ from os.path import exists, join, dirname, abspath
 from glob import glob
 from pyperclip import copy as py_cp
 from operator import attrgetter
+from typing import Callable
 
 # 封装函数--------+--------+--------+--------+--------+--------+--------+--------+ Begin
 def table_tasker_template(tasker_template_list, system_pkg:dict) -> None:
@@ -287,15 +288,81 @@ class default_method(default_method_template):
         
             tasker_label = info_dict["tasker_label"]
             return (system_pkg["CONDITION_SUCCESS"], f"编辑{tasker_label}信息")
-        
 
+def tasker_is_empty(tasker_list, system_pkg) -> bool:
+    if tasker_list == []:
+        system_pkg["system_msg"]("Tasker列表为空")
+        return True
+    else:
+        return False
+
+def txt_tasker_info(tasker) -> list[str]:
+    """返回列表长度为3"""
+    return [f"Tasker：{tasker.tasker_label}",
+            f"创建于{tasker.create_date}；共{len(tasker.task_list)}项Task",
+            f"描述：{tasker.description}"]
+
+def txt_task_info(task) -> list[str]:
+    """返回列表长度为1或2"""
+    return_list = [f"{task.date}|<{task.attribute}>|{task.content}"]
+    if task.comment != "":
+        return_list.append(str(task.comment))
+    return return_list
+    
+def txt_by_date(tasker_list, system_pkg):
+    system_pkg["system_msg"]("暂无")
+
+def txt_by_tasker(tasker_list, system_pkg):
+    cwd = getcwd()
+    txt_dir = join(cwd, "Task_txt.txt")
+    with open(txt_dir, "w", encoding="utf-8") as f:
+        for tasker in tasker_list:
+            lines = txt_tasker_info(tasker)
+            f.write(f"{lines[0]}\n")
+            f.write(f"|--{lines[1]}\n")
+            f.write(f"|--{lines[2]}\n")
+            f.write("|--|Task列表：\n")
+            
+            task_index = 1
+            task_list_length = len(str(len(tasker.task_list)))
+            for task in tasker.task_list:
+                lines = txt_task_info(task)
+                f.write(f"   |--[{" " * (task_list_length - len(str(task_index)))}{task_index}]-{lines[0]}\n")
+                if len(lines) == 2:
+                    f.write(f"   |{" " * (task_list_length + 3)}|-{lines[1]}\n")
+                task_index += 1
+    system_pkg["system_msg"]("已创建txt文件")
+    system_pkg["body_msg"]([f"完整路径{txt_dir}"])
+
+def txt_by_create_date(tasker_list, system_pkg):
+    system_pkg["system_msg"]("暂无")
+
+def select_txt_func_type(cmd_parameter, system_pkg) -> Callable | None:
+    """返回txt处理函数"""
+    user_input = cmd_parameter
+    if user_input == "":
+        system_pkg["normal_msg"]("选择txt类型：")
+        system_pkg["body_msg"](["[1]按日期顺序", "[2]按Takser类别", "[3]按创建日期"])
+        user_input = system_pkg["normal_input"]("输入序号")
+    if user_input == system_pkg["EXIT"]: return None
+    
+    type_index = convert_to_int(user_input)
+    txt_func_list = [txt_by_date, txt_by_tasker, txt_by_create_date]
+    try:
+        return txt_func_list[type_index - 1]
+    except IndexError:
+        system_pkg["system_msg"](f"序号\"{user_input}\"不在给定范围内")
+        return None
+    except TypeError:
+        system_pkg["system_msg"](f"序号\"{user_input}\"格式不符")
+        return None
 
 class default_txt_operation(default_method_template):
     def __init__(self):
         super().__init__() # 继承父类
         self.label = "default_txt_operation"
         self.version = "1.0"
-        self.method_list = ["backup", "reload"]
+        self.method_list = ["backup", "reload", "txt"]
     
     def method_info(self):
         return super().method_info()
@@ -642,6 +709,14 @@ class default_txt_operation(default_method_template):
         system_pkg["system_msg"](f"已导入{file_path}")
         return (system_pkg["CONDITION_SUCCESS"], None)
 
+    def txt(self, cmd_parameter:str, tasker_list:list, system_pkg:dict): # 生成可读txt文件
+        if tasker_is_empty(tasker_list, system_pkg): return None
+        
+        txt_func = select_txt_func_type(cmd_parameter, system_pkg)
+        if txt_func == None: return None
+        
+        txt_func(tasker_list, system_pkg)
+        return (system_pkg["CONDITION_SUCCESS"], "创建Task_txt.txt")
 
 class default_sys_method(default_method_template):
     def __init__(self):
