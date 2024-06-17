@@ -308,15 +308,106 @@ def txt_task_info(task) -> list[str]:
     if task.comment != "":
         return_list.append(str(task.comment))
     return return_list
+
+def get_sorted_tasker_by_attr(tasker_list, attr):
+    return_list = tasker_list.copy()
+    for tasker in return_list:
+        tasker.task_list.sort(key=lambda x: getattr(x, attr))
+    return return_list
+
+def write_tasks(f, sorted_tasker_list, attr, write_func):
+    task_index = [0] * len(sorted_tasker_list)
+    while True:
+        min_attr = None
+        write_queue_index = []
+        for i, tasker in enumerate(sorted_tasker_list):
+            if task_index[i] < len(tasker.task_list):
+                task_attr = getattr(tasker.task_list[task_index[i]], attr)
+                if (min_attr is None) or (task_attr < min_attr):
+                    min_attr = task_attr
+                    write_queue_index = [i]
+                elif task_attr == min_attr:
+                    write_queue_index.append(i)
+        if not write_queue_index:
+            break
+        
+        f.write(f"{attr}：{min_attr}\n")
+        
+        for i in write_queue_index:
+            if task_index[i] < len(sorted_tasker_list[i].task_list):
+                task_index[i] += write_func(f, sorted_tasker_list[i], task_index[i], attr)
+
+def txt_write_func(f, tasker, start_index, attr, write_func_list) -> int:
+    return_int = 1
+    task_list = tasker.task_list
+    task_index = start_index
+    write_tasker_func, write_task_func = write_func_list
+    try:
+        CURRENT_ATTR = getattr(task_list[start_index], attr)
+        # 索引在范围内，写入tasker信息
+        write_tasker_func(f, tasker)
+        while getattr(task_list[task_index], attr) == CURRENT_ATTR:
+            # 逐个写入task信息
+            write_task_func(f, task_list[task_index])
+            task_index += 1
+            return_int += 1
+    except IndexError: pass
     
+    return return_int
+
+def txt_by_date_write_tasker(f, tasker):
+    f.write(f"|  |--{tasker.tasker_label}\n")
+
+def txt_by_date_write_task(f, task):
+    f.write(f"|  |  |-<{task.attribute}>|{task.content}\n")
+    if task.comment != "":
+        f.write(f"|  |  | |-{task.comment}\n")
+
+def txt_by_create_date_write_tasker(f, tasker):
+    f.write(f"|  |--{tasker.tasker_label}\n")
+
+def txt_by_create_date_write_task(f, task):
+    f.write(f"|  |  |-{task.date}|<{task.attribute}>|{task.content}\n")
+    if task.comment != "":
+        f.write(f"|  |  | |-{task.comment}\n")
+
+def txt_by_date_write_func(f, tasker, start_index, attr) -> int:
+    func_list = [txt_by_date_write_tasker, txt_by_date_write_task]
+    index_add_num = txt_write_func(f,tasker, start_index, attr, func_list)
+    return index_add_num
+    
+def txt_by_create_date_write_func(f, tasker, start_index, attr) -> int:
+    func_list = [txt_by_create_date_write_tasker, txt_by_create_date_write_task]
+    index_add_num = txt_write_func(f,tasker, start_index, attr, func_list)
+    return index_add_num
+
+def clear_unsupport_task_list(sorted_tasker_list, system_pkg):
+    for index, tasker in enumerate(sorted_tasker_list):
+        if tasker.type != system_pkg["TYPE_DEFAULT_TASKER"]:
+            sorted_tasker_list[index].task_list = []
+
 def txt_by_date(tasker_list, system_pkg):
-    system_pkg["system_msg"]("暂无")
+    """按date写入txt"""
+    write_func = txt_by_date_write_func
+    sorted_tasker_list = get_sorted_tasker_by_attr(tasker_list, "date")
+    
+    clear_unsupport_task_list(sorted_tasker_list, system_pkg)
+    
+    cwd = getcwd()
+    txt_dir = join(cwd, "Task_txt.txt")
+    with open(txt_dir, "w", encoding="utf-8") as f:
+        write_tasks(f, sorted_tasker_list, "date", write_func)
+    system_pkg["system_msg"]("已创建txt文件")
+    system_pkg["body_msg"]([f"完整路径{txt_dir}"])
 
 def txt_by_tasker(tasker_list, system_pkg):
+    """按tasker写入txt"""
     cwd = getcwd()
     txt_dir = join(cwd, "Task_txt.txt")
     with open(txt_dir, "w", encoding="utf-8") as f:
         for tasker in tasker_list:
+            if tasker.type != system_pkg["TYPE_DEFAULT_TASKER"]: continue
+            
             lines = txt_tasker_info(tasker)
             f.write(f"{lines[0]}\n")
             f.write(f"|--{lines[1]}\n")
@@ -335,7 +426,18 @@ def txt_by_tasker(tasker_list, system_pkg):
     system_pkg["body_msg"]([f"完整路径{txt_dir}"])
 
 def txt_by_create_date(tasker_list, system_pkg):
-    system_pkg["system_msg"]("暂无")
+    """按create_date写入txt"""
+    write_func = txt_by_create_date_write_func
+    sorted_tasker_list = get_sorted_tasker_by_attr(tasker_list, "create_date")
+    
+    clear_unsupport_task_list(sorted_tasker_list, system_pkg)
+    
+    cwd = getcwd()
+    txt_dir = join(cwd, "Task_txt.txt")
+    with open(txt_dir, "w", encoding="utf-8") as f:
+        write_tasks(f, sorted_tasker_list, "create_date", write_func)
+    system_pkg["system_msg"]("已创建txt文件")
+    system_pkg["body_msg"]([f"完整路径{txt_dir}"])
 
 def select_txt_func_type(cmd_parameter, system_pkg) -> Callable | None:
     """返回txt处理函数"""
