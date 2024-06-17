@@ -710,10 +710,10 @@ class default_txt_operation(default_method_template):
         return (system_pkg["CONDITION_SUCCESS"], None)
 
     def txt(self, cmd_parameter:str, tasker_list:list, system_pkg:dict): # 生成可读txt文件
-        if tasker_is_empty(tasker_list, system_pkg): return None
+        if tasker_is_empty(tasker_list, system_pkg): return (system_pkg["CONDITION_SUCCESS"], "取消创建Task_txt.txt")
         
         txt_func = select_txt_func_type(cmd_parameter, system_pkg)
-        if txt_func == None: return None
+        if txt_func == None: return (system_pkg["CONDITION_SUCCESS"], "取消创建Task_txt.txt")
         
         txt_func(tasker_list, system_pkg)
         return (system_pkg["CONDITION_SUCCESS"], "创建Task_txt.txt")
