@@ -174,13 +174,28 @@ def get_valid_index(tasker_list, system_pkg) -> tuple | int:
     return convert_result
 # 封装函数--------+--------+--------+--------+--------+--------+--------+--------+ End
 
+def show_tasker_info(tasker, system_pkg):
+    system_pkg["head_msg"](f"{tasker.tasker_label}")
+    func_list = []
+    for class_func in tasker.function_list:
+        func_list.append(f"\t{class_func.label}")
+        func_list.append(f"\t\t版本：{class_func.version}")
+        func_list.append(f"\t\t添加日期：{class_func.create_date}")
+        func_list.append("\t\t" + str(class_func.function_list))
+    system_pkg["body_msg"]([f"创建：{tasker.create_date}",
+                            f"描述：{tasker.description}",
+                            f"类型：{tasker.type}",
+                            f"版本：{tasker.version}",
+                            f"task：{len(tasker.task_list)}个",
+                            "功能："] + func_list)
+
 
 class default_method(default_method_template):
     def __init__(self):
         super().__init__() # 继承父类
         self.label = "default_method"
         self.version = "1.0"
-        self.method_list = ["get", "add", "delete", "edit"]
+        self.method_list = ["get", "add", "delete", "edit", "info"]
     
     def method_info(self):
         return super().method_info()
@@ -290,6 +305,21 @@ class default_method(default_method_template):
             tasker_label = info_dict["tasker_label"]
             return (system_pkg["CONDITION_SUCCESS"], f"编辑{tasker_label}信息")
 
+    def info(self, cmd_parameter:str, tasker_list:list, system_pkg:dict):
+        """参数用于选定tasker，用于索引或字符串搜索"""
+        if len(tasker_list) == 0:
+            system_pkg["system_msg"]("tasker_list为空，请先用指令\"add\"创建一个tasker")
+            return (system_pkg["CONDITION_SUCCESS"], "tasker_list为空")
+
+        select_result = select_tasker(cmd_parameter, tasker_list, system_pkg)
+        if type(select_result) == tuple:
+            return select_result
+        tasker_index = select_result
+        tasker = tasker_list[tasker_index]
+        
+        show_tasker_info(tasker, system_pkg)
+        return (system_pkg["CONDITION_SUCCESS"], f"展示{tasker.tasker_label}信息")
+    
 def tasker_is_empty(tasker_list, system_pkg) -> bool:
     if tasker_list == []:
         system_pkg["system_msg"]("Tasker列表为空")
