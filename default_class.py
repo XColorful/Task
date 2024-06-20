@@ -207,6 +207,12 @@ def default_update_info(self, system_pkg):
     return (system_pkg["CONDITION_SUCCESS"], "更新Tasker信息")
 # tasker.update_info()--------+--------+--------+--------+--------+--------+--------+--------+ End
 
+def task_pair_is_empty(task_pair_list) -> bool:
+    if len(task_pair_list) < 2:
+        return True
+    else:
+        return False
+
 
 class default_tasker_template():
     version = "0" # 用数字表示
@@ -256,12 +262,13 @@ class default_tasker_template():
                     if same == False: self.function_list.append(func)
         # 添加task模板
         task_pair_list = build_list[5].split(" ")
-        for pair_index in range(0, len(task_pair_list), 2):
-            task_type, task_version = task_pair_list[pair_index], task_pair_list[pair_index + 1]
-            for index in range(len(system_pkg["df_task_template_list"])):
-                task = system_pkg["df_task_template_list"][index]()
-                if (task_type == task.type) and (task_version == task.version):
-                    self.task_template.append(system_pkg["df_task_template_list"][index])
+        if not task_pair_is_empty(task_pair_list):
+            for pair_index in range(0, len(task_pair_list), 2):
+                task_type, task_version = task_pair_list[pair_index], task_pair_list[pair_index + 1]
+                for index in range(len(system_pkg["df_task_template_list"])):
+                    task = system_pkg["df_task_template_list"][index]()
+                    if (task_type == task.type) and (task_version == task.version):
+                        self.task_template.append(system_pkg["df_task_template_list"][index])
         self.description = build_list[6]
         return None
 
