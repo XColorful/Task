@@ -354,7 +354,11 @@ def write_tasks(f, sorted_tasker_list, attr, write_func):
         for i, tasker in enumerate(sorted_tasker_list):
             if task_index[i] < len(tasker.task_list):
                 task_attr = getattr(tasker.task_list[task_index[i]], attr)
-                if (min_attr is None) or (task_attr < min_attr):
+                if task_attr == "2024_06_16":
+                    pass
+                if task_attr == "2024_06_17":
+                    pass
+                if (min_attr == None) or (task_attr < min_attr):
                     min_attr = task_attr
                     write_queue_index = [i]
                 elif task_attr == min_attr:
@@ -369,7 +373,7 @@ def write_tasks(f, sorted_tasker_list, attr, write_func):
                 task_index[i] += write_func(f, sorted_tasker_list[i], task_index[i], attr)
 
 def txt_write_func(f, tasker, start_index, attr, write_func_list) -> int:
-    return_int = 1
+    return_int = 0
     task_list = tasker.task_list
     task_index = start_index
     write_tasker_func, write_task_func = write_func_list
@@ -382,8 +386,10 @@ def txt_write_func(f, tasker, start_index, attr, write_func_list) -> int:
             write_task_func(f, task_list[task_index])
             task_index += 1
             return_int += 1
-    except IndexError: pass
-    
+    except IndexError:
+        # 超出task_list索引（已写完）
+        pass
+
     return return_int
 
 def txt_by_date_write_tasker(f, tasker):
