@@ -1,5 +1,5 @@
 from default_class_func import extra_tasker_func_template
-from .function import YYYY_MM_DD, convert_to_int, select_account_task, show_account_detail, edit_account_detail, get_new_password, update_password, show_acc_info
+from .function import YYYY_MM_DD, convert_to_int, select_account_task, show_account_detail, edit_account_detail, get_new_password, update_password, show_acc_info, search_acc_info
 from pyperclip import copy as py_cp
 
 # 封装函数--------+--------+--------+--------+--------+--------+--------+--------+ Begin
@@ -301,30 +301,27 @@ class account_tasker_func(extra_tasker_func_template):
         return [label_index, task_index, account_type_index, linked_account_index]
     
     def search(self, parameter, tasker, system_pkg):
-        user_input = select_account_task(parameter, tasker, system_pkg)
-        if user_input == None: return None
+        account_index = search_acc_info(parameter, tasker, system_pkg)
+        if account_index == None: return None
         else:
-            account_index = user_input
             system_pkg["normal_msg"]("--------搜索结果--------")
             show_account_detail(tasker.task_list[account_index], system_pkg)
             system_pkg["normal_msg"]("")
         return None
 
     def edit(self, parameter, tasker, system_pkg):
-        user_input = select_account_task(parameter, tasker, system_pkg)
-        if user_input == None: return None
+        account_index = select_account_task(parameter, tasker, system_pkg)
+        if account_index == None: return None
         else:
-            account_index = user_input
             system_pkg["normal_msg"](f"--------{tasker.task_list[account_index].label}信息--------")
             edit_account_detail(tasker.task_list[account_index], system_pkg)
             system_pkg["normal_msg"]("")
         return None
     
     def delete(self, parameter, tasker, system_pkg): # label, account_type
-        user_input = select_account_task(parameter, tasker, system_pkg)
-        if user_input == None: return None
+        account_index = select_account_task(parameter, tasker, system_pkg)
+        if account_index == None: return None
         else:
-            account_index = user_input
             system_pkg["normal_msg"]("--------删除预览--------")
             show_account_detail(tasker.task_list[account_index], system_pkg)
             system_pkg["normal_msg"]("")
@@ -334,10 +331,9 @@ class account_tasker_func(extra_tasker_func_template):
         return None
     
     def update(self, parameter, tasker, system_pkg):
-        user_input = select_account_task(parameter, tasker, system_pkg)
-        if user_input == None: return None
+        account_index = select_account_task(parameter, tasker, system_pkg)
+        if account_index == None: return None
         else:
-            account_index = user_input
             old_password = tasker.task_list[account_index].password
             new_password = get_new_password(old_password, system_pkg)
             
