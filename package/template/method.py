@@ -16,7 +16,7 @@ class method_template(default_method_template):
     def proceed(self, cmd_list:list, tasker_list:list, system_pkg:dict):
         return super().proceed(cmd_list, tasker_list, system_pkg)
     
-    def method(self, cmd_parameter:str, tasker_list:list, system_pkg:dict) -> tuple:
+    def test(self, cmd_parameter:str, tasker_list:list, system_pkg:dict) -> tuple:
         system_pkg["normal_msg"]("test:method_template")
         system_pkg["body_msg"]([f"method.label:{self.label}"])
         if cmd_parameter != "":
