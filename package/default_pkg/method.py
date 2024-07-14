@@ -627,7 +627,7 @@ class default_txt_operation(default_method_template):
         temp_tasker_list = []
         total_garbage_task = 0 # 用于统计无归属tasker的task
         for index, txt_line in enumerate(txt_list):
-            txt_line = txt_line[:-1] # 去除最右的\n
+            txt_line = txt_line.rstrip("\n") # 去除最右的\n
             if txt_line == "/end": break
             elif txt_line == "":
                 continue
