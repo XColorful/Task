@@ -627,7 +627,7 @@ class default_txt_operation(default_method_template):
         temp_tasker_list = []
         total_garbage_task = 0 # 用于统计无归属tasker的task
         for index, txt_line in enumerate(txt_list):
-            txt_line = txt_line[:-1] # 去除最右的\n
+            txt_line = txt_line.rstrip("\n") # 去除最右的\n
             if txt_line == "/end": break
             elif txt_line == "":
                 continue
@@ -862,7 +862,7 @@ class default_sys_method(default_method_template):
         super().__init__() # 继承父类
         self.label = "default_sys_method"
         self.version = "1.0"
-        self.method_list = ["sys_info"]
+        self.method_list = ["sys_info", "save_pkl"]
     
     def method_info(self):
         return super().method_info()
@@ -886,6 +886,13 @@ class default_sys_method(default_method_template):
         except KeyError:
             system_pkg["system_msg"](f"system_pkg中不包含\"{user_input}\"")
             return (system_pkg["CONDITION_SUCCESS"], f"system_pkg\"{user_input}\"查询结果不存在")
+    
+    def save_pkl(self, cmd_parameter:str, tasker_list:list, system_pkg:dict):
+        """手动执行main保存"""
+        main_pkl_dir = system_pkg["main_pkl_dir"]
+        main_tasker_list = tasker_list
+        system_pkg["save_pkl"](main_tasker_list, main_pkl_dir)
+        return (system_pkg["CONDITION_SUCCESS"], "手动执行main保存")
 
 class default_tasker_sort(default_method_template):
     def __init__(self):

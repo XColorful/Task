@@ -86,7 +86,7 @@ def system_pkg() -> dict:
             "df_tasker_template_list":df_tasker_template_list, "ex_tasker_template_list":ex_tasker_template_list,
             "df_task_template_list":df_task_template_list, "ex_task_template_list":ex_task_template_list,
             "class_func_list":class_func_list,
-            "settings_dict":settings_dict,
+            "settings_dict":settings_dict, "save_pkl":save_pkl, "main_pkl_dir":main_pkl_dir,
             "github":github, "version":version, "contributor":contributor_list}
 
 def no_tips(msg_str): # 用于settings_dict中"SHOW_TIPS"=False
@@ -320,6 +320,8 @@ def auto_save_pkl() -> None:
         save_pkl(main_tasker_list,
                  main_pkl_dir)
         tips_msg("--------已保存pkl文件--------")
+    else:
+        tips_msg("注意：自动保存已设置为关闭（AUTO_SAVE|False），请使用\"save_pkl\"手动保存，如需更改请至\".\\settings.txt\"")
     if settings_dict["AUTO_BACKUP"] == True: # 自动备份pkl文件
         # main_tasker_list.sort(key=attrgetter("tasker_label"))
         backup_pkl(main_tasker_list,

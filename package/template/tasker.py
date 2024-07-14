@@ -31,6 +31,7 @@ class df_tasker_template(default_tasker_template):
         return return_tuple
     
     def backup_list(self):
+        """用于创建build_list"""
         return super().backup_list()
     
     def build(self, build_list: list, system_pkg: dict):
@@ -39,7 +40,7 @@ class df_tasker_template(default_tasker_template):
 
 class ex_tasker_template(extra_tasker_template):
     version = "ex_template"
-    introduction = "extra type tasker template"
+    introduction = "Tasker template（Extra）"
     def __init__(self):
         super().__init__() # 继承父类
         self.function_list.append(ex_class_func_template())
@@ -54,7 +55,8 @@ class ex_tasker_template(extra_tasker_template):
         return return_tuple
     
     def backup_list(self):
+        """用于创建build_list"""
         return super().backup_list()
     
-    def build(self, build_list: list, system_pkg: dict):
-        return None
+    def build(self, build_list: list, system_pkg: dict) -> bool:
+        return True
