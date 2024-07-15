@@ -346,15 +346,15 @@ class label_tasker_func(extra_tasker_func_template):
         super().proceed(cmd_list, tasker, system_pkg)
     
     def new(self, parameter, tasker, system_pkg) -> None:
-        system_pkg["system_pkg"]("待完成")
+        system_pkg["system_msg"]("待完成")
         return None
     
     def delete(self, parameter, tasker, system_pkg) -> None:
-        system_pkg["system_pkg"]("待完成")
+        system_pkg["system_msg"]("待完成")
         return None
     
     def edit(self, parameter, tasker, system_pkg) -> None:
-        system_pkg["system_pkg"]("待完成")
+        system_pkg["system_msg"]("待完成")
         return None
     
     def search(self, parameter, tasker, system_pkg) -> None:
@@ -399,10 +399,10 @@ class label_analyze_func(extra_tasker_func_template):
     
     def details(self, parameter, tasker, system_pkg) -> None:
         """统计相关数据"""
-        system_pkg["system_pkg"]("待完成")
+        system_pkg["system_msg"]("待完成")
         return None
     
     def list_label(self, parameter, tasker, system_pkg) -> None:
         """输入标签，查找，分析相关信息"""
-        system_pkg["system_pkg"]("待完成")
+        system_pkg["system_msg"]("待完成")
         return None
