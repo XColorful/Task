@@ -27,10 +27,15 @@ def strict_input(msg_str = "", block_list = [], system_pkg = {"tips_msg":print},
     """限制输入，不为空字符串，首项不为空格，首项不为数字，返回元组( True/False ，字符串)
     
     可补充输入提示"""
+    try:
+        quit_string = system_pkg["EXIT"]
+    except KeyError:
+        quit_string = "exit"
+    
     while True:
         block = False
         user_input = input(f"[Input]{msg_str}>")
-        if user_input == "exit":
+        if user_input == quit_string:
             return (False, "取消严格输入")
         if user_input == "":
             continue
@@ -56,10 +61,15 @@ def block_input(msg_str = "", block_list = [], system_pkg = {"tips_msg":print}, 
     """对非空输入内容进行限制，首项不为空格，首项不为数字，返回元组( True/False/None ，字符串)
     
     可补充输入提示"""
+    try:
+        quit_string = system_pkg["EXIT"]
+    except KeyError:
+        quit_string = "exit"
+    
     while True:
         block = False
         user_input = input(f"[Input]{msg_str}>")
-        if user_input == "exit":
+        if user_input == quit_string:
             return (False, "取消严格输入")
         if user_input == "":
             return (None, "取消严格输入")
