@@ -237,8 +237,11 @@ def choose_search_result(user_input, search_result_dict:dict, task_list, system_
         return None
     elif result_count == 1:
         options = get_the_search_result(search_result_dict)
-        index_list, category = options[0][0], options[0][1]
-        index = index_list[0]
+        result, category = options[0][0], options[0][1]
+        if type(result) == list:
+            index = result[0]
+        elif type(result) == int:
+            index = result
         show_only_search_result(task_list, index, category, system_pkg)
         return index
     elif result_count > 1:
