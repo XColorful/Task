@@ -56,7 +56,7 @@ def get_check_func(user_input:str, system_pkg):
         # 索引
         try:
             index = convert_to_int(user_input)
-            if user_input != None:
+            if index != None:
                 if index >= 0: index -= 1
                 return check_func_list[index]
         except IndexError:
