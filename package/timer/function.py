@@ -55,6 +55,35 @@ def input_is_YYYY_MM_DD_HH_SS(input_str) -> bool:
     except ValueError:
         return False
 
+def analyze_interface_input(str_input) -> dict:
+    """返回dict{"cmd":str, "parameter":str}"""
+    if str_input == "":
+        return {"cmd":"", "parameter":""}
+    elif str_input[0] == "+":
+        try:
+            str_input = str_input[1:]
+            return {"cmd":"search", "parameter":str_input}
+        except IndexError: return {"cmd":"search", "parameter":""}
+    elif str_input[0] == "/":
+        try:
+            str_input = str_input[1:]
+        except IndexError: return {"cmd":"", "parameter":""}
+    # 一般输入
+    str_input = str_input.split(" ", 1)
+    try:
+        parameter = str_input[1]
+    except IndexError: parameter = ""
+    
+    return {"cmd":str_input[0], "parameter":parameter}
+def get_interface_input(name, system_pkg) -> dict | bool:
+    while True:
+        interface_input = system_pkg["normal_input"](f"{name}")
+        input_dict = analyze_interface_input(interface_input)
+        if input_dict["cmd"] == "": continue
+        elif input_dict["cmd"] == system_pkg["EXIT"]: return False
+        
+        return input_dict
+
 def show_task_info(timer_task, task_index, system_pkg):
     """显示timer_task信息，task_index为显示参数值"""
     system_pkg["normal_msg"](f"[{task_index}]|<{timer_task.attribute}>|{timer_task.content}")
@@ -217,3 +246,43 @@ def calculate_during_time(start_time, end_time):
     result += f"{int(minutes):>2}m" if minutes > 0 else "   "
     
     return result + " " * (16 - len(result))
+
+def set_timer_task_df_attribute(tasker, system_pkg) -> bool | None:
+    system_pkg["normal_msg"](f"原timer默认属性：{tasker.timer_task_df_attribute}")
+    input_condition, user_input = system_pkg["block_input"]("设置timer默认属性", block_list = system_pkg["BLOCK_LIST"], system_pkg = system_pkg,  block_number = False)
+
+    if input_condition == False: return False
+    elif user_input == "n":
+        tasker.timer_task_df_attribute = ""
+        system_pkg["system_msg"]("已清除默认timer默认属性")
+    elif input_condition == None: return None
+    else:
+        tasker.timer_task_df_attribute = user_input
+        system_pkg["system_msg"](f"默认timer属性更改为{tasker.timer_task_df_attribute}")
+    return None
+def set_timer_task_prefix(tasker, system_pkg):
+    system_pkg["normal_msg"](f"原timer默认内容前缀：{tasker.timer_task_prefix}")
+    input_condition, user_input = system_pkg["block_input"]("设置timer默认内容前缀", block_list = system_pkg["BLOCK_LIST"], system_pkg = system_pkg,  block_number = False)
+    
+    if input_condition == False: return False
+    elif user_input == "n":
+        tasker.timer_task_prefix = ""
+        system_pkg["system_msg"]("已清除timer默认内容前缀")
+    elif input_condition == None: return None
+    else:
+        tasker.timer_task_prefix = user_input
+        system_pkg["system_msg"](f"默认timer默认内容前缀更改为{tasker.timer_task_prefix}")
+    return None
+def set_timer_task_df_content(tasker, system_pkg):
+    system_pkg["normal_msg"](f"原timer默认内容：{tasker.timer_task_df_content}")
+    input_condition, user_input = system_pkg["block_input"]("设置timer默认内容", block_list = system_pkg["BLOCK_LIST"], system_pkg = system_pkg,  block_number = False)
+    
+    if input_condition == False: return False
+    elif user_input == "n":
+        tasker.timer_task_df_content = ""
+        system_pkg["system_msg"]("已清除timer默认内容")
+    elif input_condition == None: return None
+    else:
+        tasker.timer_task_df_content = user_input
+        system_pkg["system_msg"](f"默认timer默认内容更改为{tasker.timer_task_df_content}")
+    return None

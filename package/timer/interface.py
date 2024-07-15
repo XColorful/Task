@@ -1,4 +1,4 @@
-from .function import get_not_end_timer_index, show_unfinished_timer, calculate_during_time
+from .function import get_interface_input, get_not_end_timer_index, show_unfinished_timer, calculate_during_time
 
 def show_recent_timer_task(tasker, system_pkg) -> None:
     recent_task_list = tasker.task_list[-9:]
@@ -28,34 +28,7 @@ def interface_pre_show(info_dict, tasker, system_pkg):
         show_unfinished_timer(info_dict["not_end_timer_index"], tasker, system_pkg)
     # 显示最近几项timer类task
     show_recent_timer_task(tasker, system_pkg)
-def analyze_input(str_input) -> dict:
-    """返回dict{"cmd":str, "parameter":str}"""
-    if str_input == "":
-        return {"cmd":"", "parameter":""}
-    elif str_input[0] == "+":
-        try:
-            str_input = str_input[1:]
-            return {"cmd":"search", "parameter":str_input}
-        except IndexError: return {"cmd":"search", "parameter":""}
-    elif str_input[0] == "/":
-        try:
-            str_input = str_input[1:]
-        except IndexError: return {"cmd":"", "parameter":""}
-    # 一般输入
-    str_input = str_input.split(" ", 1)
-    try:
-        parameter = str_input[1]
-    except IndexError: parameter = ""
-    
-    return {"cmd":str_input[0], "parameter":parameter}
-def get_interface_input(name, system_pkg) -> dict | bool:
-    while True:
-        interface_input = system_pkg["normal_input"](f"{name}")
-        input_dict = analyze_input(interface_input)
-        if input_dict["cmd"] == "": continue
-        elif input_dict["cmd"] == system_pkg["EXIT"]: return False
-        
-        return input_dict
+
 def get_cmd_index_list(cmd, tasker):
     cmd_index_list = []
     for index, func in enumerate(tasker.function_list):
