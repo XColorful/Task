@@ -200,7 +200,7 @@ def get_the_search_result(search_result_dict) -> list[tuple]:
             options.append( (search_result_dict[key], key) )
     return options
 
-def show_search_result(task_list, index, category, system_pkg) -> None:
+def show_only_search_result(task_list, index:int, category, system_pkg) -> None:
     system_pkg["head_msg"](f"搜索类别：{category}")
     show_task_info(task_list[index], index, system_pkg)
     return None
@@ -228,12 +228,13 @@ def show_many_search_result(options, task_list, system_pkg) -> list:
     display_index = 0
     for (index_list, category) in options:
         if (index_list == None) or (index_list == []): continue
+        # index_list == None -> 索引搜索结果为空
 
         system_pkg["head_msg"](f"搜索类别：{category}")
         show_timer_task_with_increase_index(index_list, display_index, task_list, system_pkg)
         
         display_index += len(index_list)
-        combine_index_list += index_list
+        combine_index_list += index_list # index_list:list[int]
     return combine_index_list
 
 def choose_from_all_index_list(combine_index_list, system_pkg) -> int | None:
@@ -275,8 +276,12 @@ def choose_search_result(user_input, search_result_dict:dict, task_list, system_
         return None
     elif result_count == 1:
         options = get_the_search_result(search_result_dict)
-        index, category = options[0][0], options[0][1]
-        show_search_result(task_list, index, category, system_pkg)
+        result, category = options[0][0], options[0][1]
+        if type(result) == list:
+            index = result[0]
+        elif type(result) == int:
+            index = result
+        show_only_search_result(task_list, index, category, system_pkg)
         return index
     elif result_count > 1:
         options = get_the_search_result(search_result_dict)

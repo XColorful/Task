@@ -15,6 +15,7 @@ class df_task_template(default_task_template):
         return super().backup()
     
     def backup_list(self):
+        """用于创建build_list"""
         return super().backup_list()
     
     def build(self, build_list:list):
@@ -34,6 +35,7 @@ class ex_task_template(extra_task_template):
         return None
     
     def backup_list(self) -> tuple:
+        """用于创建build_list"""
         backup_dict_list = []
         return backup_dict_list
     

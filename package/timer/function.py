@@ -154,7 +154,7 @@ def find_timer_in_all(input_str, tasker) -> dict[list]:
             
             "attribute" -> list[int],
             
-            "content" -> intlist[int],
+            "content" -> list[int],
             
             "comment" -> list[int],
             

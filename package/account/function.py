@@ -731,3 +731,74 @@ def show_acc_info(acc_list, system_pkg):
                            display_linked_account])
         index += 1
     system_pkg["table_msg"](table_list, heading = True)
+
+def info_in_task(user_input, acc_task) -> bool:
+    if user_input in [acc_task.create_date,
+                      acc_task.last_date,
+                      acc_task.account_type,
+                      acc_task.label,
+                      acc_task.password]: return True
+    
+    for value_list in list(acc_task.dict.values()):
+        if type(value_list) == list:
+            for value in value_list:
+                if user_input in value: return True
+        elif type(value_list) == str:
+            value = value_list
+            if user_input in value: return True
+        
+    return False
+
+def search_acc_info(user_input, tasker, system_pkg) -> int | None:
+    """给定user_input，返回索引"""
+    if user_input == "":
+        user_input = system_pkg["normal_input"]("输入内容选定task")
+    
+    if user_input == system_pkg["EXIT"]: return None
+    
+    
+    task_index_list = []
+    for acc_index, acc_task in enumerate(tasker.task_list):
+        if acc_task.version != "account": continue
+        
+        if info_in_task(user_input, acc_task):
+            task_index_list.append(acc_index)
+    
+    
+    index_count = len(task_index_list)
+    if index_count == 0: return None
+    elif index_count == 1: return task_index_list[0]
+    else:
+        system_pkg["head_msg"](f"搜索结果({index_count}/{len(tasker.task_list)})")
+        
+        body_list = []
+        show_index = 1
+        for acc_index in task_index_list:
+            account_type = tasker.task_list[acc_index].account_type
+            label = tasker.task_list[acc_index].label
+            append_string = f"[{show_index}]{account_type}"
+            if label != "" and label != account_type:
+                append_string += f"（{label}）"
+            body_list.append(append_string)
+            show_index += 1
+        
+        system_pkg["body_msg"](body_list)
+        
+        system_pkg["tips_msg"]("输入负数则倒取")
+        index_input = system_pkg["normal_input"]("选定task")
+        index_selection = convert_to_int(index_input)
+        
+        if index_selection == None:
+            system_pkg["system_msg"]("{index_input}不为整数")
+            return None
+        else:
+            if index_selection > 0:
+                index_selection -=1
+            elif index_selection == 0:
+                system_pkg["system_msg"]("注意看，这个索引从1开始（）")
+                return None
+            try:
+                return task_index_list[index_selection]
+            except IndexError:
+                system_pkg["system_msg"](f"索引{index_input}不在列表内")
+                return None
