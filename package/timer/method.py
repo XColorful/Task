@@ -38,9 +38,9 @@ def get_split_parameters(user_input) -> list[str]:
 
 def show_check_func_info(system_pkg):
     system_pkg["table_msg"]([["序号", "类型", "描述"],
-                                ["1", "unfinished", "给定日期下未完成的timer_task"],
-                                ["2", "today", "给定日期内持续timer_task"],
-                                ["3", "all", "在给定日期内持续的tiemr_task"]], heading = True)
+                                ["1", "unfinished", "给定日期内未完成的timer_task"],
+                                ["2", "today", "给定日期内创建的timer_task"],
+                                ["3", "all", "持续时间包含给定日期的tiemr_task"]], heading = True)
 
 def get_check_func(user_input:str, system_pkg):
     """返回值为function或None"""

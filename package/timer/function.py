@@ -99,14 +99,17 @@ def check_timer_u(timer_task, time: str) -> bool:
 def check_timer_t(timer_task, time: str) -> bool:
     start_time = datetime.strptime(timer_task.start_time, "%Y_%m_%d-%H:%M")
     time = datetime.strptime(time, "%Y_%m_%d")
+    return start_time.date() == time.date()
+
+def check_timer_all(timer_task, time: str) -> bool:
+    start_time = datetime.strptime(timer_task.start_time, "%Y_%m_%d-%H:%M")
+    time = datetime.strptime(time, "%Y_%m_%d")
     if timer_task.end_time == "":
         return start_time.date() <= time.date()
     else:
         end_time = datetime.strptime(timer_task.end_time, "%Y_%m_%d-%H:%M")
         return start_time.date() <= time.date() <= end_time.date()
 
-def check_timer_all(timer_task, time: str) -> bool:
-    return check_timer_u(timer_task, time) or check_timer_t(timer_task, time)
 
 def get_not_end_timer_index(tasker) -> list[int]:
     return_index_list = []
