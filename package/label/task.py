@@ -1,4 +1,5 @@
 from default_class import extra_task_template
+from .function import is_valid_input
 
 class label_task(extra_task_template):
     version = "label"
@@ -7,7 +8,7 @@ class label_task(extra_task_template):
         # extra attributes here
         self.create_date = "" # YYYY_MM_DD
         self.content = ""
-        self.label_list = [] # [ [attr, content], [attr, content], ... ]
+        self.label_list = [] # [ [attr, label], [attr, label], ... ]
         
     def __str__(self):
         return f"{self.create_date}|{self.content}|label：{len(self.label_list)}"
@@ -22,8 +23,8 @@ class label_task(extra_task_template):
             return False
         
     def make_label_pair(self, label_input):
-        attr, content = label_input.split("|||", 1)
-        label_pair = [attr, content]
+        attr, label = label_input.split("|||", 1)
+        label_pair = [attr, label]
         return label_pair
     
     def delete_label(self, label_index) -> bool:
@@ -93,6 +94,9 @@ class label_task(extra_task_template):
     def build(self, build_list: list) -> bool:
         """build_list格式：
         ["self.type", "self.version", "self.create_date", "self.content", "attr|||content", "attr|||content", ...]"""
+        for i in build_list:
+            if not is_valid_input(i): return False
+        
         try:
             self.create_date = build_list[2]
             self.content = build_list[3]

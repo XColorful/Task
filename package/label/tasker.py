@@ -2,7 +2,7 @@ from default_class import extra_tasker_template
 from .class_func import label_tasker_func
 from .interface import label_interface
 from .update_info import label_update_info
-
+from .function import is_valid_input
 
 class label_tasker(extra_tasker_template):
     version = "label"
@@ -13,6 +13,7 @@ class label_tasker(extra_tasker_template):
         self.create_date = ""
         self.description = ""
         
+        self.convenient_input = False
         self.attr_input_map = {} # {"input1": map, "input2": map, ...}
     
     def interface(self, system_pkg):
@@ -41,14 +42,21 @@ class label_tasker(extra_tasker_template):
     def backup_list(self):
         return_list = super().backup_list()
         
+        convenient_input_condition = "1" if self.convenient_input == True else "0"
+        return_list.append(convenient_input_condition)
+        
         attr_map_list = []
         for key, value in self.attr_input_map.items():
             attr_map_list.append(f"{key}|||{value}")
         return_list += attr_map_list
-        
+
         return return_list
     
     def build(self, build_list: list, system_pkg: dict) -> bool:
+        for i in build_list:
+            if not is_valid_input(i):
+                return False
+        
         self.tasker_label = build_list[2]
         self.create_date = build_list[3]
         
@@ -80,11 +88,20 @@ class label_tasker(extra_tasker_template):
                     self.task_template.append(task_template)
         self.description = build_list[6]
         
+        # 便捷输入
+        if build_list[7] == "1":
+            self.convenient_input = True
+        elif build_list[7] == "0":
+            self.convenient_input = False
+        else:
+            return False
+        
         # label类task属性
-        for attr_map_input in build_list[7:]:
+        for attr_map_input in build_list[8:]:
             if self.check_attr_map_input(attr_map_input) == True:
                 self.update_attr_map(attr_map_input)
             else:
                 return False
+        
         
         return True
