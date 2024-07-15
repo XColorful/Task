@@ -134,3 +134,4 @@ def account_interface(tasker, system_pkg): # tasker -> tasker
         show_account_interface = True
         # 保存pkl
         system_pkg["save_pkl"](tasker, system_pkg["main_pkl_dir"])
+        system_pkg["tips_msg"]("----已保存pkl文件----")
