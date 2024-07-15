@@ -171,6 +171,8 @@ def show_timer_task_with_increase_index(index_list, start_index, task_list, syst
     table_list = []
     heading = ["指示索引", "索引", "start_time", "end_time", "属性", "内容", "comment"]
     table_list.append(heading)
+    if type(index_list) == int:
+        index_list = [index_list]
     for index in index_list:
         timer_task = task_list[index]
         table_list.append([str(instruct_index),
@@ -194,6 +196,8 @@ def show_many_search_result(options, task_list, system_pkg) -> list:
         system_pkg["head_msg"](f"搜索类别：{category}")
         show_timer_task_with_increase_index(index_list, display_index, task_list, system_pkg)
         
+        if type(index_list) == int:
+            index_list = [index_list]
         display_index += len(index_list)
         combine_index_list += index_list # index_list:list[int]
     return combine_index_list
