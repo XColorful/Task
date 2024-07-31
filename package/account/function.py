@@ -733,11 +733,13 @@ def show_acc_info(acc_list, system_pkg):
     system_pkg["table_msg"](table_list, heading = True)
 
 def info_in_task(user_input, acc_task) -> bool:
-    if user_input in [acc_task.create_date,
+    for acc_info in [acc_task.create_date,
                       acc_task.last_date,
                       acc_task.account_type,
                       acc_task.label,
-                      acc_task.password]: return True
+                      acc_task.password]:
+        if user_input in acc_info:
+            return True
     
     for value_list in list(acc_task.dict.values()):
         if type(value_list) == list:
