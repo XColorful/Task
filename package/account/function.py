@@ -791,7 +791,7 @@ def search_acc_info(user_input, tasker, system_pkg) -> int | None:
         index_selection = convert_to_int(index_input)
         
         if index_selection == None:
-            system_pkg["system_msg"]("{index_input}不为整数")
+            system_pkg["system_msg"](f"{index_input}不为整数")
             return None
         else:
             if index_selection > 0:
