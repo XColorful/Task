@@ -142,10 +142,10 @@ def select_class_func(class_func_list, system_pkg) -> tuple | object:
                     if user_input == func_label:
                         index_list = [func_index]
                         break # 完全匹配func标签则退出
-                    for func in class_func_label_list[func_index]:
-                        if user_input == func:
-                            index_list = [func_index]
-                            break # 完全匹配func则退出
+                for func in class_func_label_list[func_index]:
+                    if user_input == func:
+                        index_list = [func_index]
+                        break # 完全匹配func则退出
             if len(index_list) == 1: # 用户输入有一项匹配，自动获取索引
                 get_index = index_list[0]
                 break
