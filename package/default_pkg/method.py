@@ -685,7 +685,7 @@ class default_txt_operation(default_method_template):
                         
                         # 版本选择--------+--------+--------+--------+--------+--------+ Begin
                         if is_default_type == True: # extra类型不需要在此选择版本
-                            select_tasker.sort(key = lambda x: x[0])
+                            select_tasker.sort(key = lambda x: x[1])
                             if AUTO_UPDATE_VERSION == None: temp_tasker_list.append(select_tasker[-1][0])
                             elif AUTO_UPDATE_VERSION == True: temp_tasker_list.append(select_tasker[-1][0])
                             elif AUTO_UPDATE_VERSION == False:
@@ -772,7 +772,7 @@ class default_txt_operation(default_method_template):
                         
                         # 版本选择--------+--------+--------+--------+--------+--------+ Begin
                         if is_default_type == True: # extra类型不需要在此选择版本
-                            select_task.sort(key = lambda x: x[0])
+                            select_task.sort(key = lambda x: x[1])
                             if AUTO_UPDATE_VERSION == None: temp_tasker_list[-1].task_list.append(select_task[-1][0])
                             elif AUTO_UPDATE_VERSION == True: temp_tasker_list[-1].task_list.append(select_task[-1][0])
                             elif AUTO_UPDATE_VERSION == False:
