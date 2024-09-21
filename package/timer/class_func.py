@@ -209,7 +209,7 @@ def choose_from_all_index_list(combine_index_list, system_pkg) -> int | None:
     convert_result = convert_to_int(user_input)
     
     if convert_result == None:
-        system_pkg["system_Msg"](f"指示索引\"{user_input}\"格式错误")
+        system_pkg["system_msg"](f"指示索引\"{user_input}\"格式错误")
         return None
     user_input = convert_result
     try:
