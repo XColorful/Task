@@ -123,6 +123,7 @@ def default_interface(tasker, system_pkg): # tasker -> tasker
                     default_proceed_function = function_list[class_func_index]
         available_func_index_len = len(available_func_index)
         # 选择指令
+        proceed_function = None
         if available_func_index_len == 1: # 仅有一个可用指令
             proceed_function = function_list[available_func_index[0]]
         elif available_func_index_len == 0: # 没有找到指令
@@ -150,13 +151,19 @@ def default_interface(tasker, system_pkg): # tasker -> tasker
                 show_function_list.append(function_list[index])
             table_class_func(show_function_list, system_pkg)
             user_input = system_pkg["normal_input"]("输入索引")
+            if user_input == system_pkg["EXIT"]: # 取消选择可用指令
+                continue
             convert_result = convert_to_int(user_input)
             if convert_result != None:
                 if 0 <= convert_result < len(show_function_list):
-                    proceed_function = function_list[convert_result]
+                    func_index = available_func_index[convert_result]
+                    proceed_function = function_list[func_index]
                 else:
                     system_pkg["system_msg"](f"索引\"{user_input}\"不存在"); continue
         # 执行指令
+        if proceed_function == None:
+            system_pkg["error_msg"]("遇到了一些Bug，请检查代码")
+            raise
         proceed_function.proceed(cmd_list, tasker, system_pkg)
         show_task = True
 # tasker.interface()--------+--------+--------+--------+--------+--------+--------+--------+ End
