@@ -219,6 +219,23 @@ def find_timer_in_time(input_str, tasker) -> list[int]:
     
     return time_index
 
+def calculated_during_time(seconds):
+    if seconds < 0:
+        return "Error:start, end    "
+    elif seconds >= 8640000: # 100 days in seconds
+        return "More than 100d      "
+    
+    days, remainder = divmod(seconds, 86400)
+    hours,remainder = divmod(remainder, 3600)
+    minutes, _ = divmod(remainder, 60)
+    
+    result = ""
+    result += f"{int(days):>2}d " if days > 0 else "    "
+    result += f"{int(hours):>2}h " if hours > 0 else "    "
+    result += f"{int(minutes):>2}m" if minutes > 0 else "   "
+    
+    return result + " " * (16 - len(result))
+    
 def calculate_during_time(start_time, end_time):
     format = "%Y_%m_%d-%H:%M"
     try:
@@ -234,21 +251,7 @@ def calculate_during_time(start_time, end_time):
         return "Error:end_time       "
     
     duration = end_time - start_time
-    if duration.total_seconds() < 0:
-        return "Error:start, end    "
-    if duration.total_seconds() >= 8640000:  # 100 days in seconds
-        return "More than 100d      "
-    
-    days, remainder = divmod(duration.total_seconds(), 86400)
-    hours, remainder = divmod(remainder, 3600)
-    minutes, _ = divmod(remainder, 60)
-    
-    result = ""
-    result += f"{int(days):>2}d " if days > 0 else "    "
-    result += f"{int(hours):>2}h " if hours > 0 else "    "
-    result += f"{int(minutes):>2}m" if minutes > 0 else "   "
-    
-    return result + " " * (16 - len(result))
+    return calculated_during_time(duration.total_seconds())
 
 def set_timer_task_df_attribute(tasker, system_pkg) -> bool | None:
     system_pkg["normal_msg"](f"原timer默认属性：{tasker.timer_task_df_attribute}")

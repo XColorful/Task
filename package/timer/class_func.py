@@ -1,6 +1,11 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from default_class_func import extra_tasker_func_template
-from .function import convert_to_int, YYYY_MM_DD, YYYY_MM_DD_HH_MM, show_task_info, get_not_end_timer_index, show_unfinished_timer, find_timer_in_all, set_timer_task_df_attribute, set_timer_task_prefix, set_timer_task_df_content
+from .function import convert_to_int, YYYY_MM_DD, YYYY_MM_DD_HH_MM, show_task_info, get_not_end_timer_index, show_unfinished_timer, find_timer_in_all, set_timer_task_df_attribute, set_timer_task_prefix, set_timer_task_df_content, calculated_during_time
+from .task import timer_task
+import matplotlib.pyplot as plt
+import numpy as np
+from pylab import mpl
+mpl.rcParams["font.sans-serif"] = ["Microsoft YaHei"]
 
 def check_tasker(tasker, system_pkg) -> None:
     """检查是否有模板"""
@@ -569,3 +574,120 @@ class timer_analyze_func(extra_tasker_func_template):
     
     def duration_date(self, parameter, tasker, system_pkg) -> None:
         pass
+
+# attr 类别+总时长+参与天数
+def start_end_in_min(timer_task) -> int:
+    # 定义日期时间字符串的格式
+    date_format = "%Y_%m_%d-%H:%M"
+
+    # 解析第一个日期时间字符串
+    time1 = datetime.strptime(timer_task.start_time, date_format)
+
+    # 如果第二个时间字符串为空，则取当前时间
+    time2 = datetime.strptime(timer_task.end_time, date_format) if timer_task.end_time != "" else datetime.now()
+
+    # 计算时间差异，返回以分钟为单位的整数
+    time_difference = int((time2 - time1).total_seconds() / 60)
+    return time_difference if time_difference >= 0 else 0
+def get_days_list(task: timer_task) -> list:
+    # 定义日期时间格式
+    date_format = "%Y_%m_%d-%H:%M"
+
+    # 解析开始时间
+    start_date = datetime.strptime(task.start_time, date_format)
+
+    # 如果结束时间为空，则取当前时间
+    if task.end_time == "":
+        end_date = datetime.now()
+    else:
+        end_date = datetime.strptime(task.end_time, date_format)
+
+    # 获取日期列表
+    days_list = []
+    current_date = start_date
+    while current_date.date() <= end_date.date():
+        days_list.append(current_date.strftime("%Y_%m_%d"))
+        current_date += timedelta(days=1)
+
+    return days_list
+class Attr_data():
+    def __init__(self, task:timer_task):
+        self.attr = task.attribute
+        self.duration = 0
+        self.days = {}
+        self.add(task)
+    def add(self, task:timer_task):
+        self.duration += start_end_in_min(task)
+        for day in get_days_list(task):
+            if not day in self.days:
+                self.days[day] = 1
+            else:
+                self.days[day] += 1
+def categorize_attr(tasker, system_pkg) -> None:
+    cat_dict = {} # attr : Attr_data
+    for task in tasker.task_list:
+        if task.attribute in cat_dict:
+            cat_dict[task.attribute].add(task)
+        else:
+            cat_dict[task.attribute] = Attr_data(task)
+    cat_data_list = sorted(cat_dict.values(), key = lambda data : data.duration, reverse = True)
+    attr_list, dur_list, f_duration, days_list = [], [], [], []
+    table_list = [["属性", "时长", "天数"]]
+    for data in cat_data_list:
+        attr_list.append(data.attr)
+        dur_list.append(data.duration)
+        f_d = calculated_during_time(data.duration * 60)
+        f_duration.append(f_d)
+        days_list.append(len(data.days))
+        table_list.append([str(data.attr), str(f_d), str(len(data.days))])
+    # 显示文字版
+    system_pkg["table_msg"](table_list, heading = True)
+    # 显示图表
+    dur = np.array(dur_list)
+    explode_dur = [0.1] + [0] * (len(dur)-1)
+    days = np.array(days_list)
+    # 表1
+    plt.subplot(1,2,1)
+    plt.title(f"{tasker.tasker_label}各task时间比例")
+    plt.pie(x = dur, # 比例
+            labels = attr_list, # 标签
+            explode = explode_dur, shadow = True)
+    plt.legend(attr_list)
+    # 表2
+    plt.subplot(1,2,2)
+    plt.title(f"{tasker.tasker_label}各task天数")
+    plt.bar(attr_list, days)
+    plt.grid(axis = "y", linestyle = "--", linewidth = 0.5)
+    plt.show()
+    
+
+def categorize_date(tasker, system_pkg) -> None:
+    pass
+
+class timer_categorize_func(extra_tasker_func_template):
+    def __init__(self):
+        super().__init__()
+        self.label = "timer_categorize_func"
+        self.version = "timer"
+        self.function_list = ["categorize"]
+        self.create_date = YYYY_MM_DD()
+        self.categorize_func = [["attr", categorize_attr], ["date", categorize_date]]
+        
+    def __str__(self):
+        return super().__str__()
+    
+    def get_info(self):
+        return super().get_info()
+    
+    def proceed(self, cmd_list:list, tasker, system_pkg:dict):
+        super().proceed(cmd_list, tasker, system_pkg)
+
+    def categorize(self, parameter, tasker, system_pkg) -> None: # 箱型图
+        if parameter == "": 
+            system_pkg["tips_msg"]("可选参数[\"attr\", \"date\"]")
+            parameter = system_pkg["normal_input"]("输入分类")
+        if parameter == system_pkg["EXIT"]: return None
+        for feature, func in self.categorize_func:
+            if parameter == feature:
+                func(tasker, system_pkg)
+        return None
