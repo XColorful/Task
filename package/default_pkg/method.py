@@ -53,7 +53,7 @@ def select_tasker(cmd_parameter, tasker_list, system_pkg) -> tuple | int:
     
     tasker_index = ""
     index_list = []
-    while len(index_list) == 0:
+    while True:
         # 获取user_input
         if user_input == "":
             system_pkg["tips_msg"]("匹配首个符合的标签，输入\"exit\"退出")
@@ -67,20 +67,17 @@ def select_tasker(cmd_parameter, tasker_list, system_pkg) -> tuple | int:
             if convert_result != None:
                 if 0 <= convert_result < len(tasker_list):
                     tasker_index = convert_result
-                    break
+                    return tasker_index
             # 标签判断
             index_list = []
-            for tasker_index in range(0, len(tasker_list)): # 对于每一个tasker
-                tasker_label = tasker_list[tasker_index].tasker_label
-                if user_input in tasker_label:
+            for tasker_index, tasker in enumerate(tasker_list): # 对于每一个tasker
+                if user_input in tasker.tasker_label:
                     index_list.append(tasker_index)
-                    if user_input == tasker_label:
-                        index_list = [tasker_index]
-                        break # 完全匹配则退出
+                    if user_input == tasker.tasker_label:
+                        return tasker_index # 完全匹配则退出
 
             if len(index_list) == 1: # 用户输入有一项匹配，自动获取索引
-                tasker_index = index_list[0]
-                break
+                return index_list[0]
             elif len(index_list) == 0: # 用户输入非空字符串，但没有匹配
                 system_pkg["system_msg"](f"没有找到\"{user_input}\"")
             else: # 用户输入有多项匹配，仅显示筛选的tasker
