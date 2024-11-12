@@ -21,7 +21,7 @@ def select_YYYY_MM_DD(user_input:str, system_pkg) -> str | None:
     if input_is_YYYY_MM_DD(user_input):
         return user_input
     else:
-        system_pkg["system_pkg"](f"日期{user_input}格式不符")
+        system_pkg["normal_msg"](f"日期{user_input}格式不符")
         return None
 
 def get_split_parameter(user_input) -> str:
