@@ -282,7 +282,7 @@ class account_tasker_func(extra_tasker_func_template):
                     system_pkg["system_msg"](f"{task.account_type}{show_alias}.password已复制到剪贴板")
             elif len(all_index_list) > 1:
                 system_pkg["tips_msg"]("输入序号以获取密码到剪贴板")
-                user_input = system_pkg["normal_input"]("选取account.password")
+                user_input = system_pkg["normal_input"]("选取account密码")
                 if user_input == system_pkg["EXIT"]: return None
                 try:
                     input_convert = convert_to_int(user_input)

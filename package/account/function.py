@@ -788,6 +788,8 @@ def search_acc_info(user_input, tasker, system_pkg) -> int | None:
         
         system_pkg["tips_msg"]("输入负数则倒取")
         index_input = system_pkg["normal_input"]("选定task")
+        if index_input == system_pkg["EXIT"]:
+            return None
         index_selection = convert_to_int(index_input)
         
         if index_selection == None:
