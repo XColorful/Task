@@ -282,8 +282,8 @@ def edit_timer_task(index, tasker, system_pkg):
     if user_input == False: return None
     elif user_input == "": pass
     else:
-        system_pkg["system_msg"](f"start_time：{tasker.task_list[index].start_time} -> {user_input}")
-        tasker.task_list[index].start_time = user_input
+        system_pkg["system_msg"](f"start_time：{timer_task.start_time} -> {user_input}")
+        timer_task.start_time = user_input
     
     # task.attribute
     system_pkg["normal_msg"](f"task.attribute：{timer_task.attribute}")
@@ -291,8 +291,8 @@ def edit_timer_task(index, tasker, system_pkg):
     if user_input == False: return None
     elif user_input == "N/A": pass
     else:
-        system_pkg["system_msg"](f"attribute：{tasker.task_list[index].attribute} -> {user_input}")
-        tasker.task_list[index].attribute = user_input
+        system_pkg["system_msg"](f"attribute：{timer_task.attribute} -> {user_input}")
+        timer_task.attribute = user_input
     
     # task.content
     system_pkg["normal_msg"](f"task.content：{timer_task.content}")
@@ -300,11 +300,11 @@ def edit_timer_task(index, tasker, system_pkg):
     if user_input == False: return None
     elif user_input == "": pass
     elif user_input == "n":
-        system_pkg["system_msg"](f"content：{tasker.task_list[index].content} -> {tasker.timer_task_df_content}")
-        tasker.task_list[index].content = tasker.timer_task_df_content
+        system_pkg["system_msg"](f"content：{timer_task.content} -> {tasker.timer_task_df_content}")
+        timer_task.content = tasker.timer_task_df_content
     else:
-        system_pkg["system_msg"](f"content：{tasker.task_list[index].content} -> {user_input}")
-        tasker.task_list[index].content = tasker.timer_task_prefix + user_input
+        system_pkg["system_msg"](f"content：{timer_task.content} -> {user_input}")
+        timer_task.content = tasker.timer_task_prefix + user_input
     
     # task.comment
     system_pkg["normal_msg"](f"task.comment：{timer_task.comment}")
@@ -314,10 +314,10 @@ def edit_timer_task(index, tasker, system_pkg):
     elif user_input == "": pass
     elif user_input == "none":
         system_pkg["system_msg"]("已清除注释")
-        tasker.task_list[index].comment = ""
+        timer_task.comment = ""
     else:
-        system_pkg["system_msg"](f"comment：{tasker.task_list[index].comment} -> {user_input}")
-        tasker.task_list[index].comment = user_input
+        system_pkg["system_msg"](f"comment：{timer_task.comment} -> {user_input}")
+        timer_task.comment = user_input
     
     # task.end_time
     system_pkg["normal_msg"](f"task.end_time：{timer_task.end_time}")
@@ -325,8 +325,8 @@ def edit_timer_task(index, tasker, system_pkg):
     if user_input == False: return None
     elif user_input == "": pass
     else:
-        system_pkg["system_msg"](f"end_time：{tasker.task_list[index].end_time} -> {user_input}")
-        tasker.task_list[index].end_time = user_input
+        system_pkg["system_msg"](f"end_time：{timer_task.end_time} -> {user_input}")
+        timer_task.end_time = user_input
     
     return None
 
@@ -576,27 +576,21 @@ class timer_analyze_func(extra_tasker_func_template):
         pass
 
 # attr 类别+总时长+参与天数
-def start_end_in_min(timer_task) -> int:
-    # 定义日期时间字符串的格式
+
+def start_end_in_min(timer_task) -> int: # 返回分钟
     date_format = "%Y_%m_%d-%H:%M"
 
-    # 解析第一个日期时间字符串
     time1 = datetime.strptime(timer_task.start_time, date_format)
-
-    # 如果第二个时间字符串为空，则取当前时间
     time2 = datetime.strptime(timer_task.end_time, date_format) if timer_task.end_time != "" else datetime.now()
 
-    # 计算时间差异，返回以分钟为单位的整数
     time_difference = int((time2 - time1).total_seconds() / 60)
     return time_difference if time_difference >= 0 else 0
+
 def get_days_list(task: timer_task) -> list:
-    # 定义日期时间格式
     date_format = "%Y_%m_%d-%H:%M"
 
-    # 解析开始时间
     start_date = datetime.strptime(task.start_time, date_format)
 
-    # 如果结束时间为空，则取当前时间
     if task.end_time == "":
         end_date = datetime.now()
     else:
@@ -610,6 +604,7 @@ def get_days_list(task: timer_task) -> list:
         current_date += timedelta(days=1)
 
     return days_list
+
 class Attr_data():
     def __init__(self, task:timer_task):
         self.attr = task.attribute
@@ -623,6 +618,7 @@ class Attr_data():
                 self.days[day] = 1
             else:
                 self.days[day] += 1
+
 def categorize_attr(tasker, system_pkg) -> None:
     cat_dict = {} # attr : Attr_data
     for task in tasker.task_list:
@@ -690,4 +686,5 @@ class timer_categorize_func(extra_tasker_func_template):
         for feature, func in self.categorize_func:
             if parameter == feature:
                 func(tasker, system_pkg)
+                break
         return None
