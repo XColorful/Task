@@ -123,7 +123,7 @@ def input_timer_task_info(tasker_config, system_pkg) -> list[str] | bool:
     build_list[7] = input_list[3] # comment
     return build_list
 
-def get_unfinished_timer_index(parameter, tasker, system_pkg) -> int | bool:
+def get_unfinished_timer_index(parameter, tasker, system_pkg) -> int | None:
     not_end_timer_index = get_not_end_timer_index(tasker)
     if not_end_timer_index == []:
         system_pkg["system_msg"]("无未完成的timer类task")
@@ -135,7 +135,7 @@ def get_unfinished_timer_index(parameter, tasker, system_pkg) -> int | bool:
         show_unfinished_timer(not_end_timer_index, tasker, system_pkg)
         user_input = system_pkg["normal_input"](f"输入指示索引")
     # EXIT
-    if user_input == system_pkg["EXIT"]: return False
+    if user_input == system_pkg["EXIT"] or user_input == "": return None
     
     convert_condition = convert_to_int(user_input)
     if convert_condition == None:
@@ -147,7 +147,7 @@ def get_unfinished_timer_index(parameter, tasker, system_pkg) -> int | bool:
         return not_end_timer_index[select_index]
     except IndexError:
         system_pkg["system_msg"](f"指示索引\"{select_index}\"不符合")
-        return False
+        return None
 
 
 def show_set_config_guide(system_pkg):
@@ -267,7 +267,7 @@ def select_timer_task(user_input, tasker, system_pkg) -> int | None:
         show_tips_for_select_timer_task(system_pkg)
         user_input = system_pkg["normal_input"]("输入内容选定task")
 
-    if user_input == system_pkg["EXIT"]: return None
+    if user_input == system_pkg["EXIT"] or user_input == "": return None
     
     search_result_dict = find_timer_in_all(user_input, tasker)
     
@@ -408,7 +408,7 @@ class timer_tasker_func(extra_tasker_func_template):
         """输入参数为指示索引（第几个未完成的timer类task）"""
         system_pkg["normal_msg"]("--------end界面--------")
         unfinished_timer_index = get_unfinished_timer_index(parameter, tasker, system_pkg)
-        if unfinished_timer_index == None or (unfinished_timer_index == False and unfinished_timer_index != 0):
+        if unfinished_timer_index == None:
             return None
         current_YYYY_MM_DD_HH_MM = YYYY_MM_DD_HH_MM()
         tasker.task_list[unfinished_timer_index].end_time = current_YYYY_MM_DD_HH_MM
