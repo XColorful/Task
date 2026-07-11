@@ -118,19 +118,16 @@
 
 **目标**：启动一个可见窗口——三区布局、SystemTray、输入框可打字并显示 log。不绑定具体业务逻辑。
 
-- [ ] `src/ui/component/styled_button.py`, `toast_notification.py`, `confirm_dialog.py`
+- [x] `src/ui/component/styled_button.py`, `toast_notification.py`, `confirm_dialog.py`
   - 参考：`docs/architecture/ui/component/SPEC.md`
-- [ ] `src/ui/main/system_tray.py` — `SystemTray`
+- [x] `src/ui/main/system_tray.py` — `SystemTray`
   - 参考：`docs/architecture/ui/main/SPEC.md`
-- [ ] `src/ui/main/main_window.py` — `MainWindow`（三区布局、去除×按钮、托盘 minimize）
+- [x] `src/ui/main/main_window.py` — `MainWindow`（三区布局、去除×按钮、托盘 minimize）
   - 参考：`docs/architecture/ui/main/SPEC.md`
-- [ ] `src/ui/main/main_controller.py` — `MainController`（状态机 + 预处理链连接）
+- [x] `src/ui/main/main_controller.py` — `MainController`（状态机 + 预处理链连接）
   - 参考：`docs/architecture/ui/main/SPEC.md`
 
-**测试**：
-1. 启动 → 看到窗口 → 打字 → 看到输入框文字 → 回车 → 系统输出区有 log 反馈
-2. 点击关闭 → 窗口隐藏 → 托盘图标可见 → 右键托盘 → 显示窗口
-3. `+xxx` 输入 → 控制台确认预处理为 `search xxx`
+**测试**：✅ `src/tests/test_phase5.py` — 13/13 全部通过。QQFontDatabase 字体警告（Qt 6+ 不再捆绑字体，打包时需部署 DejaVu 字体），不影响功能。
 
 ## 阶段 6：Tasker 列表 + Task 表格（主界面可用）
 
@@ -244,4 +241,4 @@
 | `src/util/` | json_utils, date_utils, string_utils, file_utils, clipboard_utils | `docs/architecture/util/SPEC.md` |
 | `src/` (入口) | main.py, requirements.txt | — |
 | 图表 HTML | 4 个 HTML 页面 | `docs/architecture/ui/chart/SPEC.md` |
-                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                               
