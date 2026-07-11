@@ -59,20 +59,20 @@
 
 **目标**：完成 util 和 config——这两个包是存储层的依赖。不需要 GUI。
 
-- [ ] `src/util/json_utils.py` — `load_json(path)`, `save_json(path, data, atomic=True)`
+- [x] `src/util/json_utils.py` — `load_json(path)`, `save_json(path, data, atomic=True)`
   - 参考：`docs/architecture/util/SPEC.md`
-- [ ] `src/util/file_utils.py` — `atomic_write()`, `safe_join()`, `ensure_dir()`
+- [x] `src/util/file_utils.py` — `atomic_write()`, `safe_join()`, `ensure_dir()`
   - 参考：`docs/architecture/util/SPEC.md`
-- [ ] `src/util/string_utils.py` — `parse_semicolon_content()`, `extract_key_value()`
+- [x] `src/util/string_utils.py` — `parse_semicolon_content()`, `extract_key_value()`
   - 参考：`docs/architecture/util/SPEC.md`
-- [ ] `src/util/clipboard_utils.py` — `copy_to_clipboard()`, `get_clipboard_text()`
+- [x] `src/util/clipboard_utils.py` — `copy_to_clipboard()`, `get_clipboard_text()`
   - 参考：`docs/architecture/util/SPEC.md`
-- [ ] `src/config/config_store.py` — `ConfigStore` 读写 config.json
+- [x] `src/config/config_store.py` — `ConfigStore` 读写 config.json
   - 参考：`docs/architecture/config/SPEC.md`
-- [ ] `src/config/app_config.py` — `AppConfig` 单例，默认值定义
+- [x] `src/config/app_config.py` — `AppConfig` 单例，默认值定义
   - 参考：`docs/architecture/config/SPEC.md`
 
-**测试**：写脚本验证 JSON 原子写入（创建 tmp + rename）、`today_str()` 格式为 `YYYY_MM_DD`、配置读写默认值。
+**测试**：✅ `src/tests/test_phase2.py` — 7/7 全部通过（JsonUtils 顺序保持+原子写入, FileUtils 目录创建+路径安全, StringUtils 分隔+键值提取+引用提取, ConfigStore 默认值+合并+保存, AppConfig 单例初始化+更新, date_utils 回归）
 
 ## 阶段 3：存储层
 
