@@ -95,30 +95,24 @@
 
 **目标**：完成 default/timer/account/label 扩展模块的 Task 和 Tasker 实现，以及默认服务。注册到 ExtensionRegistry 后，基本的数据结构已就绪。
 
-- [ ] `src/extensions/default/default_task.py` + `default_tasker.py` + `__init__.py`
+- [x] `src/extensions/default/default_task.py` + `default_tasker.py` + `__init__.py`
   - 参考：`docs/architecture/extensions/default/SPEC.md`
-- [ ] `src/extensions/timer/timer_task.py` + `timer_tasker.py` + `duration_calculator.py` + `__init__.py`
+- [x] `src/extensions/timer/timer_task.py` + `timer_tasker.py` + `duration_calculator.py` + `__init__.py`
   - 参考：`docs/architecture/extensions/timer/SPEC.md`
-- [ ] `src/extensions/account/account_task.py` + `account_tasker.py` + `password_clipboard.py` + `__init__.py`
+- [x] `src/extensions/account/account_task.py` + `account_tasker.py` + `password_clipboard.py` + `__init__.py`
   - 参考：`docs/architecture/extensions/account/SPEC.md`
-- [ ] `src/extensions/label/label_task.py` + `label_tasker.py` + `__init__.py`
+- [x] `src/extensions/label/label_task.py` + `label_tasker.py` + `__init__.py`
   - 参考：`docs/architecture/extensions/label/SPEC.md`
-- [ ] `src/extensions/quick_button/quick_button_service.py` + `__init__.py`
+- [x] `src/extensions/quick_button/quick_button_service.py` + `__init__.py`
   - 参考：`docs/architecture/extensions/quick_button/SPEC.md`
-- [ ] `src/core/service/default_tasker_service.py` — 依赖 StorageManager + ExtensionRegistry
+- [x] `src/core/service/default_tasker_service.py` — 依赖 StorageManager + ExtensionRegistry
   - 参考：`docs/architecture/core/service/SPEC.md` §1
-- [ ] `src/core/service/default_task_service.py`
+- [x] `src/core/service/default_task_service.py`
   - 参考：`docs/architecture/core/service/SPEC.md` §2
-- [ ] `src/core/service/search_engine.py`
+- [x] `src/core/service/search_engine.py`
   - 参考：`docs/architecture/core/service/SPEC.md` §3
 
-**测试**：
-1. 注册后 `ExtensionRegistry.create_task("default", ...)` 返回 `DefaultTask` 实例
-2. 注册后 `ExtensionRegistry.create_tasker("timer", ...)` 返回 `TimerTasker` 实例
-3. 用 `DefaultTaskerService` 创建/删除 Tasker → 验证 `taskers.json` 文件更新
-4. 用 `DefaultTaskService` 添加 3 条 Task → 验证 segment 文件内容
-5. timer 创建一条进行中的记录 → `task.end_time = ""` → `task.is_running == True`
-6. account 搜索密码 → 唯一匹配 → 自动复制到剪贴板
+**测试**：✅ `src/tests/test_phase4.py` — 15/15 全部通过（4种task类型注册+序列化, TaskerService CRUD含缓存, TaskService增删改查, SearchEngine搜索, QuickButtonService触发+计数, delete_tasker清理, TimerTasker end_timer）
 
 ## 阶段 5：PySide6 GUI 骨架
 
@@ -250,3 +244,4 @@
 | `src/util/` | json_utils, date_utils, string_utils, file_utils, clipboard_utils | `docs/architecture/util/SPEC.md` |
 | `src/` (入口) | main.py, requirements.txt | — |
 | 图表 HTML | 4 个 HTML 页面 | `docs/architecture/ui/chart/SPEC.md` |
+                                                                                                                                                                                                                                                                          
