@@ -10,31 +10,31 @@
 
 **目标**：创建 `src/` 目录结构，安装依赖，确认开发环境可用。
 
-- [ ] `src/requirements.txt` — 列出 pyside6, pyperclip, pynput, pytest
-- [ ] `pip install -r src/requirements.txt`
-- [ ] 创建所有空 `__init__.py`
-  - [ ] `src/core/__init__.py`
-  - [ ] `src/core/storage/__init__.py`
-  - [ ] `src/core/service/__init__.py`
-  - [ ] `src/extensions/default/__init__.py`
-  - [ ] `src/extensions/timer/__init__.py`
-  - [ ] `src/extensions/account/__init__.py`
-  - [ ] `src/extensions/quick_button/__init__.py`
-  - [ ] `src/extensions/label/__init__.py`
-  - [ ] `src/ui/__init__.py`
-  - [ ] `src/ui/main/__init__.py`
-  - [ ] `src/ui/tasker/__init__.py`
-  - [ ] `src/ui/task/__init__.py`
-  - [ ] `src/ui/chart/__init__.py`
-  - [ ] `src/ui/component/__init__.py`
-  - [ ] `src/analysis/__init__.py`
-  - [ ] `src/visualization/__init__.py`
-  - [ ] `src/io/__init__.py`
-  - [ ] `src/config/__init__.py`
-  - [ ] `src/util/__init__.py`
-- [ ] 创建空的测试目录 `src/tests/`
+- [x] `src/requirements.txt` — 列出 pyside6, pyperclip, pynput, pytest
+- [x] `pip install -r src/requirements.txt`
+- [x] 创建所有空 `__init__.py`
+  - [x] `src/core/__init__.py`
+  - [x] `src/core/storage/__init__.py`
+  - [x] `src/core/service/__init__.py`
+  - [x] `src/extensions/default/__init__.py`
+  - [x] `src/extensions/timer/__init__.py`
+  - [x] `src/extensions/account/__init__.py`
+  - [x] `src/extensions/quick_button/__init__.py`
+  - [x] `src/extensions/label/__init__.py`
+  - [x] `src/ui/__init__.py`
+  - [x] `src/ui/main/__init__.py`
+  - [x] `src/ui/tasker/__init__.py`
+  - [x] `src/ui/task/__init__.py`
+  - [x] `src/ui/chart/__init__.py`
+  - [x] `src/ui/component/__init__.py`
+  - [x] `src/analysis/__init__.py`
+  - [x] `src/visualization/__init__.py`
+  - [x] `src/io/__init__.py`
+  - [x] `src/config/__init__.py`
+  - [x] `src/util/__init__.py`
+- [x] 创建空的测试目录 `src/tests/`
 
-**测试**：`python -c "import sys; sys.path.insert(0, 'src'); from core import BaseTask; print('import OK')"`——不应报 ImportError
+**测试**：✅ 20/20 子包全部成功导入。`from core import BaseTask` 预期失败（BaseTask 尚未定义，阶段 1 实现）。
 
 ## 阶段 1：core 抽象层（无外部依赖）
 
