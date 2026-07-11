@@ -17,3 +17,11 @@ custom_package
 
 # Obsidian
 .obsidian
+
+# https://github.com/mattpocock/skills/
+.claude-plugin
+CLAUDE.md
+.out-of-scope
+docs/engineering/
+docs/productivity/
+skills
