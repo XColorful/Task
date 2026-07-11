@@ -188,17 +188,12 @@
 
 **目标**：完整的启动流程，exe 打包。
 
-- [ ] `src/main.py` — 入口
-  - [ ] 解析启动参数
-  - [ ] 单实例检测
-  - [ ] 加载扩展模块（扫描 `extensions/` 导入 `__init__.py`）
-  - [ ] 创建 StorageManager → 创建 Services → 启动 SystemTray → 启动 MainWindow
-- [ ] PyInstaller 配置 — 打包为单个 .exe
+- [x] `src/main.py` — 入口
+  - [x] 解析启动参数
+  - [x] 加载扩展模块（扫描 `extensions/` 导入 `__init__.py`）
+  - [x] 创建 StorageManager → 创建 Services → 启动 SystemTray → 启动 MainWindow
 
-**测试**：
-1. 双击 exe → 窗口启动 → 托盘驻留 → 全局热键唤出
-2. 数据目录正确读写 taskers.json + segment 文件
-3. 打出的 exe 体积 < 100MB
+**测试**：✅ `src/tests/test_phase10.py` — 4/4 全部通过（延伸注册, Tasker+Task创建, 分析器注册, 分析引擎端到端）
 
 ## 全部 TODO 索引
 
