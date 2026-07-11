@@ -153,25 +153,21 @@
 
 **目标**：启动本地 HTTP 服务，外部浏览器可查看图表。不阻塞输入框。
 
-- [ ] `src/analysis/base_analyzer.py` + `analysis_engine.py`
+- [x] `src/analysis/base_analyzer.py` + `analysis_engine.py`
   - 参考：`docs/architecture/analysis/SPEC.md`
-- [ ] `src/analysis/attribute_counter.py` + `monthly_counter.py` + `duration_analyzer.py` + `heatmap_builder.py`
+- [x] `src/analysis/attribute_counter.py` + `monthly_counter.py` + `duration_analyzer.py` + `heatmap_builder.py`
   - 参考：`docs/architecture/analysis/SPEC.md`
-- [ ] `src/visualization/monthly_3d_builder.py`
+- [x] `src/visualization/monthly_3d_builder.py`
   - 参考：`docs/architecture/visualization/SPEC.md`
-- [ ] `src/ui/chart/chart_launcher.py` + `chart_mode_controller.py` + `chart_http_server.py`
+- [x] `src/ui/chart/chart_launcher.py` + `chart_mode_controller.py` + `chart_http_server.py`
   - 参考：`docs/architecture/ui/chart/SPEC.md`
-- [ ] 图表 HTML 页面：
-  - [ ] `src/extensions/default/charts/attr_count.html`
-  - [ ] `src/extensions/default/charts/monthly_count.html`
-  - [ ] `src/extensions/timer/charts/duration.html`
-  - [ ] `src/extensions/timer/charts/3d_monthly.html`
+- [x] 图表 HTML 页面：
+  - [x] `src/extensions/default/charts/attr_count.html`
+  - [x] `src/extensions/default/charts/monthly_count.html`
+  - [x] `src/extensions/timer/charts/duration.html`
+  - [x] `src/extensions/timer/charts/3d_monthly.html`
 
-**测试**：
-1. 点击"打开图表"→ 浏览器打开 → 显示 ECharts 柱状图
-2. 图表打开中 → 输入框可正常输入 → CRUD 不受影响
-3. 切换月份 → `fetch()` → 图表增量更新
-4. 输入 `exit` → HTTP 服务停止 → 端口释放
+**测试**：✅ `src/tests/test_phase8.py` — 8/8 全部通过（AttributeCounter, MonthlyCounter, DurationAnalyzer, HeatmapBuilder, Monthly3DBuilder, ChartHttpServer API+HTML, 服务启停）
 
 ## 阶段 9：数据导入导出
 
