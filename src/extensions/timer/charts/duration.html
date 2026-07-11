@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Duration Analysis</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<style>body{margin:0;background:#1e1e1e;color:#ccc;font-family:sans-serif}
+#chart{width:100vw;height:100vh}</style></head><body>
+<div id="chart"></div>
+<script>
+var c = echarts.init(document.getElementById('chart'));
+fetch('/api/analysis/duration').then(r=>r.json()).then(d=>{
+  c.setOption({title:{text:'Duration by ' + (d.group||'Attribute'),textStyle:{color:'#ccc'}},
+    tooltip:{trigger:'axis',formatter:function(p){return p[0].name+'<br/>'+p[0].value+' hours'}},
+    xAxis:{type:'category',data:d.labels,axisLabel:{color:'#ccc',rotate:30}},
+    yAxis:{type:'value',name:'Hours',axisLabel:{color:'#ccc'}},
+    series:[{type:'bar',data:d.values,itemStyle:{color:'#5470c6'}}]
+  });
+});
+</script></body></html>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>3D Monthly Grid</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts-gl@2.0.9/dist/echarts-gl.min.js"></script>
+<style>body{margin:0;background:#1e1e1e;color:#ccc;font-family:sans-serif}
+#chart{width:100vw;height:100vh}</style></head><body>
+<div id="chart"></div>
+<script>
+var c = echarts.init(document.getElementById('chart'));
+fetch('/api/analysis/heatmap?type=3d_monthly').then(r=>r.json()).then(d=>{
+  if(!d.data || d.data.length===0){ c.setOption({title:{text:'No data',textStyle:{color:'#ccc'}}}); return; }
+  var palette = ['#5470c6','#91cc75','#fac858','#ee6666','#73c0de','#3ba272','#fc8452','#9a60b4','#ea7ccc','#48b8d0'];
+  c.setOption({
+    title:{text:'3D Monthly Timer Grid',textStyle:{color:'#ccc'}},
+    tooltip:{},
+    visualMap:{max:Math.max(...d.data.map(i=>i[2])),inRange:{color:palette}},
+    xAxis3D:{type:'value',name:'Day of Week'},
+    yAxis3D:{type:'value',name:'Duration (hours)'},
+    zAxis3D:{type:'value',name:'Row'},
+    grid3D:{viewControl:{autoRotate:true}},
+    series:[{type:'bar3D',data:d.data,shading:'lambert',
+      label:{show:false},
+      itemStyle:{opacity:0.8}
+    }]
+  });
+});
+</script></body></html>
