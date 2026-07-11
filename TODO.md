@@ -78,22 +78,18 @@
 
 **目标**：核心读写逻辑。此阶段完成后可以读写 taskers.json 和 segment 文件。
 
-- [ ] `src/core/storage/tasker_index_manager.py` — `TaskerIndexManager`
+- [x] `src/core/storage/tasker_index_manager.py` — `TaskerIndexManager`
   - 参考：`docs/architecture/core/storage/SPEC.md` §2
-- [ ] `src/core/storage/segment_manager.py` — `SegmentManager`（含两段懒加载 + 脏写 + 原子写入）
+- [x] `src/core/storage/segment_manager.py` — `SegmentManager`（含两段懒加载 + 脏写 + 原子写入）
   - 参考：`docs/architecture/core/storage/SPEC.md` §3
-- [ ] `src/core/storage/auto_save_manager.py` — `AutoSaveManager`（防抖调度）
+- [x] `src/core/storage/auto_save_manager.py` — `AutoSaveManager`（防抖调度）
   - 参考：`docs/architecture/core/storage/SPEC.md` §4
-- [ ] `src/core/storage/index_builder.py` — `IndexBuilder`
+- [x] `src/core/storage/index_builder.py` — `IndexBuilder`
   - 参考：`docs/architecture/core/storage/SPEC.md` §5
-- [ ] `src/core/storage/storage_manager.py` — `StorageManager`（门面）
+- [x] `src/core/storage/storage_manager.py` — `StorageManager`（门面）
   - 参考：`docs/architecture/core/storage/SPEC.md` §1
 
-**测试**：
-1. 在临时目录创建 fake `taskers.json` → `TaskerIndexManager.load()` → 验证顺序保持
-2. 创建 fake segment 文件 → `SegmentManager.load_last(folder, 2)` → 验证取最后两个且合并顺序正确
-3. 写回 segment（增删改）→ 验证只修改了 dirty 段，clean 段未触及
-4. 扩容：最新段满 500 条 → `save` → 验证创建了新 segment 且旧段不变
+**测试**：✅ `src/tests/test_phase3.py` — 13/13 全部通过（TaskerIndex 顺序保持, Segment 两段懒加载+全量加载, 脏段写回+净段跳过, 扩容到4段, 缩容到1段, AutoSave 防抖+取消, IndexBuilder 重建, StorageManager 门面+备份+reload）
 
 ## 阶段 4：扩展模块注册 + 默认服务
 
