@@ -1,3 +1,21 @@
-# core — 框架核心包
-# 定义系统的抽象基类、注册机制和通用工具。
-# 不包含任何具体记录类型的业务逻辑。
+# core - framework core package
+# Defines abstract base classes, registration mechanism, and common utilities.
+# Does NOT contain any concrete record type business logic.
+
+from core.abstract import BaseTask, BaseTasker, BaseAnalyzer
+from core.extension_registry import ExtensionRegistry
+from core.base_service import BaseTaskerService, BaseTaskService
+from core.input_processor import InputPreprocessor, step_plus_to_search
+from core.types import (
+    TaskerSummary, QuickButtonDef, PresetFields,
+    SearchQuery, AnalysisParams,
+)
+
+__all__ = [
+    'BaseTask', 'BaseTasker', 'BaseAnalyzer',
+    'ExtensionRegistry',
+    'BaseTaskerService', 'BaseTaskService',
+    'InputPreprocessor', 'step_plus_to_search',
+    'TaskerSummary', 'QuickButtonDef', 'PresetFields',
+    'SearchQuery', 'AnalysisParams',
+]

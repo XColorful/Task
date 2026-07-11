@@ -40,20 +40,20 @@
 
 **目标**：定义所有抽象基类和类型——这些是系统中所有其他模块的语言。此阶段不需要存储、不需要 GUI。
 
-- [ ] `src/util/date_utils.py` — `today_str()`, `now_str()`, `parse_date()`, `is_valid_date()`, `format_duration()`
+- [x] `src/util/date_utils.py` — `today_str()`, `now_str()`, `parse_date()`, `is_valid_date()`, `format_duration()`
   - 参考：`docs/architecture/util/SPEC.md`
-- [ ] `src/core/types.py` — `TaskerSummary`, `QuickButtonDef`, `PresetFields`, `SearchQuery`, `AnalysisParams` TypedDict
+- [x] `src/core/types.py` — `TaskerSummary`, `QuickButtonDef`, `PresetFields`, `SearchQuery`, `AnalysisParams` TypedDict
   - 参考：`docs/architecture/core/SPEC.md` §4
-- [ ] `src/core/abstract.py` — `BaseTask`, `BaseTasker`, `BaseAnalyzer` 三个抽象基类
+- [x] `src/core/abstract.py` — `BaseTask`, `BaseTasker`, `BaseAnalyzer` 三个抽象基类
   - 参考：`docs/architecture/core/SPEC.md` §1
-- [ ] `src/core/extension_registry.py` — `ExtensionRegistry` 注册表单例
+- [x] `src/core/extension_registry.py` — `ExtensionRegistry` 注册表单例
   - 参考：`docs/architecture/core/SPEC.md` §2
-- [ ] `src/core/input_processor.py` — `InputPreprocessor` + `step_plus_to_search`
+- [x] `src/core/input_processor.py` — `InputPreprocessor` + `step_plus_to_search`
   - 参考：`docs/architecture/core/SPEC.md` §5
-- [ ] `src/core/base_service.py` — `BaseTaskerService`, `BaseTaskService`
+- [x] `src/core/base_service.py` — `BaseTaskerService`, `BaseTaskService`
   - 参考：`docs/architecture/core/SPEC.md` §3
 
-**测试**：写一个简单脚本，创建 `DefaultTask` 和 `DefaultTasker` 实例（暂时依赖未注册，手动调用构造），验证 `to_dict()`, `from_dict()`, `matches_search()` 等方法返回预期值。
+**测试**：✅ `src/tests/test_phase1.py` — 8/8 全部通过（submodule imports, date_utils, InputPreprocessor, ExtensionRegistry, BaseTasker 具体子类, QuickButtonDef, execute_quick_button）
 
 ## 阶段 2：工具层 + 配置层
 
