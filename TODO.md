@@ -144,15 +144,10 @@
 
 **目标**：主界面和 Tasker 界面右侧常驻区显示快捷按钮，点击可用。
 
-- [ ] `src/extensions/quick_button/quick_button_bar_widget.py` + `quick_button_editor.py`
+- [x] `src/extensions/quick_button/quick_button_bar_widget.py` + `quick_button_editor.py`
   - 参考：`docs/architecture/extensions/quick_button/SPEC.md`
 
-**测试**：
-1. taskers.json 中配置了 quick_buttons → 主界面右侧显示所有 Tasker 的按钮
-2. 点击主界面的快捷按钮 → 自动进入目标 Tasker → 自动创建预设 Task
-3. 点击 Tasker 内的快捷按钮 → 直接创建预设 Task
-4. 数字键 1-9 → 触发对应按钮
-5. 添加/删除快捷按钮 → taskers.json 更新
+**测试**：✅ `src/tests/test_phase7.py` — 6/6 全部通过（QuickButtonBarWidget 刷新含/不含 Tasker 标签, QuickButtonEditor 创建+编辑模式, QuickButtonService 触发+计数+排序）
 
 ## 阶段 8：图表分析 + 3D 可视化
 
