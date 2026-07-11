@@ -173,19 +173,16 @@
 
 **目标**：旧数据迁移 + 人类可读 txt 导出。
 
-- [ ] `src/io/pkl_migrator.py` — pkl → JSON
+- [x] `src/io/pkl_migrator.py` — pkl → JSON
   - 参考：`docs/architecture/io/SPEC.md`
-- [ ] `src/io/txt_exporter.py` — 三种排序模式
+- [x] `src/io/txt_exporter.py` — 三种排序模式
   - 参考：`docs/architecture/io/SPEC.md`
-- [ ] `src/io/txt_importer.py` — 旧 backup txt 解析
+- [x] `src/io/txt_importer.py` — 旧 backup txt 解析
   - 参考：`docs/architecture/io/SPEC.md`
-- [ ] `src/io/export_service.py` + `import_service.py`
+- [x] `src/io/export_service.py` + `import_service.py`
   - 参考：`docs/architecture/io/SPEC.md`
 
-**测试**：
-1. 指定旧 pkl 文件路径 → PklMigrator 生成新 JSON 文件
-2. TxtExporter 生成三种排序模式 → 手动检查格式
-3. backup 指令生成备份文件夹 → reload 指令读取 → 数据一致
+**测试**：✅ `src/tests/test_phase9.py` — 6/6 全部通过（TxtExporter 按Tasker/按Date, ExportService, Storage备份/还原, PklMigrator迁移, 迁移后可读）
 
 ## 阶段 10：入口 + 打包
 
