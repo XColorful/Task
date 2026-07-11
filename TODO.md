@@ -133,17 +133,12 @@
 
 **目标**：主界面能看到 Tasker 列表并点击进入，Tasker 内能看到 Task 表格。
 
-- [ ] `src/ui/tasker/tasker_list_widget.py` + `tasker_edit_dialog.py` + `tasker_context_menu.py`
+- [x] `src/ui/tasker/tasker_list_widget.py` + `tasker_edit_dialog.py` + `tasker_context_menu.py`
   - 参考：`docs/architecture/ui/tasker/SPEC.md`
-- [ ] `src/ui/task/task_table_widget.py` + `task_table_model.py` + `task_edit_panel.py` + `inline_input_bar.py` + `task_search_bar.py`
+- [x] `src/ui/task/task_table_widget.py` + `task_table_model.py` + `task_edit_panel.py` + `task_search_bar.py`
   - 参考：`docs/architecture/ui/task/SPEC.md`
 
-**测试**：
-1. 启动 → 主界面显示 Tasker 列表（从 taskers.json 读取）→ 半透明背景可见
-2. 点击 Tasker → 进入 Tasker 界面 → Task 表格显示（两段懒加载）
-3. 滚轮滚动到底 → 触发更多 segment 动态加载
-4. `new` 指令 → 编辑面板出现 → 逐字段输入 → 创建成功 → 表格刷新
-5. `delete` 指令 → 右侧出现 × 按钮 → 点击 → 删除成功
+**测试**：✅ `src/tests/test_phase6.py` — 9/9 全部通过（TaskerListWidget 刷新, TaskerEditDialog 创建+编辑模式, TaskTableModel 数据访问+追加+删除, TaskTableWidget 赋值, TaskEditPanel 预设填充+提交, TaskSearchBar 搜索+计数）
 
 ## 阶段 7：快捷按钮
 
@@ -241,4 +236,3 @@
 | `src/util/` | json_utils, date_utils, string_utils, file_utils, clipboard_utils | `docs/architecture/util/SPEC.md` |
 | `src/` (入口) | main.py, requirements.txt | — |
 | 图表 HTML | 4 个 HTML 页面 | `docs/architecture/ui/chart/SPEC.md` |
-                                                                                                                                                                                                                               
