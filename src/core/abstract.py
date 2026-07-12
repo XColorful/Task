@@ -19,6 +19,7 @@ class BaseTask(ABC):
     # --- 核心字段（所有 Task 共有）---
     type: str = ""          # 记录类型标识 ("default", "timer", "account", ...)
     version: str = ""       # 版本号
+    create_date: str = ""   # 记录创建日期 "YYYY_MM_DD"
     date: str = ""          # 事件日期 "YYYY_MM_DD"
     attribute: str = ""     # 属性/分类
     content: str = ""       # 内容文本

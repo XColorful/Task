@@ -586,4 +586,13 @@ class MainController(QObject):
         self._refresh_tasker_list()
 
     def set_task_service(self, service):
-        self._task_servic
+        self._task_service = service
+
+    def set_search_engine(self, engine):
+        self._search_engine = engine
+
+    def set_analysis_engine(self, engine):
+        self._analysis_engine = engine
+
+    def set_chart_server(self, server):
+        self._chart_server = server
