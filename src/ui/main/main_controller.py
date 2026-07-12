@@ -103,7 +103,9 @@ class MainController(QObject):
         # Task table
         from ui.task.task_table_widget import TaskTableWidget
         self._task_table = TaskTableWidget()
-        self._task_table.set_tasks(tasker.task_list)
+        partial = getattr(tasker, '_partial_load', False)
+        total = getattr(tasker, '_total_task_count', len(tasker.task_list))
+        self._task_table.set_tasks(tasker.task_list, total_count=total, partial=partial)
         self._window.content_area.addWidget(self._task_table)
         self._window.content_area.setCurrentWidget(self._task_table)
 
@@ -575,16 +577,4 @@ class MainController(QObject):
 
     def set_tasker_service(self, service):
         self._tasker_service = service
-        self._refresh_tasker_list()
-
-    def set_task_service(self, service):
-        self._task_service = service
-
-    def set_search_engine(self, engine):
-        self._search_engine = engine
-
-    def set_analysis_engine(self, engine):
-        self._analysis_engine = engine
-
-    def set_chart_server(self, server):
-        self._chart_server = server
+        self._refresh_tasker_l

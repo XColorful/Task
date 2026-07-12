@@ -98,6 +98,8 @@ class DefaultTaskerService(BaseTaskerService):
                 last_files = self._storage.segment.list_files(t['folder'])
                 loaded = set(last_files[-2:]) if len(last_files) >= 2 else set(last_files)
                 tasker.loaded_segments = loaded
+                tasker._partial_load = len(last_files) > 2
+                tasker._total_task_count = self._storage.segment.count_tasks(t['folder'])
                 if tasks_dict:
                     tasker.task_list = [self._create_task_from_dict(td, tasker_type) for td in tasks_dict]
 
@@ -110,6 +112,4 @@ class DefaultTaskerService(BaseTaskerService):
         if cls is None:
             cls = ExtensionRegistry._task_types.get('default')
         if cls is None:
-            raise KeyError(f"No task type registered for '{tasker_type}'")
-        kwargs = {k: v for k, v in data.items() if k not in ('type', 'version')}
-        return cls(**kwargs)
+            raise KeyError(f"No task

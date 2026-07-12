@@ -39,8 +39,8 @@ class TaskTableWidget(QWidget):
 
         layout.addWidget(self._table)
 
-    def set_tasks(self, tasks):
-        self._model.set_tasks(tasks)
+    def set_tasks(self, tasks, total_count=None, partial=False):
+        self._model.set_tasks(tasks, total_count=total_count, partial=partial)
         self._table.scrollToTop()
 
     def append_tasks(self, tasks):
@@ -60,5 +60,4 @@ class TaskTableWidget(QWidget):
         self.task_selected.emit(source.row())
 
     def _on_double_click(self, index):
-        source = self._proxy.mapToSource(index)
-        self.task_double_clicked.emit(source.row())
+        source = self._pr
