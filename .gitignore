@@ -1,8 +1,8 @@
 __pycache__
-backup_all
-backup_pkl
-error_log
-log
+/backup_all/
+/backup_pkl/
+/error_log/
+/log/
 *.pkl
 backup1.txt
 load_package.txt
@@ -26,4 +26,4 @@ CLAUDE.md
 .out-of-scope
 docs/engineering/
 docs/productivity/
-skills
+/skills/
