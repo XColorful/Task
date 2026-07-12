@@ -1,5 +1,9 @@
 """Main Controller -- UI state machine with full CRUD, backup, settings."""
 
+
+import sys as _sys
+_builtin_io = _sys.modules.pop("io", None)
+
 from PySide6.QtCore import QObject
 from PySide6.QtWidgets import QLabel, QVBoxLayout, QFormLayout, QLineEdit, QCheckBox, QPushButton
 
@@ -584,4 +588,4 @@ class MainController(QObject):
         self._analysis_engine = engine
 
     def set_chart_server(self, server):
-        self._chart_server = server
+        self._chart_serve
