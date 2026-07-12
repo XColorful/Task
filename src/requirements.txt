@@ -1,4 +1,0 @@
-pyside6>=6.0
-pyperclip>=1.8
-pynput>=1.7
-pytest>=7.0
