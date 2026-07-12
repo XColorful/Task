@@ -12,4 +12,7 @@
 - [x] 搜索结果为空时提示
 
 ### 12.3 数据迁移与导入导出
-- [x] migrate 指令支持从 old backup txt 文件导入（`migrate <path>.txt
+- [x] migrate 指令支持从 old backup txt 文件导入（`migrate <path>.txt`）— TxtImporter 已完成
+- [x] txt 导出路径改为软件数据目录下生成
+
+## All phases complete. 92 files total (72 modules + 20 init), 5649 LOC, 4 charts.

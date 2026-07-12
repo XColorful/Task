@@ -588,4 +588,4 @@ class MainController(QObject):
         self._analysis_engine = engine
 
     def set_chart_server(self, server):
-        self._chart_server = serv
+        self._chart_server = server
