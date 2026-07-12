@@ -12,10 +12,4 @@
 - [x] 搜索结果为空时提示
 
 ### 12.3 数据迁移与导入导出
-- [x] migrate 指令支持从 old backup txt 文件导入（`migrate <path>.txt`）— TxtImporter 已完成
-- [x] txt 导出路径改为软件数据目录下生成
-
-## All phases: COMPLETE
-
-92 Python files (72 non-init, 5,550 LOC) + 4 chart HTML files.
-Push blocked by missing GitHub credentials in workspace — push from local machine instead.
+- [x] migrate 指令支持从 old backup txt 文件导入（`migrate <path>.txt
