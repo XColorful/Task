@@ -7,6 +7,9 @@ All new source code is under src/. This file imports from src/ modules.
 Old project code stays in the root directory untouched.
 """
 
+import sys as _sys
+_builtin_io = _sys.modules.pop('io', None)
+
 import sys
 import os
 
