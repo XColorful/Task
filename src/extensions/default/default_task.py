@@ -8,10 +8,12 @@ class DefaultTask(BaseTask):
     """四字段日常记录 Task。最基础且最常用的记录类型。"""
 
     def __init__(self, date: str = "", attribute: str = "N/A",
-                 content: str = "", comment: str = ""):
+                 content: str = "", comment: str = "",
+                 create_date: str = ""):
         super().__init__()
         self.type = "default"
         self.version = "1.0"
+        self.create_date = create_date
         self.date = date
         self.attribute = attribute
         self.content = content
@@ -21,6 +23,7 @@ class DefaultTask(BaseTask):
         return OrderedDict([
             ("type", self.type),
             ("version", self.version),
+            ("create_date", self.create_date),
             ("date", self.date),
             ("attribute", self.attribute),
             ("content", self.content),
@@ -34,6 +37,7 @@ class DefaultTask(BaseTask):
             attribute=data.get("attribute", "N/A"),
             content=data.get("content", ""),
             comment=data.get("comment", ""),
+            create_date=data.get("create_date", ""),
         )
 
     def matches_search(self, query: str) -> bool:

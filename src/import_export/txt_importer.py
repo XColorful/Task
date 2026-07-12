@@ -93,6 +93,7 @@ class TxtImporter:
             return OrderedDict([
                 ("type", "timer"),
                 ("version", "timer"),
+                ("create_date", parts[2]),
                 ("date", ""),
                 ("start_time", parts[3]),
                 ("end_time", parts[4]),
@@ -104,6 +105,7 @@ class TxtImporter:
             return OrderedDict([
                 ("type", "default"),
                 ("version", parts[1]),
+                ("create_date", parts[2]),
                 ("date", parts[3]),
                 ("attribute", parts[4]),
                 ("content", parts[5]),
@@ -131,7 +133,4 @@ class TxtImporter:
             ("id", tasker_id),
             ("type", info["type"]),
             ("label", label),
-            ("description", info.get("description", "")),
-            ("folder", folder),
-            ("quick_buttons", []),
-        ]))
+            ("description", info.get("description",

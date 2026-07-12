@@ -81,6 +81,7 @@ class PklMigrator:
             d = OrderedDict()
             d['type'] = getattr(t, 'type', ttype)
             d['version'] = getattr(t, 'version', '1.0')
+            d['create_date'] = getattr(t, 'create_date', '')
             d['date'] = getattr(t, 'date', '')
             d['attribute'] = getattr(t, 'attribute', 'N/A')
             d['content'] = getattr(t, 'content', '')
@@ -95,6 +96,4 @@ class PklMigrator:
                 d['account_type'] = getattr(t, 'account_type', '')
                 d['label_alias'] = getattr(t, 'label', '')
                 d['password'] = getattr(t, 'password', '')
-                d['supplementary'] = getattr(t, 'dict', {})
-            tasks.append(d)
-        return tasks
+                d['supplementary'] = getattr(t, 
