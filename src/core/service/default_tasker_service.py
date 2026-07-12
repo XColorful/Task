@@ -94,11 +94,12 @@ class DefaultTaskerService(BaseTaskerService):
                 except KeyError:
                     return None
 
-                tasks_dict = self._storage.segment.load_all(t['folder'])
+                tasks_dict = self._storage.segment.load_last(t['folder'], count=2)
                 last_files = self._storage.segment.list_files(t['folder'])
-                tasker.loaded_segments = set(last_files[-2:]) if len(last_files) >= 2 else set(last_files)
-                tasker._partial_load = False
-                tasker._total_task_count = len(tasks_dict)
+                loaded = set(last_files[-2:]) if len(last_files) >= 2 else set(last_files)
+                tasker.loaded_segments = loaded
+                tasker._partial_load = len(last_files) > 2
+                tasker._total_task_count = self._storage.segment.count_tasks(t['folder'])
                 if tasks_dict:
                     tasker.task_list = [self._create_task_from_dict(td, tasker_type) for td in tasks_dict]
 

@@ -17,14 +17,14 @@ class TaskTableModel(QAbstractTableModel):
         super().__init__(parent)
         self._tasks = []
         self._columns = self._DEFAULT_COLUMNS
-        self._total_task_count = 0  # estimated total, used for negative index display
-        self._partial_load = False  # True when only last 2 segments loaded
+        self._total_task_count = 0
+        self._partial_load = False
 
-    def set_tasks(self, tasks, total_count=None):
+    def set_tasks(self, tasks, total_count=None, partial=False):
         self.beginResetModel()
         self._tasks = tasks
+        self._partial_load = partial
         self._total_task_count = total_count if total_count is not None else len(tasks)
-        # Detect column layout from first task type
         if tasks and getattr(tasks[0], 'type', '') == 'timer':
             self._columns = self._TIMER_COLUMNS
         else:
@@ -67,12 +67,11 @@ class TaskTableModel(QAbstractTableModel):
 
         if role == Qt.DisplayRole:
             if col == 0:
-                # Index: -1 = newest, 0 = oldest, etc.
-                # partial load: last N are loaded, so newest task is row N-1
-                # total_task_count > len: need negative indices
-                return str(index.row() - self._total_task_count)
+                if self._partial_load:
+                    return str(index.row() - self._total_task_count)
+                else:
+                    return str(index.row())
             elif is_timer:
-                # Timer column layout
                 if col == 1:
                     return task.start_time
                 elif col == 2:
@@ -90,7 +89,6 @@ class TaskTableModel(QAbstractTableModel):
                         return format_duration(dur)
                     return ""
             else:
-                # Default column layout
                 if col == 1:
                     return task.date
                 elif col == 2:

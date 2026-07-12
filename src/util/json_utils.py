@@ -34,7 +34,7 @@ class JsonUtils:
             data: 待序列化对象
             atomic: 是否原子写入（默认 True）
         """
-        json_str = json.dumps(data, ensure_ascii=False, indent=2, default=str)
+        json_str = json.dumps(data, ensure_ascii=False, indent="\t", default=str)
         if atomic:
             tmp_path = path + ".tmp"
             with open(tmp_path, "w", encoding="utf-8") as f:

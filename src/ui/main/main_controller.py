@@ -104,7 +104,8 @@ class MainController(QObject):
         from ui.task.task_table_widget import TaskTableWidget
         self._task_table = TaskTableWidget()
         total = getattr(tasker, '_total_task_count', len(tasker.task_list))
-        self._task_table.set_tasks(tasker.task_list, total_count=total)
+        partial = getattr(tasker, '_partial_load', False)
+        self._task_table.set_tasks(tasker.task_list, total_count=total, partial=partial)
         self._window.content_area.addWidget(self._task_table)
         self._window.content_area.setCurrentWidget(self._task_table)
 
@@ -221,11 +222,10 @@ class MainController(QObject):
                 self._enter_tasker(taskers[idx]['id'])
                 return
 
-            # Try label match (case-insensitive, partial match either direction)
+            # Try label match (case-sensitive, partial match)
             for t in taskers:
-                label = t.get('label', '').lower()
-                cmd_lower = cmd.lower()
-                if cmd_lower in label or label in cmd_lower or cmd_lower == t.get('id', ''):
+                label = t.get('label', '')
+                if cmd in label or label in cmd or cmd == t.get('id', ''):
                     self._enter_tasker(t['id'])
                     return
             self._window.log(f"No tasker matching '{cmd}'")

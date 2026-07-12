@@ -71,17 +71,6 @@ class TxtImporter:
         return len(tasker_list), task_count
 
     def _parse_task_line(self, line):
-        """Parse a task line with type-specific field layouts.
-
-        Old format:
-          Default task (7 fields):
-            type, version, create_date, date, attribute, content, comment
-          Timer task (8 fields):
-            Extra, timer, create_date, start_time, end_time, attribute, content, comment
-
-        New format stores type = "timer" (from version) for Extra tasks,
-        and type = "default" for Default tasks.
-        """
         parts = line.split("||||")
         if len(parts) < 7:
             return None
