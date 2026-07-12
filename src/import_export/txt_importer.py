@@ -35,16 +35,8 @@ class TxtImporter:
             if line.startswith("\t"):
                 task_line = line[1:]
                 if current_tasker is not None:
-                    parts = task_line.split("||||")
-                    if len(parts) >= 7:
-                        task_dict = OrderedDict([
-                            ("type", parts[0].lower()),
-                            ("version", parts[1]),
-                            ("date", parts[3]),
-                            ("attribute", parts[4]),
-                            ("content", parts[5]),
-                            ("comment", parts[6]),
-                        ])
+                    task_dict = self._parse_task_line(task_line)
+                    if task_dict:
                         current_tasks.append(task_dict)
             else:
                 if current_tasker:
@@ -69,6 +61,41 @@ class TxtImporter:
             atomic=True,
         )
         return len(tasker_list), task_count
+
+    def _parse_task_line(self, line):
+        """Parse a task line, handling type-specific field layouts.
+
+        Default task (7 fields):
+            type, version, create_date, date, attribute, content, comment
+
+        Timer task (8 fields, type="Extra", version="timer"):
+            type, version, create_date, start_time, end_time, attribute, content, comment
+        """
+        parts = line.split("||||")
+        if len(parts) < 7:
+            return None
+
+        ttype = parts[0].lower()
+        if ttype == "timer" and len(parts) >= 8:
+            return OrderedDict([
+                ("type", ttype),
+                ("version", parts[1]),
+                ("date", ""),
+                ("start_time", parts[3]),
+                ("end_time", parts[4]),
+                ("attribute", parts[5]),
+                ("content", parts[6]),
+                ("comment", parts[7]),
+            ])
+        else:
+            return OrderedDict([
+                ("type", ttype),
+                ("version", parts[1]),
+                ("date", parts[3]),
+                ("attribute", parts[4]),
+                ("content", parts[5]),
+                ("comment", parts[6]),
+            ])
 
     def _save_tasker(self, info, tasks, tasker_list):
         import uuid
