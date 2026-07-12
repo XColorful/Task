@@ -75,4 +75,8 @@ class AccountTask(BaseTask):
             for v in values:
                 if q in v.lower():
                     return True
-        
+        return False
+
+    def __str__(self) -> str:
+        alias = f" ({self.label_alias})" if self.label_alias != self.account_type else ""
+        return f"{self.account_type}{alias}"

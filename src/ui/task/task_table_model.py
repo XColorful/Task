@@ -50,3 +50,65 @@ class TaskTableModel(QAbstractTableModel):
         if 0 <= row < len(self._tasks):
             self.beginRemoveRows(QModelIndex(), row, row)
             del self._tasks[row]
+            self._total_task_count = max(0, self._total_task_count - 1)
+            self.endRemoveRows()
+
+    def rowCount(self, parent=QModelIndex()):
+        return len(self._tasks)
+
+    def columnCount(self, parent=QModelIndex()):
+        return len(self._columns)
+
+    def data(self, index, role=Qt.DisplayRole):
+        if not index.isValid():
+            return None
+        task = self._tasks[index.row()]
+        col = index.column()
+        is_timer = self._columns[1] == "Start Time"
+
+        if role == Qt.DisplayRole:
+            if col == 0:
+                # Index: negative when partial-load, real offset when full-load
+                if self._partial_load:
+                    # loaded last N tasks, so displayed index = -(total - row)
+                    return str(len(self._tasks) - index.row() - 1 - self._total_task_count)
+                else:
+                    return str(index.row())
+            elif is_timer:
+                # Timer column layout
+                if col == 1:
+                    return task.start_time
+                elif col == 2:
+                    return task.end_time
+                elif col == 3:
+                    return task.attribute
+                elif col == 4:
+                    return task.content
+                elif col == 5:
+                    return task.comment
+                elif col == 6:
+                    dur = getattr(task, 'duration_minutes', None)
+                    if dur is not None:
+                        from util.date_utils import format_duration
+                        return format_duration(dur)
+                    return ""
+            else:
+                # Default column layout
+                if col == 1:
+                    return task.date
+                elif col == 2:
+                    return task.attribute
+                elif col == 3:
+                    return task.content
+                elif col == 4:
+                    return task.comment
+
+        elif role == Qt.UserRole:
+            return task
+
+        return None
+
+    def headerData(self, section, orientation, role=Qt.DisplayRole):
+        if orientation == Qt.Horizontal and role == Qt.DisplayRole:
+            return self._columns[section]
+        return None

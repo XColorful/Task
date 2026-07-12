@@ -112,4 +112,6 @@ class DefaultTaskerService(BaseTaskerService):
         if cls is None:
             cls = ExtensionRegistry._task_types.get('default')
         if cls is None:
-            raise KeyError(f"No task
+            raise KeyError(f"No task type registered for '{tasker_type}'")
+        kwargs = {k: v for k, v in data.items() if k not in ('type', 'version')}
+        return cls(**kwargs)

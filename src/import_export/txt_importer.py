@@ -133,4 +133,7 @@ class TxtImporter:
             ("id", tasker_id),
             ("type", info["type"]),
             ("label", label),
-            ("description", info.get("description",
+            ("description", info.get("description", "")),
+            ("folder", folder),
+            ("quick_buttons", []),
+        ]))

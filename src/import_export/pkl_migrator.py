@@ -96,4 +96,6 @@ class PklMigrator:
                 d['account_type'] = getattr(t, 'account_type', '')
                 d['label_alias'] = getattr(t, 'label', '')
                 d['password'] = getattr(t, 'password', '')
-                d['supplementary'] = getattr(t, 
+                d['supplementary'] = getattr(t, 'dict', {})
+            tasks.append(d)
+        return tasks

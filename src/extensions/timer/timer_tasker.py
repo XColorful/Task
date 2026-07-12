@@ -63,3 +63,6 @@ class TimerTasker(BaseTasker):
         if not fields["content"]:
             return None
         return self.create_task(fields)
+
+    def mark_dirty(self, segment_filename: str) -> None:
+        self.dirty_segments.add(segment_filename)

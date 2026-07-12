@@ -60,4 +60,5 @@ class TaskTableWidget(QWidget):
         self.task_selected.emit(source.row())
 
     def _on_double_click(self, index):
-        source = self._pr
+        source = self._proxy.mapToSource(index)
+        self.task_double_clicked.emit(source.row())

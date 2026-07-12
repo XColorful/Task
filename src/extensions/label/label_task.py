@@ -58,4 +58,8 @@ class LabelTask(BaseTask):
         for key, value in self.label_list:
             if q in key.lower() or q in value.lower():
                 return True
-        retur
+        return False
+
+    def __str__(self) -> str:
+        labels = ", ".join(f"{k}={v}" for k, v in self.label_list)
+        return f"{self.date}|{self.attribute}|{self.content} [{labels}]"
