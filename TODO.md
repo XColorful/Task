@@ -12,10 +12,4 @@
 - [x] 搜索结果为空时提示
 
 ### 12.3 数据迁移与导入导出
-- [x] migrate 指令支持从 old backup txt 文件导入（`migrate <path>.txt`）— TxtImporter 已完成
-- [x] txt 导出路径改为软件数据目录下生成
-
-## All phases: COMPLETE
-
-92 py + 4 html files, 5,550 LOC. All tests pass.
-Run: `git push origin main-window` from your local machine.
+- [x] migrate 指令支持从 old backup txt 文件导入（`migrate <path>.txt

@@ -115,8 +115,4 @@ def main():
     window.show()
 
     print("Task 2.0 ready.")
-    sys.exit(app.exec())
-
-
-if __name__ == '__main__':
-    main()
+  
