@@ -354,13 +354,21 @@ class MainController(QObject):
             self._window.log("Usage: migrate <path_to_pkl_or_txt>")
             return
         try:
+            # Try txt import first (old backup format)
+            if arg.endswith('.txt'):
+                from io.txt_importer import TxtImporter
+                imp = TxtImporter(arg, self._storage.data_dir)
+                tc, tsc = imp.import_data()
+                self._refresh_tasker_list()
+                self._window.log(f"Imported from txt: {tc} taskers, {tsc} tasks")
+                return
+
+            # Try pkl import
             from io.pkl_migrator import PklMigrator
             m = PklMigrator(arg, self._storage.data_dir)
             tc, tsc = m.migrate()
             self._refresh_tasker_list()
-            self._window.log(f"Migrated: {tc} taskers, {tsc} tasks")
-        except ModuleNotFoundError:
-            self._window.log_error("Migration module not available. Try importing directly.")
+            self._window.log(f"Migrated from pkl: {tc} taskers, {tsc} tasks")
         except FileNotFoundError:
             self._window.log_error(f"File not found: {arg}")
         except Exception as e:
