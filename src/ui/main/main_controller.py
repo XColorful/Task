@@ -103,9 +103,8 @@ class MainController(QObject):
         # Task table
         from ui.task.task_table_widget import TaskTableWidget
         self._task_table = TaskTableWidget()
-        partial = getattr(tasker, '_partial_load', False)
         total = getattr(tasker, '_total_task_count', len(tasker.task_list))
-        self._task_table.set_tasks(tasker.task_list, total_count=total, partial=partial)
+        self._task_table.set_tasks(tasker.task_list, total_count=total)
         self._window.content_area.addWidget(self._task_table)
         self._window.content_area.setCurrentWidget(self._task_table)
 
@@ -412,7 +411,8 @@ class MainController(QObject):
         panel.hide_panel()
         tasker = self._tasker_service.get_tasker(tid)
         if self._task_table:
-            self._task_table.set_tasks(tasker.task_list)
+            total = getattr(tasker, '_total_task_count', len(tasker.task_list))
+        self._task_table.set_tasks(tasker.task_list, total_count=total)
         self._window.log(f"Created: {fields['content']}")
         # Save
         self._save_current_tasker()
@@ -436,18 +436,23 @@ class MainController(QObject):
         if not arg:
             self._window.log("Enter delete mode. Type the index to delete.")
             return
-        # Try index
+        # Try index (supports negative: -1 = newest)
         from util.date_utils import convert_to_int
         idx = convert_to_int(arg)
-        if idx is not None and 0 <= idx < len(tasker.task_list):
-            task = tasker.task_list[idx]
-            if self._confirm(f"Delete: {task.content}"):
-                self._task_service.delete_task(tid, idx)
-                tasker2 = self._tasker_service.get_tasker(tid)
-                if self._task_table:
-                    self._task_table.set_tasks(tasker2.task_list)
-                self._window.log(f"Deleted task at index {idx}")
-                self._save_current_tasker()
+        if idx is not None:
+            try:
+                task = tasker.task_list[idx]
+            except IndexError:
+                task = None
+            if task is not None:
+                if self._confirm(f"Delete: {task.content}"):
+                    self._task_service.delete_task(tid, idx)
+                    tasker2 = self._tasker_service.get_tasker(tid)
+                    if self._task_table:
+                        total = getattr(tasker2, '_total_task_count', len(tasker2.task_list))
+                        self._task_table.set_tasks(tasker2.task_list, total_count=total)
+                    self._window.log(f"Deleted task at index {idx}")
+                    self._save_current_tasker()
         else:
             # Search then delete last match
             results = self._task_service.search_tasks(tid, arg)
@@ -505,7 +510,8 @@ class MainController(QObject):
         panel.hide_panel()
         tasker = self._tasker_service.get_tasker(tid)
         if self._task_table:
-            self._task_table.set_tasks(tasker.task_list)
+            total = getattr(tasker, '_total_task_count', len(tasker.task_list))
+        self._task_table.set_tasks(tasker.task_list, total_count=total)
         self._window.log(f"Updated task at index {idx}")
         self._save_current_tasker()
 
@@ -580,13 +586,4 @@ class MainController(QObject):
         self._refresh_tasker_list()
 
     def set_task_service(self, service):
-        self._task_service = service
-
-    def set_search_engine(self, engine):
-        self._search_engine = engine
-
-    def set_analysis_engine(self, engine):
-        self._analysis_engine = engine
-
-    def set_chart_server(self, server):
-        self._chart_server = server
+        self._task_servic
