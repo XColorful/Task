@@ -4,20 +4,9 @@ import sys, os
 _src = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 sys.path.insert(0, _src)
 
-# Pop builtin 'io', import ours from src/io/ directly
-import importlib
-builtin_io = sys.modules.pop('io', None)
-sys.path.insert(0, _src)
-from io.txt_exporter import TxtExporter
-from io.export_service import ExportService
-from io.import_service import ImportService
-if builtin_io is not None:
-    sys.modules['io'] = builtin_io
-from io.txt_exporter import TxtExporter
-from io.export_service import ExportService
-from io.import_service import ImportService
-if builtin_io is not None:
-    sys.modules['io'] = builtin_io
+from import_export.txt_exporter import TxtExporter
+from import_export.export_service import ExportService
+from import_export.import_service import ImportService
 
 from core.extension_registry import ExtensionRegistry
 ExtensionRegistry._task_types.clear(); ExtensionRegistry._tasker_types.clear()
@@ -41,8 +30,6 @@ dtsk = DefaultTaskService(smgr, tasker_service=dts)
 dtsk.create_task(tid, {'attribute': 'homework', 'content': 'math'})
 dtsk.create_task(tid, {'attribute': 'homework', 'content': 'english'})
 dtsk.create_task(tid, {'attribute': 'buy', 'content': 'food'})
-
-# Import already done at top of file
 
 # Test 1: TxtExporter by tasker
 tasker = dts.get_tasker(tid)

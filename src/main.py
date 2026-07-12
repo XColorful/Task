@@ -7,14 +7,11 @@ All new source code is under src/. This file imports from src/ modules.
 Old project code stays in the root directory untouched.
 """
 
-import sys as _sys
-_builtin_io = _sys.modules.pop('io', None)
-
 import sys
 import os
 
-# Add src to path
-_src_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'src')
+# main.py lives in src/ — add src/ itself to path
+_src_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, _src_dir)
 
 

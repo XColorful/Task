@@ -1,9 +1,6 @@
 """Main Controller -- UI state machine with full CRUD, backup, settings."""
 
 
-import sys as _sys
-_builtin_io = _sys.modules.pop("io", None)
-
 from PySide6.QtCore import QObject
 from PySide6.QtWidgets import QLabel, QVBoxLayout, QFormLayout, QLineEdit, QCheckBox, QPushButton
 
@@ -344,7 +341,7 @@ class MainController(QObject):
         taskers = self._tasker_service.list_taskers()
         mode_map = {'1': 'date', '2': 'tasker', '3': 'create_date'}
         mode = mode_map.get(arg, 'tasker')
-        from io.txt_exporter import TxtExporter
+        from import_export.txt_exporter import TxtExporter
         tasker_objs = [self._tasker_service.get_tasker(t['id']) for t in taskers]
         tasker_objs = [t for t in tasker_objs if t is not None]
         text = '\n'.join(TxtExporter().export(tasker_objs, sort_mode=mode))
@@ -360,7 +357,7 @@ class MainController(QObject):
         try:
             # Try txt import first (old backup format)
             if arg.endswith('.txt'):
-                from io.txt_importer import TxtImporter
+                from import_export.txt_importer import TxtImporter
                 imp = TxtImporter(arg, self._storage.data_dir)
                 tc, tsc = imp.import_data()
                 self._refresh_tasker_list()
@@ -368,7 +365,7 @@ class MainController(QObject):
                 return
 
             # Try pkl import
-            from io.pkl_migrator import PklMigrator
+            from import_export.pkl_migrator import PklMigrator
             m = PklMigrator(arg, self._storage.data_dir)
             tc, tsc = m.migrate()
             self._refresh_tasker_list()
