@@ -81,6 +81,7 @@ class PklMigrator:
             d = OrderedDict()
             d['type'] = getattr(t, 'type', ttype)
             d['version'] = getattr(t, 'version', '1.0')
+            d['create_date'] = getattr(t, 'create_date', '')
             d['date'] = getattr(t, 'date', '')
             d['attribute'] = getattr(t, 'attribute', 'N/A')
             d['content'] = getattr(t, 'content', '')

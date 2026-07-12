@@ -10,8 +10,8 @@ Old project code stays in the root directory untouched.
 import sys
 import os
 
-# Add src to path
-_src_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'src')
+# main.py lives in src/ — add src/ itself to path
+_src_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, _src_dir)
 
 

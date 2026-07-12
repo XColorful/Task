@@ -28,8 +28,9 @@ class TimerTasker(BaseTasker):
 
     def create_task(self, fields: dict) -> BaseTask:
         from .timer_task import TimerTask
-        from util.date_utils import now_str
+        from util.date_utils import now_str, today_str
         return TimerTask(
+            create_date=fields.get("create_date", today_str()),
             date=fields.get("date", ""),
             attribute=fields.get("attribute", self.default_attribute),
             content=(self.content_prefix or "") + fields.get("content", self.default_content),
@@ -55,6 +56,7 @@ class TimerTasker(BaseTasker):
             "attribute": preset.get("attribute", self.default_attribute),
             "content": preset.get("content", ""),
             "comment": preset.get("comment", ""),
+            "create_date": today_str(),
             "start_time": now_str(),
             "end_time": "",
         }

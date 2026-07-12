@@ -11,10 +11,12 @@ class LabelTask(BaseTask):
 
     def __init__(self, date: str = "", attribute: str = "",
                  content: str = "", comment: str = "",
+                 create_date: str = "",
                  label_list: list[tuple[str, str]] | None = None):
         super().__init__()
         self.type = "label"
         self.version = "label"
+        self.create_date = create_date
         self.date = date
         self.attribute = attribute
         self.content = content
@@ -25,6 +27,7 @@ class LabelTask(BaseTask):
         return OrderedDict([
             ("type", self.type),
             ("version", self.version),
+            ("create_date", self.create_date),
             ("date", self.date),
             ("attribute", self.attribute),
             ("content", self.content),
@@ -42,6 +45,7 @@ class LabelTask(BaseTask):
             attribute=data.get("attribute", ""),
             content=data.get("content", ""),
             comment=data.get("comment", ""),
+            create_date=data.get("create_date", ""),
             label_list=pairs,
         )
 

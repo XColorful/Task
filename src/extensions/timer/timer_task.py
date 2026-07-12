@@ -13,10 +13,12 @@ class TimerTask(BaseTask):
 
     def __init__(self, date: str = "", attribute: str = "",
                  content: str = "", comment: str = "",
+                 create_date: str = "",
                  start_time: str = "", end_time: str = ""):
         super().__init__()
         self.type = "timer"
         self.version = "timer"
+        self.create_date = create_date
         self.date = date
         self.attribute = attribute
         self.content = content
@@ -44,6 +46,7 @@ class TimerTask(BaseTask):
         return OrderedDict([
             ("type", self.type),
             ("version", self.version),
+            ("create_date", self.create_date),
             ("date", self.date),
             ("attribute", self.attribute),
             ("content", self.content),
@@ -59,6 +62,7 @@ class TimerTask(BaseTask):
             attribute=data.get("attribute", ""),
             content=data.get("content", ""),
             comment=data.get("comment", ""),
+            create_date=data.get("create_date", ""),
             start_time=data.get("start_time", ""),
             end_time=data.get("end_time", ""),
         )

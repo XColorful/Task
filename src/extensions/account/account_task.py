@@ -14,12 +14,14 @@ class AccountTask(BaseTask):
 
     def __init__(self, date: str = "", attribute: str = "",
                  content: str = "", comment: str = "",
+                 create_date: str = "",
                  account_type: str = "", label_alias: str = "",
                  password: str = "",
                  supplementary: dict[str, list[str]] | None = None):
         super().__init__()
         self.type = "account"
         self.version = "account"
+        self.create_date = create_date
         self.date = date
         self.attribute = attribute
         self.content = content
@@ -37,6 +39,7 @@ class AccountTask(BaseTask):
         return OrderedDict([
             ("type", self.type),
             ("version", self.version),
+            ("create_date", self.create_date),
             ("date", self.date),
             ("attribute", self.attribute),
             ("content", self.content),
@@ -54,6 +57,7 @@ class AccountTask(BaseTask):
             attribute=data.get("attribute", ""),
             content=data.get("content", ""),
             comment=data.get("comment", ""),
+            create_date=data.get("create_date", ""),
             account_type=data.get("account_type", ""),
             label_alias=data.get("label_alias", data.get("account_type", "")),
             password=data.get("password", ""),

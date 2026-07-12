@@ -39,9 +39,9 @@ class TaskTableWidget(QWidget):
 
         layout.addWidget(self._table)
 
-    def set_tasks(self, tasks):
-        self._model.set_tasks(tasks)
-        self._table.scrollToTop()
+    def set_tasks(self, tasks, total_count=None):
+        self._model.set_tasks(tasks, total_count=total_count)
+        self._table.scrollToBottom()
 
     def append_tasks(self, tasks):
         self._model.append_tasks(tasks)

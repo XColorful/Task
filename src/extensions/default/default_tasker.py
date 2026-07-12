@@ -26,6 +26,7 @@ class DefaultTasker(BaseTasker):
         from .default_task import DefaultTask
         from util.date_utils import today_str
         return DefaultTask(
+            create_date=fields.get("create_date", today_str()),
             date=fields.get("date", today_str()),
             attribute=fields.get("attribute", "N/A"),
             content=fields.get("content", ""),
@@ -40,6 +41,7 @@ class DefaultTasker(BaseTasker):
             "attribute": preset.get("attribute", "N/A"),
             "content": preset.get("content", ""),
             "comment": preset.get("comment", ""),
+            "create_date": today_str(),
         }
         if not fields["content"]:
             return None

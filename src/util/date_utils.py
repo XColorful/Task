@@ -55,3 +55,11 @@ def format_duration(minutes: int) -> str:
     if minutes > 0:
         parts.append(f"{minutes:>2}m")
     return " ".join(parts)
+
+
+def convert_to_int(s: str):
+    """尝试将字符串转换为 int，失败返回 None。"""
+    try:
+        return int(s)
+    except (ValueError, TypeError):
+        return None
