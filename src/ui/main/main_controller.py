@@ -582,4 +582,9 @@ class MainController(QObject):
 
     def set_search_engine(self, engine):
         self._search_engine = engine
-
+
+    def set_analysis_engine(self, engine):
+        self._analysis_engine = engine
+
+    def set_chart_server(self, server):
+        self._chart_server = server
