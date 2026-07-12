@@ -44,6 +44,7 @@ class LabelTasker(BaseTasker):
             attribute=fields.get("attribute", ""),
             content=fields.get("content", ""),
             comment=fields.get("comment", ""),
+            create_date=fields.get("create_date", ""),
             label_list=fields.get("label_list", []),
         )
 

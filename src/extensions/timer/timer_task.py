@@ -69,10 +69,11 @@ class TimerTask(BaseTask):
 
     def matches_search(self, query: str) -> bool:
         q = query.lower()
-        return any(q in str(f).lower() for f in [
+        fields = [
             self.date, self.attribute, self.content, self.comment,
             self.start_time, self.end_time,
-        ])
+        ]
+        return any(q in str(f).lower() for f in fields)
 
     def __str__(self) -> str:
         return f"{self.start_time}|{self.end_time}|{self.attribute}|{self.content}"

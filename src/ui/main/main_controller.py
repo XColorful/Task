@@ -104,7 +104,8 @@ class MainController(QObject):
         from ui.task.task_table_widget import TaskTableWidget
         self._task_table = TaskTableWidget()
         total = getattr(tasker, '_total_task_count', len(tasker.task_list))
-        self._task_table.set_tasks(tasker.task_list, total_count=total)
+        partial = getattr(tasker, '_partial_load', False)
+        self._task_table.set_tasks(tasker.task_list, total_count=total, partial=partial)
         self._window.content_area.addWidget(self._task_table)
         self._window.content_area.setCurrentWidget(self._task_table)
 
