@@ -44,9 +44,17 @@ class TxtImporter:
                     task_count += len(current_tasks)
                 parts = line.split("||||")
                 if len(parts) >= 7:
+                    old_type = parts[0].lower()
+                    version = parts[1]
+                    if old_type == "extra" and version in ("timer", "account", "label"):
+                        mapped_type = version
+                    elif old_type == "default":
+                        mapped_type = "default"
+                    else:
+                        mapped_type = old_type
                     current_tasker = {
-                        "type": parts[0].lower(),
-                        "version": parts[1],
+                        "type": mapped_type,
+                        "version": version,
                         "label": parts[2],
                         "create_date": parts[3],
                         "description": parts[6],
@@ -63,23 +71,28 @@ class TxtImporter:
         return len(tasker_list), task_count
 
     def _parse_task_line(self, line):
-        """Parse a task line, handling type-specific field layouts.
+        """Parse a task line with type-specific field layouts.
 
-        Default task (7 fields):
+        Old format:
+          Default task (7 fields):
             type, version, create_date, date, attribute, content, comment
+          Timer task (8 fields):
+            Extra, timer, create_date, start_time, end_time, attribute, content, comment
 
-        Timer task (8 fields, type="Extra", version="timer"):
-            type, version, create_date, start_time, end_time, attribute, content, comment
+        New format stores type = "timer" (from version) for Extra tasks,
+        and type = "default" for Default tasks.
         """
         parts = line.split("||||")
         if len(parts) < 7:
             return None
 
         ttype = parts[0].lower()
-        if ttype == "timer" and len(parts) >= 8:
+        version = parts[1]
+
+        if (ttype == "extra" or ttype == "timer") and version == "timer" and len(parts) >= 8:
             return OrderedDict([
-                ("type", ttype),
-                ("version", parts[1]),
+                ("type", "timer"),
+                ("version", "timer"),
                 ("date", ""),
                 ("start_time", parts[3]),
                 ("end_time", parts[4]),
@@ -89,7 +102,7 @@ class TxtImporter:
             ])
         else:
             return OrderedDict([
-                ("type", ttype),
+                ("type", "default"),
                 ("version", parts[1]),
                 ("date", parts[3]),
                 ("attribute", parts[4]),
